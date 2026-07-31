@@ -1,5 +1,12 @@
 import React from 'react';
 
+const LINKS = [
+  { label: 'Privacy Policy', href: '#' },
+  { label: 'Termini di Servizio', href: '#' },
+  { label: 'Contatti', href: '#' },
+  { label: 'Chi Siamo', href: '#' },
+];
+
 export default function FooterSection() {
   return (
     <footer className="bg-[#1d1d1f] border-t border-white/10 py-10 px-6 lg:px-8">
@@ -12,15 +19,15 @@ export default function FooterSection() {
         </div>
 
         <nav className="flex flex-wrap gap-6 justify-center">
-          {['Privacy Policy', 'Terms of Service', 'Contact', 'About Us'].map((link) => (
-            <a key={link} href="#" className="text-[#6e6e73] text-sm hover:text-white transition-colors">
-              {link}
+          {LINKS.map((link) => (
+            <a key={link.label} href={link.href} className="text-[#6e6e73] text-sm hover:text-white transition-colors">
+              {link.label}
             </a>
           ))}
         </nav>
 
         <p className="text-[#6e6e73] text-sm">
-          © 2025 TechStore. All rights reserved.
+          © 2025 TechStore. Tutti i diritti riservati.
         </p>
       </div>
     </footer>

@@ -1,25 +1,27 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Image } from '@/components/ui/image';
+import { fadeUp, staggerContainer, staggerItem } from '@/lib/motion';
 
 const BLOGS = [
   {
     id: 1,
-    title: 'Your Tech Setup',
-    excerpt: 'Building a setup that works for you starts with clarity, not complexity.',
+    title: 'Il Tuo Setup Tecnologico',
+    excerpt: 'Costruire un setup che funziona per te parte dalla chiarezza, non dalla complessità.',
     image: 'https://media.base44.com/images/public/user_6a6d2ae9b2386fa15db72587/902e6c914_IMG_1323.jpg',
     tag: 'Lifestyle',
   },
   {
     id: 2,
-    title: 'Modern Product Design',
-    excerpt: 'Where technology meets intention, simplicity, and long-term value.',
+    title: 'Design del Prodotto Moderno',
+    excerpt: 'Dove la tecnologia incontra l\'intenzione, la semplicità e il valore a lungo termine.',
     image: 'https://media.base44.com/images/public/user_6a6d2ae9b2386fa15db72587/97f593e8b_IMG_1343.jpg',
     tag: 'Design',
   },
   {
     id: 3,
-    title: 'About Our Products',
-    excerpt: 'A transparent look at the standards, thinking, and philosophy behind our products.',
+    title: 'Sui Nostri Prodotti',
+    excerpt: 'Uno sguardo trasparente sugli standard, il pensiero e la filosofia dietro i nostri prodotti.',
     image: 'https://media.base44.com/images/public/user_6a6d2ae9b2386fa15db72587/87b8a282b_IMG_1368.jpg',
     tag: 'Brand',
   },
@@ -29,24 +31,40 @@ export default function BlogSection() {
   return (
     <section id="blogs" className="py-20 px-6 lg:px-8 bg-[#f5f5f7]">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-10 gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-60px' }}
+          transition={{ duration: 0.6 }}
+          className="flex flex-col md:flex-row md:items-end md:justify-between mb-10 gap-4"
+        >
           <div>
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#FF6B35] mb-3">Blogs</p>
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#FF6B35] mb-3">Blog</p>
             <h2 className="text-4xl md:text-5xl font-bold text-[#1d1d1f] tracking-tight">
-              Check out our blogs
+              Scopri il Nostro Blog
             </h2>
             <p className="mt-3 text-[#6e6e73] max-w-sm">
-              Explore stories, tips, and insights that matter.
+              Esplora storie, consigli e approfondimenti che contano.
             </p>
           </div>
-          <button className="self-start md:self-auto px-6 py-3 text-sm font-semibold text-[#1d1d1f] border border-[#d2d2d7] rounded-full hover:border-[#FF6B35] hover:text-[#FF6B35] transition-colors">
-            More Blog Posts
-          </button>
-        </div>
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            transition={{ duration: 0.2 }}
+            className="self-start md:self-auto px-6 py-3 text-sm font-semibold text-[#1d1d1f] border border-[#d2d2d7] rounded-full hover:border-[#FF6B35] hover:text-[#FF6B35] transition-colors"
+          >
+            Altri Articoli
+          </motion.button>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <motion.div {...staggerContainer} className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {BLOGS.map((blog) => (
-            <article key={blog.id} className="group bg-white rounded-2xl overflow-hidden cursor-pointer">
+            <motion.article
+              key={blog.id}
+              {...staggerItem}
+              whileHover={{ y: -6 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              className="group bg-white rounded-2xl overflow-hidden cursor-pointer"
+            >
               <div className="relative overflow-hidden" style={{ paddingBottom: '66%' }}>
                 <div className="absolute inset-0">
                   <Image
@@ -66,9 +84,9 @@ export default function BlogSection() {
                 <h3 className="text-base font-bold text-[#1d1d1f] mb-2 group-hover:text-[#FF6B35] transition-colors">{blog.title}</h3>
                 <p className="text-sm text-[#6e6e73] leading-relaxed">{blog.excerpt}</p>
               </div>
-            </article>
+            </motion.article>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

@@ -3,6 +3,7 @@ import PromoBanner from '@/components/PromoBanner';
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
 import CategoriesSection from '@/components/CategoriesSection';
+import FeaturesSection from '@/components/FeaturesSection';
 import PopularProducts from '@/components/PopularProducts';
 import TestimonialsSection from '@/components/TestimonialsSection';
 import AboutSection from '@/components/AboutSection';
@@ -18,6 +19,7 @@ export default function Home() {
       <main>
         <HeroSection />
         <CategoriesSection />
+        <FeaturesSection />
         <PopularProducts />
         <TestimonialsSection />
         <AboutSection />

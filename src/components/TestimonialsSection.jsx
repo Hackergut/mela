@@ -1,73 +1,39 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { motion } from 'framer-motion';
+import { fadeUp, staggerContainer, staggerItem } from '@/lib/motion';
 
 const TESTIMONIALS = [
-  {
-    id: 1,
-    text: "The build quality is excellent and the overall experience feels premium. Setup was straightforward and everything worked as expected.",
-    name: "Ethan Brooks",
-    role: "Director",
-    avatar: "EB",
-    color: "bg-blue-500",
-  },
-  {
-    id: 2,
-    text: "Everything works as expected and feels well put together. Setup was easy and the experience has been smooth so far.",
-    name: "Ava Mitchell",
-    role: "Creative Director",
-    avatar: "AM",
-    color: "bg-purple-500",
-  },
-  {
-    id: 3,
-    text: "The overall experience feels balanced and well executed. Setup took only a few minutes and worked without issues.",
-    name: "Ethan Walker",
-    role: "Brand Designer",
-    avatar: "EW",
-    color: "bg-green-500",
-  },
-  {
-    id: 4,
-    text: "It integrates well into an existing setup and doesn't require much adjustment. After a short setup, it was ready to use.",
-    name: "Emily Collins",
-    role: "Sound Designer",
-    avatar: "EC",
-    color: "bg-pink-500",
-  },
-  {
-    id: 5,
-    text: "The quality is immediately noticeable and it feels great to use. Everything works smoothly and the overall experience is genuinely satisfying.",
-    name: "James Walker",
-    role: "Music Producer",
-    avatar: "JW",
-    color: "bg-orange-500",
-  },
-  {
-    id: 6,
-    text: "You can tell right away that this is a well-made product. It feels reliable, thoughtfully designed, and enjoyable to use.",
-    name: "Isabella Reed",
-    role: "Audio Engineer",
-    avatar: "IR",
-    color: "bg-teal-500",
-  },
+  { id: 1, text: "La qualità costruttiva è eccellente e l'esperienza generale è premium. La configurazione è stata semplice e tutto ha funzionato come previsto.", name: "Marco Rossi", role: "Direttore", avatar: "MR", color: "bg-blue-500" },
+  { id: 2, text: "Tutto funziona come previsto e sembra curato nei minimi dettagli. La configurazione è stata facile e l'esperienza fluida.", name: "Giulia Bianchi", role: "Direttrice Creativa", avatar: "GB", color: "bg-purple-500" },
+  { id: 3, text: "L'esperienza generale è equilibrata e curata. La configurazione ha richiesto solo pochi minuti e senza problemi.", name: "Luca Ferrari", role: "Designer", avatar: "LF", color: "bg-green-500" },
+  { id: 4, text: "Si integra perfettamente in un setup esistente senza richiedere grandi adattamenti. Dopo una breve configurazione, era pronto all'uso.", name: "Sofia Romano", role: "Sound Designer", avatar: "SR", color: "bg-pink-500" },
+  { id: 5, text: "La qualità si nota subito ed è un piacere usarlo. Tutto funziona fluidamente e l'esperienza è davvero soddisfacente.", name: "Davide Conti", role: "Music Producer", avatar: "DC", color: "bg-orange-500" },
+  { id: 6, text: "Si capisce subito che è un prodotto ben fatto. Affidabile, curato nel design e piacevole da utilizzare ogni giorno.", name: "Chiara Esposito", role: "Ingegnere del Suono", avatar: "CE", color: "bg-teal-500" },
 ];
 
 export default function TestimonialsSection() {
   return (
     <section className="py-20 px-6 lg:px-8 bg-[#f5f5f7]">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#FF6B35] mb-3">Testimonials</p>
+        <motion.div {...fadeUp} className="text-center mb-12">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#FF6B35] mb-3">Testimonianze</p>
           <h2 className="text-4xl md:text-5xl font-bold text-[#1d1d1f] tracking-tight">
-            See what our customers<br />think about us.
+            Cosa Dicono i Nostri<br />Clienti di Noi.
           </h2>
           <p className="mt-4 text-[#6e6e73] max-w-md mx-auto">
-            Read real reviews from people who use our products every day.
+            Leggi le recensioni reali di chi usa i nostri prodotti ogni giorno.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <motion.div {...staggerContainer} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {TESTIMONIALS.map((t) => (
-            <div key={t.id} className="bg-white rounded-2xl p-6 flex flex-col gap-4">
+            <motion.div
+              key={t.id}
+              {...staggerItem}
+              whileHover={{ y: -4 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              className="bg-white rounded-2xl p-6 flex flex-col gap-4"
+            >
               <div className="flex gap-1">
                 {[...Array(5)].map((_, i) => (
                   <svg key={i} width="16" height="16" viewBox="0 0 16 16" fill="#FF6B35">
@@ -85,9 +51,9 @@ export default function TestimonialsSection() {
                   <p className="text-xs text-[#6e6e73]">{t.role}</p>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

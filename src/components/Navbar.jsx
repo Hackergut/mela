@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -15,6 +16,13 @@ export default function Navbar() {
     setMenuOpen(false);
   };
 
+  const NAV_LINKS = [
+    { label: 'Categorie', id: 'categories' },
+    { label: 'Prodotti', id: 'products' },
+    { label: 'Blog', id: 'blogs' },
+    { label: 'Newsletter', id: 'newsletter' },
+  ];
+
   return (
     <header className={`sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-md shadow-sm' : 'bg-white'}`}>
       <div className="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -29,12 +37,7 @@ export default function Navbar() {
 
         {/* Nav Links */}
         <nav className="hidden md:flex items-center gap-1">
-          {[
-            { label: 'Categories', id: 'categories' },
-            { label: 'Products', id: 'products' },
-            { label: 'Blogs', id: 'blogs' },
-            { label: 'Newsletter', id: 'newsletter' },
-          ].map(({ label, id }) => (
+          {NAV_LINKS.map(({ label, id }) => (
             <button
               key={id}
               onClick={() => scrollTo(id)}
@@ -51,7 +54,7 @@ export default function Navbar() {
             onClick={() => scrollTo('newsletter')}
             className="px-5 py-2 text-sm font-medium text-white bg-[#1d1d1f] rounded-full hover:bg-[#FF6B35] transition-colors duration-200"
           >
-            Join Newsletter
+            Iscriviti
           </button>
         </div>
 
@@ -70,30 +73,35 @@ export default function Navbar() {
       </div>
 
       {/* Mobile dropdown */}
-      {menuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100 px-6 py-4 space-y-1">
-          {[
-            { label: 'Categories', id: 'categories' },
-            { label: 'Products', id: 'products' },
-            { label: 'Blogs', id: 'blogs' },
-            { label: 'Newsletter', id: 'newsletter' },
-          ].map(({ label, id }) => (
-            <button
-              key={id}
-              onClick={() => scrollTo(id)}
-              className="block w-full text-left px-4 py-3 text-sm text-[#1d1d1f] hover:text-[#FF6B35] font-medium rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              {label}
-            </button>
-          ))}
-          <button
-            onClick={() => scrollTo('newsletter')}
-            className="mt-2 w-full px-4 py-3 text-sm font-medium text-white bg-[#1d1d1f] rounded-full hover:bg-[#FF6B35] transition-colors"
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden bg-white border-t border-gray-100 overflow-hidden"
           >
-            Join Newsletter
-          </button>
-        </div>
-      )}
+            <div className="px-6 py-4 space-y-1">
+              {NAV_LINKS.map(({ label, id }) => (
+                <button
+                  key={id}
+                  onClick={() => scrollTo(id)}
+                  className="block w-full text-left px-4 py-3 text-sm text-[#1d1d1f] hover:text-[#FF6B35] font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  {label}
+                </button>
+              ))}
+              <button
+                onClick={() => scrollTo('newsletter')}
+                className="mt-2 w-full px-4 py-3 text-sm font-medium text-white bg-[#1d1d1f] rounded-full hover:bg-[#FF6B35] transition-colors"
+              >
+                Iscriviti
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
