@@ -8,6 +8,7 @@ import FooterSection from '@/components/FooterSection';
 import { Image } from '@/components/ui/image';
 import { fadeUp, staggerContainer, staggerItem, heroEntrance } from '@/lib/motion';
 import { PRODUCT_CATALOG } from '@/lib/productCatalog';
+import { PRODUCT_KEY_SPECS } from '@/lib/productSpecs';
 
 const SPECS_BY_CATEGORY = {
   'iPhone': [
@@ -92,6 +93,29 @@ export default function SchedaProdotto() {
   }, [product]);
 
   const specs = product ? (SPECS_BY_CATEGORY[product.category] || []) : [];
+
+  // Prodotti da confrontare: corrente + fino a 3 correlati della stessa categoria
+  const compareProducts = useMemo(() => {
+    if (!product) return [];
+    const related = PRODUCT_CATALOG
+      .filter(p => p.category === product.category && p.id !== product.id)
+      .slice(0, 3);
+    return [product, ...related];
+  }, [product]);
+
+  // Righe della tabella: etichette derivate dalle keySpecs
+  const compareRows = useMemo(() => {
+    if (compareProducts.length === 0) return [];
+    const labels = Object.keys(PRODUCT_KEY_SPECS[compareProducts[0].id] || {});
+    return ['Prezzo', ...labels, 'Categoria', 'Disponibilità'];
+  }, [compareProducts]);
+
+  const getCompareValue = (prod, label) => {
+    if (label === 'Prezzo') return prod.price;
+    if (label === 'Categoria') return prod.category;
+    if (label === 'Disponibilità') return prod.badge || 'Disponibile';
+    return PRODUCT_KEY_SPECS[prod.id]?.[label] || '—';
+  };
 
   if (!product) {
     return (
@@ -226,6 +250,78 @@ export default function SchedaProdotto() {
           </motion.div>
         </div>
       </section>
+
+      {/* Tabella comparazione tecnica */}
+      {compareProducts.length > 1 && (
+        <section className="py-16 px-6 lg:px-8 bg-[#f5f5f7]">
+          <div className="max-w-7xl mx-auto">
+            <motion.div {...fadeUp} className="mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold text-[#1d1d1f] tracking-tight">Confronta i Modelli Simili</h2>
+              <p className="mt-2 text-[#6e6e73]">Confronta le specifiche tecniche del prodotto selezionato con altri modelli della categoria {product.category}.</p>
+            </motion.div>
+
+            <motion.div {...fadeUp} className="overflow-x-auto">
+              <table className="w-full border-collapse min-w-[640px]">
+                <thead>
+                  <tr>
+                    <th className="bg-white p-4 text-left text-sm font-semibold text-[#6e6e73] rounded-tl-2xl sticky left-0 z-10 w-40">
+                      Specifica
+                    </th>
+                    {compareProducts.map((p, i) => (
+                      <th
+                        key={p.id}
+                        className={`bg-white p-4 text-center align-bottom ${i === 0 ? 'ring-2 ring-[#FF6B35] ring-inset' : ''} ${i === compareProducts.length - 1 ? 'rounded-tr-2xl' : ''}`}
+                      >
+                        <Link to={`/scheda-prodotto?id=${p.id}`} className="block group">
+                          <div className="w-20 h-20 mx-auto mb-3 rounded-xl overflow-hidden bg-[#f5f5f7]">
+                            <Image src={p.image} alt={p.name} className="w-full h-full" fittingType="fill" />
+                          </div>
+                          <p className="text-xs font-semibold text-[#1d1d1f] leading-snug line-clamp-2 group-hover:text-[#FF6B35] transition-colors">{p.name}</p>
+                          {i === 0 && (
+                            <span className="inline-block mt-2 px-2 py-0.5 bg-[#FF6B35] text-white text-[10px] font-bold rounded-full uppercase tracking-wide">Selezionato</span>
+                          )}
+                        </Link>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {compareRows.map((label, rowIdx) => (
+                    <tr key={label} className={rowIdx % 2 === 0 ? 'bg-white' : 'bg-[#fafafa]'}>
+                      <td className={`p-4 text-left text-sm font-medium text-[#6e6e73] sticky left-0 z-10 ${rowIdx % 2 === 0 ? 'bg-white' : 'bg-[#fafafa]'}`}>
+                        {label}
+                      </td>
+                      {compareProducts.map((p, i) => (
+                        <td
+                          key={p.id}
+                          className={`p-4 text-center text-sm text-[#1d1d1f] ${i === 0 ? 'bg-[#FF6B35]/5 font-semibold ring-2 ring-[#FF6B35] ring-inset' : ''}`}
+                        >
+                          {getCompareValue(p, label)}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                  <tr>
+                    <td className="bg-white p-4 sticky left-0 z-10 rounded-bl-2xl"></td>
+                    {compareProducts.map((p, i) => (
+                      <td key={p.id} className={`bg-white p-4 text-center ${i === compareProducts.length - 1 ? 'rounded-br-2xl' : ''}`}>
+                        <Link
+                          to={`/scheda-prodotto?id=${p.id}`}
+                          className={`inline-block px-4 py-2 text-xs font-semibold rounded-full transition-colors ${
+                            i === 0 ? 'bg-[#FF6B35] text-white' : 'bg-[#1d1d1f] text-white hover:bg-[#FF6B35]'
+                          }`}
+                        >
+                          {i === 0 ? 'Nel carrello' : 'Vedi dettagli'}
+                        </Link>
+                      </td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
+            </motion.div>
+          </div>
+        </section>
+      )}
 
       {/* Prodotti correlati */}
       {relatedProducts.length > 0 && (
