@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { Image } from '@/components/ui/image';
 import { fadeUp, staggerContainer, staggerItem } from '@/lib/motion';
 import { PRODUCT_CATALOG, CATEGORIES } from '@/lib/productCatalog';
@@ -96,40 +97,42 @@ export default function PopularProducts() {
 
 function ProductCard({ product }) {
   return (
-    <motion.div
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.3, ease: 'easeOut' }}
-      className="group bg-[#f5f5f7] rounded-2xl overflow-hidden cursor-pointer h-full flex flex-col"
-    >
-      <div className="relative overflow-hidden" style={{ paddingBottom: '100%' }}>
-        <div className="absolute inset-0">
-          <Image
-            src={product.image}
-            alt={product.name}
-            className="w-full h-full transition-transform duration-500 group-hover:scale-105"
-            fittingType="fill"
-          />
-        </div>
-        {product.badge && (
-          <div className="absolute top-3 left-3 px-2.5 py-1 bg-[#FF6B35] text-white text-xs font-semibold rounded-full">
-            {product.badge}
+    <Link to={`/scheda-prodotto?id=${product.id}`} className="block h-full">
+      <motion.div
+        whileHover={{ y: -4 }}
+        transition={{ duration: 0.3, ease: 'easeOut' }}
+        className="group bg-[#f5f5f7] rounded-2xl overflow-hidden cursor-pointer h-full flex flex-col"
+      >
+        <div className="relative overflow-hidden" style={{ paddingBottom: '100%' }}>
+          <div className="absolute inset-0">
+            <Image
+              src={product.image}
+              alt={product.name}
+              className="w-full h-full transition-transform duration-500 group-hover:scale-105"
+              fittingType="fill"
+            />
           </div>
-        )}
-        <div className="absolute top-3 right-3 px-2.5 py-1 bg-white/90 backdrop-blur-sm text-[#1d1d1f] text-xs font-semibold rounded-full">
-          {product.category}
+          {product.badge && (
+            <div className="absolute top-3 left-3 px-2.5 py-1 bg-[#FF6B35] text-white text-xs font-semibold rounded-full">
+              {product.badge}
+            </div>
+          )}
+          <div className="absolute top-3 right-3 px-2.5 py-1 bg-white/90 backdrop-blur-sm text-[#1d1d1f] text-xs font-semibold rounded-full">
+            {product.category}
+          </div>
         </div>
-      </div>
-      <div className="p-3 md:p-4 flex flex-col flex-1">
-        <p className="text-xs text-[#6e6e73] mb-1 font-medium uppercase tracking-wide">Disponibile</p>
-        <h3 className="text-sm font-semibold text-[#1d1d1f] leading-snug mb-2 line-clamp-2">{product.name}</h3>
-        <p className="text-xs text-[#6e6e73] leading-relaxed mb-3 line-clamp-3 flex-1">{product.description}</p>
-        <div className="flex items-center justify-between mt-auto">
-          <p className="text-sm font-bold text-[#1d1d1f]">{product.price}</p>
-          <button className="px-3 py-1.5 bg-[#1d1d1f] text-white text-xs font-semibold rounded-full hover:bg-[#FF6B35] transition-colors">
-            Dettagli
-          </button>
+        <div className="p-3 md:p-4 flex flex-col flex-1">
+          <p className="text-xs text-[#6e6e73] mb-1 font-medium uppercase tracking-wide">Disponibile</p>
+          <h3 className="text-sm font-semibold text-[#1d1d1f] leading-snug mb-2 line-clamp-2">{product.name}</h3>
+          <p className="text-xs text-[#6e6e73] leading-relaxed mb-3 line-clamp-3 flex-1">{product.description}</p>
+          <div className="flex items-center justify-between mt-auto">
+            <p className="text-sm font-bold text-[#1d1d1f]">{product.price}</p>
+            <span className="px-3 py-1.5 bg-[#1d1d1f] text-white text-xs font-semibold rounded-full group-hover:bg-[#FF6B35] transition-colors">
+              Dettagli
+            </span>
+          </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </Link>
   );
 }
