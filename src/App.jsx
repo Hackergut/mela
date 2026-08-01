@@ -8,6 +8,8 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 // Add page imports here
 import Home from './pages/Home';
+import Catalogo from './pages/Catalogo';
+import SchedaProdotto from './pages/SchedaProdotto';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -36,6 +38,8 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/catalogo" element={<Catalogo />} />
+      <Route path="/scheda-prodotto" element={<SchedaProdotto />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

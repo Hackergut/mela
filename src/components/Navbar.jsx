@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 export default function Navbar() {
+  const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -16,11 +18,23 @@ export default function Navbar() {
     setMenuOpen(false);
   };
 
+  const goCatalog = () => {
+    navigate('/catalogo');
+    setMenuOpen(false);
+  };
+
+  const goHomeAndScroll = (id) => {
+    navigate('/');
+    setTimeout(() => scrollTo(id), 100);
+    setMenuOpen(false);
+  };
+
   const NAV_LINKS = [
-    { label: 'Categorie', id: 'categories' },
-    { label: 'Prodotti', id: 'products' },
-    { label: 'Blog', id: 'blogs' },
-    { label: 'Newsletter', id: 'newsletter' },
+    { label: 'Catalogo', action: goCatalog },
+    { label: 'Categorie', action: () => goHomeAndScroll('categories') },
+    { label: 'Prodotti', action: () => goHomeAndScroll('products') },
+    { label: 'Blog', action: () => goHomeAndScroll('blogs') },
+    { label: 'Newsletter', action: () => goHomeAndScroll('newsletter') },
   ];
 
   return (
@@ -37,10 +51,10 @@ export default function Navbar() {
 
         {/* Nav Links */}
         <nav className="hidden md:flex items-center gap-1">
-          {NAV_LINKS.map(({ label, id }) => (
+          {NAV_LINKS.map(({ label, action }) => (
             <button
-              key={id}
-              onClick={() => scrollTo(id)}
+              key={label}
+              onClick={action}
               className="px-4 py-2 text-sm text-[#1d1d1f] hover:text-[#FF6B35] transition-colors duration-200 rounded-full hover:bg-gray-50 font-medium"
             >
               {label}
@@ -83,17 +97,17 @@ export default function Navbar() {
             className="md:hidden bg-white border-t border-gray-100 overflow-hidden"
           >
             <div className="px-6 py-4 space-y-1">
-              {NAV_LINKS.map(({ label, id }) => (
+              {NAV_LINKS.map(({ label, action }) => (
                 <button
-                  key={id}
-                  onClick={() => scrollTo(id)}
+                  key={label}
+                  onClick={action}
                   className="block w-full text-left px-4 py-3 text-sm text-[#1d1d1f] hover:text-[#FF6B35] font-medium rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   {label}
                 </button>
               ))}
               <button
-                onClick={() => scrollTo('newsletter')}
+                onClick={() => goHomeAndScroll('newsletter')}
                 className="mt-2 w-full px-4 py-3 text-sm font-medium text-white bg-[#1d1d1f] rounded-full hover:bg-[#FF6B35] transition-colors"
               >
                 Iscriviti
