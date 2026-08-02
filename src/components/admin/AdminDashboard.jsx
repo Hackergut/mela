@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from 'recharts';
-import { Euro, ShoppingBag, Package, AlertTriangle, TrendingUp, Users, Loader2 } from 'lucide-react';
+import { Euro, ShoppingBag, Package, AlertTriangle, TrendingUp, Users, Loader2, Award } from 'lucide-react';
 
 const fmt = (c) => '€' + ((c || 0) / 100).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtK = (c) => { const v = (c || 0) / 100; return v >= 1000 ? '€' + (v / 1000).toFixed(1) + 'k' : '€' + Math.round(v); };
@@ -59,6 +59,17 @@ export default function AdminDashboard({ password }) {
 
   const recent = orders.slice(0, 6);
 
+  const topProducts = (() => {
+    const map = {};
+    paidOrders.forEach(o => (o.items || []).forEach(i => {
+      if (!i.name) return;
+      if (!map[i.name]) map[i.name] = { name: i.name, units: 0, revenue: 0 };
+      map[i.name].units += i.qty || 1;
+      map[i.name].revenue += (i.price_cents || 0) * (i.qty || 1);
+    }));
+    return Object.values(map).sort((a, b) => b.revenue - a.revenue).slice(0, 6);
+  })();
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
@@ -108,7 +119,24 @@ export default function AdminDashboard({ password }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="bg-white rounded-2xl p-5">
+          <h3 className="text-sm font-bold text-[#1d1d1f] mb-3 flex items-center gap-2"><Award size={15} className="text-[#FF6B35]" /> Prodotti più acquistati</h3>
+          {topProducts.length === 0 ? <p className="text-sm text-[#6e6e73] py-6 text-center">Nessuna vendita.</p> : (
+            <div className="space-y-1">
+              {topProducts.map((p, i) => (
+                <div key={p.name} className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
+                  <span className="w-6 h-6 rounded-lg bg-[#f5f5f7] text-xs font-bold text-[#1d1d1f] flex items-center justify-center flex-shrink-0">{i + 1}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-[#1d1d1f] truncate">{p.name}</p>
+                    <p className="text-xs text-[#6e6e73]">{p.units} unità</p>
+                  </div>
+                  <p className="text-sm font-bold text-[#1d1d1f] flex-shrink-0">{fmt(p.revenue)}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
         <div className="bg-white rounded-2xl p-5">
           <h3 className="text-sm font-bold text-[#1d1d1f] mb-3">Ordini recenti</h3>
           {recent.length === 0 ? <p className="text-sm text-[#6e6e73]">Nessun ordine.</p> : (
