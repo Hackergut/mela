@@ -78,6 +78,11 @@ export default function Admin() {
     await load(password);
   };
 
+  if (!authed) return <AdminLogin onLogin={handleLogin} />;
+
+  const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
+  const filtered = search ? products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.category.toLowerCase().includes(search.toLowerCase())) : products;
+
   const selectedIds = Object.keys(selected).filter(id => selected[id]);
   const filteredIds = filtered.map(p => p.id);
   const allSelected = filteredIds.length > 0 && filteredIds.every(id => selected[id]);
@@ -97,11 +102,6 @@ export default function Admin() {
       setSelected({}); await load(password);
     } catch (e) { setError(e.response?.data?.error || e.message); }
   };
-
-  if (!authed) return <AdminLogin onLogin={handleLogin} />;
-
-  const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
-  const filtered = search ? products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.category.toLowerCase().includes(search.toLowerCase())) : products;
 
   const TABS = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
