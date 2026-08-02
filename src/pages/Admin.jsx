@@ -16,10 +16,11 @@ import ReceiptsManager from '@/components/admin/ReceiptsManager';
 import ProductForm from '@/components/admin/ProductForm';
 import CategoryManager from '@/components/admin/CategoryManager';
 import AssetLibrary from '@/components/admin/AssetLibrary';
+import ShopifyManager from '@/components/admin/ShopifyManager';
 import PromoBanner from '@/components/PromoBanner';
 import Navbar from '@/components/Navbar';
 import { Image } from '@/components/ui/image';
-import { Plus, Pencil, Trash2, LogOut, Loader2, Package, FolderOpen, Images, LayoutDashboard, ShoppingCart, Boxes, Tags, Users, Search, Bell, Settings as SettingsIcon, BarChart3, Truck, RotateCcw, Receipt as ReceiptIcon } from 'lucide-react';
+import { Plus, Pencil, Trash2, LogOut, Loader2, Package, FolderOpen, Images, LayoutDashboard, ShoppingCart, Boxes, Tags, Users, Search, Bell, Settings as SettingsIcon, BarChart3, Truck, RotateCcw, Receipt as ReceiptIcon, ShoppingBag } from 'lucide-react';
 
 const PW_KEY = 'tm_admin_pw';
 const ROLE_KEY = 'tm_admin_role';
@@ -119,6 +120,7 @@ export default function Admin() {
     { id: 'team', label: 'Team', icon: Users },
     { id: 'notifiche', label: 'Notifiche', icon: Bell },
     { id: 'impostazioni', label: 'Impostazioni', icon: SettingsIcon },
+    { id: 'shopify', label: 'Shopify', icon: ShoppingBag },
   ];
 
   return (
@@ -175,6 +177,7 @@ export default function Admin() {
         {tab === 'team' && <TeamManager password={password} />}
         {tab === 'notifiche' && <NotificationsManager password={password} />}
         {tab === 'impostazioni' && <SettingsManager password={password} isSuperAdmin={isSuperAdmin} />}
+        {tab === 'shopify' && <ShopifyManager password={password} />}
 
         {tab === 'products' && (
           <div>
