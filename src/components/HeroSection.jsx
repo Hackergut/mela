@@ -4,26 +4,31 @@ import { heroEntrance } from '@/lib/motion';
 
 // Due iPhone 17 Pro (fronte) su sfondo bianco puro — si fonde con la hero chiara
 const MOCKUP_URL =
-  'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/123011d7c_IMG_1648.webp';
+  'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/65125ecb4_image.png';
 
 export default function HeroSection() {
   const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
 
   return (
-    <section className="relative bg-[#f5f5f7] pt-6 pb-0 px-4 lg:px-8 overflow-hidden">
+    <section className="relative bg-black pt-6 pb-0 px-4 lg:px-8 overflow-hidden">
+      {/* Fade verso la sezione chiara successiva */}
+      <div
+        className="absolute inset-x-0 bottom-0 h-32 md:h-48 z-20 pointer-events-none"
+        style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, #f5f5f7 100%)' }}
+      />
       <div className="max-w-5xl mx-auto relative z-10">
         {/* Sub-nav prodotto a pillola */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="mx-auto max-w-md mb-12 flex items-center justify-between gap-3 px-4 py-2.5 rounded-2xl bg-white/70 backdrop-blur-md border border-black/5"
+          className="mx-auto max-w-md mb-12 flex items-center justify-between gap-3 px-4 py-2.5 rounded-2xl bg-[#161616]/80 backdrop-blur-md border border-white/5"
         >
-          <span className="text-sm font-semibold text-[#1d1d1f] pl-1">iPhone 17 Pro</span>
+          <span className="text-sm font-semibold text-white pl-1">iPhone 17 Pro</span>
           <div className="flex items-center gap-2">
             <button
               onClick={() => scrollTo('categories')}
-              className="px-4 py-1.5 rounded-full border border-black/15 text-[#1d1d1f] text-xs font-medium hover:bg-black/5 transition-colors"
+              className="px-4 py-1.5 rounded-full border border-white/25 text-white text-xs font-medium hover:bg-white/10 transition-colors"
             >
               Esplora
             </button>
@@ -47,7 +52,7 @@ export default function HeroSection() {
         {/* Headline due righe */}
         <motion.h1
           {...heroEntrance(0.08)}
-          className="text-center text-4xl md:text-6xl lg:text-7xl font-bold text-[#1d1d1f] leading-[1.05] tracking-tight mb-8"
+          className="text-center text-4xl md:text-6xl lg:text-7xl font-bold text-[#F5F5F7] leading-[1.05] tracking-tight mb-8"
         >
           Tutto l'indispensabile.
           <br />
