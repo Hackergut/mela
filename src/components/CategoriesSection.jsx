@@ -3,43 +3,17 @@ import { motion } from 'framer-motion';
 import { Image } from '@/components/ui/image';
 import { fadeUp, staggerContainer, staggerItem } from '@/lib/motion';
 
+const IMG = 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b';
+
 const CATEGORIES = [
-  {
-    id: 'iphone',
-    name: 'iPhone',
-    count: '25 pezzi',
-    image: 'https://media.base44.com/images/public/user_6a6d2ae9b2386fa15db72587/987e67b20_IMG_1320.jpg',
-  },
-  {
-    id: 'applewatch',
-    name: 'Apple Watch',
-    count: '17 pezzi',
-    image: 'https://media.base44.com/images/public/user_6a6d2ae9b2386fa15db72587/5fde11a36_IMG_1337.jpeg',
-  },
-  {
-    id: 'airpodsmax',
-    name: 'AirPods Max',
-    count: '11 pezzi',
-    image: 'https://media.base44.com/images/public/user_6a6d2ae9b2386fa15db72587/b11fc911a_IMG_1355.jpg',
-  },
-  {
-    id: 'airpods',
-    name: 'AirPods',
-    count: '10 pezzi',
-    image: 'https://media.base44.com/images/public/user_6a6d2ae9b2386fa15db72587/0006a5bec_IMG_1366.jpeg',
-  },
-  {
-    id: 'ecosystem',
-    name: 'Ecosistema Apple',
-    count: '4 pezzi',
-    image: 'https://media.base44.com/images/public/user_6a6d2ae9b2386fa15db72587/9b1c8739d_IMG_1321.jpg',
-  },
-  {
-    id: 'bestsellers',
-    name: 'Più Venduti',
-    count: '20 pezzi',
-    image: 'https://media.base44.com/images/public/user_6a6d2ae9b2386fa15db72587/902e6c914_IMG_1323.jpg',
-  },
+  { id: 'iphone', name: 'iPhone', count: '24 pezzi', image: `${IMG}/bf58c6cc9_IMG_1706.png` },
+  { id: 'applewatch', name: 'Apple Watch', count: '12 pezzi', image: `${IMG}/f661dd828_IMG_1661.jpeg` },
+  { id: 'ipad', name: 'iPad', count: '9 pezzi', image: `${IMG}/4d118691e_IMG_1692.jpeg` },
+  { id: 'airpods', name: 'AirPods', count: '3 pezzi', image: `${IMG}/4d51436f9_IMG_1689.jpeg` },
+  { id: 'airpodsmax', name: 'AirPods Max', count: '2 pezzi', image: `${IMG}/a70b6b104_IMG_1709.png` },
+  { id: 'mac', name: 'Mac', count: '2 pezzi', image: `${IMG}/6eb07533c_IMG_1703.png` },
+  { id: 'accessori', name: 'Accessori', count: '10 pezzi', image: `${IMG}/79fd2128e_IMG_1690.jpeg` },
+  { id: 'ecosystem', name: 'Ecosistema Apple', count: '2 pezzi', image: `${IMG}/3e4cbc97a_IMG_1667.png` },
 ];
 
 export default function CategoriesSection() {

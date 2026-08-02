@@ -12,59 +12,43 @@ const MODELS = [
   {
     name: 'iPhone 17 Pro',
     tagline: 'Il più potente di sempre.',
-    price: '€1.099',
+    price: '€1.199',
     productId: 1,
     colors: [
-      { name: 'Arancione Cosmico', hex: '#E85D2F', image: `${IMG}/bb0ae7c20_IMG_1646.jpeg` },
-      { name: 'Deep Blue', hex: '#3B5B7A', image: `${IMG}/bbc5ad376_IMG_1647.jpeg` },
-      { name: 'Argento', hex: '#D8D8DC', image: `${IMG}/e0d184381_IMG_1648.webp` },
-    ],
-  },
-  {
-    name: 'iPhone 17 Pro Max',
-    tagline: 'Display grandissimo. Batteria lunga.',
-    price: '€1.199',
-    productId: 7,
-    colors: [
-      { name: 'Arancione Cosmico', hex: '#E85D2F', image: `${IMG}/65b3e0a90_IMG_1652.jpg` },
+      { name: 'Arancione Cosmico', hex: '#E85D2F', image: `${IMG}/a53ee8668_IMG_1669.webp` },
+      { name: 'Argento', hex: '#D8D8DC', image: `${IMG}/5eced5370_IMG_1679.webp` },
+      { name: 'Nero', hex: '#2C2C2E', image: `${IMG}/e0d184381_IMG_1648.webp` },
     ],
   },
   {
     name: 'iPhone 17 Air',
     tagline: 'Il più sottile mai realizzato.',
     price: '€999',
-    productId: 4,
+    productId: 14,
     colors: [
-      { name: 'Azzurro', hex: '#7BA7C9', image: `${IMG}/d7f4e4986_IMG_1649.jpg` },
-      { name: 'Bianco', hex: '#E8E8EC', image: `${IMG}/9330a7561_IMG_1650.jpg` },
+      { name: 'Azzurro', hex: '#7BA7C9', image: `${IMG}/ae167da00_IMG_1676.webp` },
+      { name: 'Bianco', hex: '#E8E8EC', image: `${IMG}/dabbb9a2e_IMG_1682.webp` },
     ],
   },
   {
     name: 'iPhone 17',
     tagline: 'Potenza per tutti.',
     price: '€899',
-    productId: 6,
+    productId: 11,
     colors: [
-      { name: 'Nero', hex: '#2C2C2E', image: `${IMG}/5c59fa55f_IMG_1651.jpg` },
-      { name: 'Arancione', hex: '#E8732F', image: `${IMG}/6af752a1f_IMG_1653.jpg` },
-    ],
-  },
-  {
-    name: 'iPhone 16 Pro',
-    tagline: 'Titanio. Pro all\'ennesima.',
-    price: '€999',
-    productId: 13,
-    colors: [
-      { name: 'Blu Notte', hex: '#2A3B5C', image: `${IMG}/a86207ae7_IMG_1658.jpeg` },
+      { name: 'Tutte le finiture', hex: '#8AB4F8', image: `${IMG}/37d4e3218_IMG_1673.webp` },
     ],
   },
   {
     name: 'iPhone 16',
     tagline: 'Il nuovo controllo fotocamera.',
     price: '€799',
-    productId: 10,
+    productId: 19,
     colors: [
-      { name: 'Lineup', hex: '#8AB4F8', image: `${IMG}/124b7c63f_IMG_1655.jpg` },
+      { name: 'Verde', hex: '#4E6B54', image: `${IMG}/bbc5ad376_IMG_1647.jpeg` },
+      { name: 'Viola', hex: '#8C7BB0', image: `${IMG}/41f49baf1_IMG_1674.webp` },
+      { name: 'Rosa', hex: '#E7B5C0', image: `${IMG}/bb0ae7c20_IMG_1646.jpeg` },
+      { name: 'Crema', hex: '#E5DCC8', image: `${IMG}/4fd4fd8a0_IMG_1681.webp` },
     ],
   },
 ];
@@ -91,7 +75,7 @@ export default function CompareSection() {
 
         {/* Header con frecce di scroll */}
         <div className="flex items-center justify-between mb-6">
-          <p className="text-sm font-medium text-[#6e6e73]">6 modelli a confronto</p>
+          <p className="text-sm font-medium text-[#6e6e73]">{MODELS.length} modelli a confronto</p>
           <div className="flex gap-2">
             <button
               onClick={() => scroll(-1)}

@@ -5,7 +5,7 @@ import { Image } from '@/components/ui/image';
 
 const COLOR_SWATCHES = [
   { name: 'Arancione Cosmico', color: '#E85D2F' },
-  { name: 'Deep Blue', color: '#3B5B7A' },
+  { name: 'Blu', color: '#3B5B7A' },
   { name: 'Argento', color: '#D8D8DC' },
 ];
 
@@ -35,7 +35,7 @@ export default function HeroSection() {
 
         {/* Prezzo stile Apple */}
         <motion.p {...heroEntrance(0.25)} className="text-sm text-white/50 mb-8">
-          Da <span className="text-white font-semibold">€1.099</span> o €45,79/mese per 24 mesi
+          Da <span className="text-white font-semibold">€1.199</span> o €49,95/mese per 24 mesi
         </motion.p>
 
         <motion.div {...heroEntrance(0.3)} className="flex flex-col sm:flex-row gap-3 justify-center mb-10">
@@ -73,7 +73,7 @@ export default function HeroSection() {
         >
           <div className="relative mx-auto" style={{ maxWidth: '900px' }}>
             <Image
-              src="https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/bb0ae7c20_IMG_1646.jpeg"
+              src="https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/f731cdad5_IMG_1704.png"
               alt="iPhone 17 Pro Arancione Cosmico"
               className="w-full h-auto"
               fittingType="fit"
