@@ -1,13 +1,12 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ShoppingCart, Heart, Share2, Check, Truck, Shield, RotateCcw, Headphones, Loader2, Plus } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Heart, Share2, Truck, Shield, RotateCcw, Headphones, Loader2, Plus } from 'lucide-react';
 import PromoBanner from '@/components/PromoBanner';
 import Navbar from '@/components/Navbar';
 import FooterSection from '@/components/FooterSection';
 import { Image } from '@/components/ui/image';
 import { fadeUp, staggerContainer, staggerItem, heroEntrance } from '@/lib/motion';
-import { PRODUCT_CATALOG } from '@/lib/productCatalog';
 import { PRODUCT_KEY_SPECS } from '@/lib/productSpecs';
 import { base44 } from '@/api/base44Client';
 import { useStore } from '@/lib/StoreContext';
@@ -90,10 +89,11 @@ export default function SchedaProdotto() {
   const navigate = useNavigate();
   const { addToCart, toggleWishlist, isInWishlist } = useStore();
   const params = new URLSearchParams(window.location.search);
-  const productId = parseInt(params.get('id'), 10);
+  const productId = params.get('id');
 
-  const product = useMemo(() => PRODUCT_CATALOG.find(p => p.id === productId), [productId]);
-
+  const [product, setProduct] = useState(null);
+  const [allProducts, setAllProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
   const [added, setAdded] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
@@ -102,49 +102,41 @@ export default function SchedaProdotto() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    setActiveImage(0);
-    setAdded(false);
-    setCheckoutError(null);
+    setActiveImage(0); setAdded(false); setCheckoutError(null);
     const urlParams = new URLSearchParams(window.location.search);
     const payment = urlParams.get('payment');
-    if (payment === 'success' || payment === 'cancelled') {
-      setPaymentStatus(payment);
-    } else {
-      setPaymentStatus(null);
-    }
+    setPaymentStatus(payment === 'success' || payment === 'cancelled' ? payment : null);
+  }, []);
+
+  useEffect(() => {
+    if (!productId) { setLoading(false); return; }
+    setLoading(true);
+    base44.entities.Product.get(productId)
+      .then(p => { setProduct(p); setLoading(false); })
+      .catch(() => { setProduct(null); setLoading(false); });
+    base44.entities.Product.list('-sort_order', 200).then(setAllProducts).catch(() => {});
   }, [productId]);
 
-  // Galleria: foto ufficiali del prodotto, oppure correlati se non disponibili
   const gallery = useMemo(() => {
     if (!product) return [];
-    if (product.images?.length) {
-      return product.images.map((url, i) => ({ url, name: `${product.name} — foto ${i + 1}` }));
-    }
-    const related = PRODUCT_CATALOG
-      .filter(p => p.category === product.category && p.id !== product.id)
-      .slice(0, 4);
+    if (product.images?.length) return product.images.map((url, i) => ({ url, name: `${product.name} — foto ${i + 1}` }));
+    const related = allProducts.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4);
     return [product, ...related].map(p => ({ url: p.image, name: p.name }));
-  }, [product]);
+  }, [product, allProducts]);
 
   const relatedProducts = useMemo(() => {
     if (!product) return [];
-    return PRODUCT_CATALOG
-      .filter(p => p.category === product.category && p.id !== product.id)
-      .slice(0, 4);
-  }, [product]);
+    return allProducts.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4);
+  }, [product, allProducts]);
 
   const specs = product ? (SPECS_BY_CATEGORY[product.category] || []) : [];
 
-  // Prodotti da confrontare: corrente + fino a 3 correlati della stessa categoria
   const compareProducts = useMemo(() => {
     if (!product) return [];
-    const related = PRODUCT_CATALOG
-      .filter(p => p.category === product.category && p.id !== product.id)
-      .slice(0, 3);
+    const related = allProducts.filter(p => p.category === product.category && p.id !== product.id).slice(0, 3);
     return [product, ...related];
-  }, [product]);
+  }, [product, allProducts]);
 
-  // Righe della tabella: etichette derivate dalle keySpecs
   const compareRows = useMemo(() => {
     if (compareProducts.length === 0) return [];
     const labels = Object.keys(PRODUCT_KEY_SPECS[compareProducts[0].id] || {});
@@ -188,19 +180,25 @@ export default function SchedaProdotto() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f5f5f7] font-sans flex flex-col">
+        <PromoBanner /><Navbar />
+        <div className="flex-1 flex items-center justify-center"><Loader2 className="animate-spin text-[#FF6B35]" size={28} /></div>
+        <FooterSection />
+      </div>
+    );
+  }
+
   if (!product) {
     return (
       <div className="min-h-screen bg-[#f5f5f7] font-sans flex flex-col">
-        <PromoBanner />
-        <Navbar />
+        <PromoBanner /><Navbar />
         <div className="flex-1 flex items-center justify-center px-6">
           <div className="text-center">
             <h1 className="text-3xl font-bold text-[#1d1d1f] mb-3">Prodotto non trovato</h1>
             <p className="text-[#6e6e73] mb-6">Il prodotto richiesto non è disponibile.</p>
-            <button
-              onClick={() => navigate('/catalogo')}
-              className="px-6 py-3 bg-[#1d1d1f] text-white text-sm font-semibold rounded-full hover:bg-[#FF6B35] transition-colors"
-            >
+            <button onClick={() => navigate('/catalogo')} className="px-6 py-3 bg-[#1d1d1f] text-white text-sm font-semibold rounded-full hover:bg-[#FF6B35] transition-colors">
               Vai al Catalogo
             </button>
           </div>
@@ -215,7 +213,6 @@ export default function SchedaProdotto() {
       <PromoBanner />
       <Navbar />
 
-      {/* Breadcrumb */}
       <div className="max-w-7xl mx-auto px-6 lg:px-8 pt-6">
         <Link to="/" className="inline-flex items-center gap-2 text-sm text-[#6e6e73] hover:text-[#FF6B35] transition-colors">
           <ArrowLeft size={16} /> Torna alla Home
@@ -229,39 +226,26 @@ export default function SchedaProdotto() {
         </div>
       </div>
 
-      {/* Dettaglio prodotto */}
       <section className="py-8 px-6 lg:px-8">
         {paymentStatus && (
-          <div className={`max-w-7xl mx-auto mb-6 px-5 py-4 rounded-2xl flex items-center justify-between ${
-            paymentStatus === 'success' ? 'bg-green-50 text-green-800' : 'bg-orange-50 text-orange-800'
-          }`}>
+          <div className={`max-w-7xl mx-auto mb-6 px-5 py-4 rounded-2xl flex items-center justify-between ${paymentStatus === 'success' ? 'bg-green-50 text-green-800' : 'bg-orange-50 text-orange-800'}`}>
             <p className="text-sm font-medium">
-              {paymentStatus === 'success'
-                ? '✓ Pagamento completato con successo. Grazie per il tuo acquisto!'
-                : 'Pagamento annullato. Puoi riprovare quando vuoi.'}
+              {paymentStatus === 'success' ? '✓ Pagamento completato con successo. Grazie per il tuo acquisto!' : 'Pagamento annullato. Puoi riprovare quando vuoi.'}
             </p>
             <button onClick={() => setPaymentStatus(null)} className="text-sm font-semibold hover:opacity-70">✕</button>
           </div>
         )}
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
-          {/* Galleria */}
           <motion.div {...heroEntrance(0)} className="lg:sticky lg:top-24">
             <div className="bg-white rounded-3xl overflow-hidden mb-4" style={{ aspectRatio: '1 / 1' }}>
-              <Image
-                src={gallery[activeImage]?.url || product.image}
-                alt={gallery[activeImage]?.name || product.name}
-                className="w-full h-full"
-                fittingType="fit"
-              />
+              <Image src={gallery[activeImage]?.url || product.image} alt={gallery[activeImage]?.name || product.name} className="w-full h-full" fittingType="fit" />
             </div>
             <div className="grid grid-cols-5 gap-2 md:gap-3">
               {gallery.map((img, i) => (
                 <button
                   key={i}
                   onClick={() => setActiveImage(i)}
-                  className={`rounded-xl overflow-hidden border-2 transition-all ${
-                    activeImage === i ? 'border-[#FF6B35]' : 'border-transparent opacity-70 hover:opacity-100'
-                  }`}
+                  className={`rounded-xl overflow-hidden border-2 transition-all ${activeImage === i ? 'border-[#FF6B35]' : 'border-transparent opacity-70 hover:opacity-100'}`}
                   style={{ aspectRatio: '1 / 1' }}
                 >
                   <Image src={img.url} alt={img.name} className="w-full h-full" fittingType="fit" />
@@ -270,12 +254,9 @@ export default function SchedaProdotto() {
             </div>
           </motion.div>
 
-          {/* Info */}
           <motion.div {...heroEntrance(0.15)}>
             <div className="flex items-center gap-2 mb-3">
-              {product.badge && (
-                <span className="px-2.5 py-1 bg-[#FF6B35] text-white text-xs font-semibold rounded-full">{product.badge}</span>
-              )}
+              {product.badge && <span className="px-2.5 py-1 bg-[#FF6B35] text-white text-xs font-semibold rounded-full">{product.badge}</span>}
               <span className="px-2.5 py-1 bg-[#e8e8ed] text-[#1d1d1f] text-xs font-semibold rounded-full">{product.category}</span>
             </div>
             <h1 className="text-3xl md:text-4xl font-bold text-[#1d1d1f] tracking-tight leading-tight">{product.name}</h1>
@@ -289,19 +270,12 @@ export default function SchedaProdotto() {
               <div className="mt-6">
                 <p className="text-sm font-semibold text-[#1d1d1f] mb-3">Finitura</p>
                 <div className="flex items-center gap-4 flex-wrap">
-                  {product.colors.map((c) => {
+                  {product.colors.map((c, i) => {
                     const idx = gallery.findIndex(g => g.url === c.image);
                     const isActive = idx !== -1 && idx === activeImage;
                     return (
-                      <button
-                        key={c.name}
-                        onClick={() => idx !== -1 && setActiveImage(idx)}
-                        className="flex flex-col items-center gap-2"
-                      >
-                        <span
-                          className={`w-8 h-8 rounded-full border transition-all ${isActive ? 'ring-2 ring-[#FF6B35] ring-offset-2 border-transparent' : 'border-gray-300'}`}
-                          style={{ backgroundColor: c.hex }}
-                        />
+                      <button key={i} onClick={() => idx !== -1 && setActiveImage(idx)} className="flex flex-col items-center gap-2">
+                        <span className={`w-8 h-8 rounded-full border transition-all ${isActive ? 'ring-2 ring-[#FF6B35] ring-offset-2 border-transparent' : 'border-gray-300'}`} style={{ backgroundColor: c.hex }} />
                         <span className="text-[11px] text-[#6e6e73] font-medium">{c.name}</span>
                       </button>
                     );
@@ -310,26 +284,14 @@ export default function SchedaProdotto() {
               </div>
             )}
 
-            {/* Azioni */}
             <div className="mt-6 flex flex-col sm:flex-row gap-3">
-              <button
-                onClick={handleBuyNow}
-                disabled={checkoutLoading}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-full text-sm font-semibold transition-all duration-200 bg-[#1d1d1f] text-white hover:bg-[#FF6B35] disabled:opacity-60 disabled:cursor-not-allowed"
-              >
+              <button onClick={handleBuyNow} disabled={checkoutLoading} className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-full text-sm font-semibold transition-all duration-200 bg-[#1d1d1f] text-white hover:bg-[#FF6B35] disabled:opacity-60 disabled:cursor-not-allowed">
                 {checkoutLoading ? <><Loader2 size={18} className="animate-spin" /> Reindirizzamento…</> : <><ShoppingCart size={18} /> Acquista Ora</>}
               </button>
-              <button
-                onClick={handleAddToCart}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-full text-sm font-semibold transition-all duration-200 bg-white border border-gray-200 text-[#1d1d1f] hover:border-[#1d1d1f]"
-              >
+              <button onClick={handleAddToCart} className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-full text-sm font-semibold transition-all duration-200 bg-white border border-gray-200 text-[#1d1d1f] hover:border-[#1d1d1f]">
                 <Plus size={18} /> Aggiungi al carrello
               </button>
-              <button
-                onClick={() => toggleWishlist(product)}
-                className={`w-12 h-12 sm:w-auto sm:h-auto sm:px-4 flex items-center justify-center rounded-full bg-white border transition-colors ${isInWishlist(product.id) ? 'border-[#FF6B35] text-[#FF6B35]' : 'border-gray-200 text-[#1d1d1f] hover:border-[#FF6B35]'}`}
-                aria-label="Aggiungi ai preferiti"
-              >
+              <button onClick={() => toggleWishlist(product)} className={`w-12 h-12 sm:w-auto sm:h-auto sm:px-4 flex items-center justify-center rounded-full bg-white border transition-colors ${isInWishlist(product.id) ? 'border-[#FF6B35] text-[#FF6B35]' : 'border-gray-200 text-[#1d1d1f] hover:border-[#FF6B35]'}`} aria-label="Aggiungi ai preferiti">
                 <Heart size={18} fill={isInWishlist(product.id) ? 'currentColor' : 'none'} />
               </button>
               <button className="w-12 h-12 sm:w-auto sm:h-auto sm:px-4 flex items-center justify-center rounded-full bg-white border border-gray-200 hover:border-[#FF6B35] text-[#1d1d1f] transition-colors">
@@ -337,17 +299,12 @@ export default function SchedaProdotto() {
               </button>
             </div>
 
-            {checkoutError && (
-              <p className="mt-3 text-sm text-red-600 bg-red-50 rounded-xl px-4 py-3">{checkoutError}</p>
-            )}
+            {checkoutError && <p className="mt-3 text-sm text-red-600 bg-red-50 rounded-xl px-4 py-3">{checkoutError}</p>}
 
-            {/* Highlights */}
             <div className="mt-8 grid grid-cols-2 gap-3">
               {HIGHLIGHTS.map(({ icon: Icon, title, desc }) => (
                 <div key={title} className="flex items-center gap-3 bg-white rounded-2xl p-4">
-                  <div className="w-10 h-10 rounded-full bg-[#FF6B35]/10 flex items-center justify-center flex-shrink-0">
-                    <Icon size={20} className="text-[#FF6B35]" />
-                  </div>
+                  <div className="w-10 h-10 rounded-full bg-[#FF6B35]/10 flex items-center justify-center flex-shrink-0"><Icon size={20} className="text-[#FF6B35]" /></div>
                   <div>
                     <p className="text-sm font-semibold text-[#1d1d1f]">{title}</p>
                     <p className="text-xs text-[#6e6e73]">{desc}</p>
@@ -356,7 +313,6 @@ export default function SchedaProdotto() {
               ))}
             </div>
 
-            {/* Specifiche tecniche */}
             <div className="mt-8">
               <h2 className="text-xl font-bold text-[#1d1d1f] mb-4">Specifiche Tecniche</h2>
               <div className="bg-white rounded-2xl divide-y divide-gray-100 overflow-hidden">
@@ -372,7 +328,6 @@ export default function SchedaProdotto() {
         </div>
       </section>
 
-      {/* Tabella comparazione tecnica */}
       {compareProducts.length > 1 && (
         <section className="py-16 px-6 lg:px-8 bg-[#f5f5f7]">
           <div className="max-w-7xl mx-auto">
@@ -385,22 +340,15 @@ export default function SchedaProdotto() {
               <table className="w-full border-collapse min-w-[640px]">
                 <thead>
                   <tr>
-                    <th className="bg-white p-4 text-left text-sm font-semibold text-[#6e6e73] rounded-tl-2xl sticky left-0 z-10 w-40">
-                      Specifica
-                    </th>
+                    <th className="bg-white p-4 text-left text-sm font-semibold text-[#6e6e73] rounded-tl-2xl sticky left-0 z-10 w-40">Specifica</th>
                     {compareProducts.map((p, i) => (
-                      <th
-                        key={p.id}
-                        className={`bg-white p-4 text-center align-bottom ${i === 0 ? 'ring-2 ring-[#FF6B35] ring-inset' : ''} ${i === compareProducts.length - 1 ? 'rounded-tr-2xl' : ''}`}
-                      >
+                      <th key={p.id} className={`bg-white p-4 text-center align-bottom ${i === 0 ? 'ring-2 ring-[#FF6B35] ring-inset' : ''} ${i === compareProducts.length - 1 ? 'rounded-tr-2xl' : ''}`}>
                         <Link to={`/scheda-prodotto?id=${p.id}`} className="block group">
                           <div className="w-20 h-20 mx-auto mb-3 rounded-xl overflow-hidden bg-[#f5f5f7]">
                             <Image src={p.image} alt={p.name} className="w-full h-full" fittingType="fill" />
                           </div>
                           <p className="text-xs font-semibold text-[#1d1d1f] leading-snug line-clamp-2 group-hover:text-[#FF6B35] transition-colors">{p.name}</p>
-                          {i === 0 && (
-                            <span className="inline-block mt-2 px-2 py-0.5 bg-[#FF6B35] text-white text-[10px] font-bold rounded-full uppercase tracking-wide">Selezionato</span>
-                          )}
+                          {i === 0 && <span className="inline-block mt-2 px-2 py-0.5 bg-[#FF6B35] text-white text-[10px] font-bold rounded-full uppercase tracking-wide">Selezionato</span>}
                         </Link>
                       </th>
                     ))}
@@ -409,16 +357,9 @@ export default function SchedaProdotto() {
                 <tbody>
                   {compareRows.map((label, rowIdx) => (
                     <tr key={label} className={rowIdx % 2 === 0 ? 'bg-white' : 'bg-[#fafafa]'}>
-                      <td className={`p-4 text-left text-sm font-medium text-[#6e6e73] sticky left-0 z-10 ${rowIdx % 2 === 0 ? 'bg-white' : 'bg-[#fafafa]'}`}>
-                        {label}
-                      </td>
+                      <td className={`p-4 text-left text-sm font-medium text-[#6e6e73] sticky left-0 z-10 ${rowIdx % 2 === 0 ? 'bg-white' : 'bg-[#fafafa]'}`}>{label}</td>
                       {compareProducts.map((p, i) => (
-                        <td
-                          key={p.id}
-                          className={`p-4 text-center text-sm text-[#1d1d1f] ${i === 0 ? 'bg-[#FF6B35]/5 font-semibold ring-2 ring-[#FF6B35] ring-inset' : ''}`}
-                        >
-                          {getCompareValue(p, label)}
-                        </td>
+                        <td key={p.id} className={`p-4 text-center text-sm text-[#1d1d1f] ${i === 0 ? 'bg-[#FF6B35]/5 font-semibold ring-2 ring-[#FF6B35] ring-inset' : ''}`}>{getCompareValue(p, label)}</td>
                       ))}
                     </tr>
                   ))}
@@ -426,12 +367,7 @@ export default function SchedaProdotto() {
                     <td className="bg-white p-4 sticky left-0 z-10 rounded-bl-2xl"></td>
                     {compareProducts.map((p, i) => (
                       <td key={p.id} className={`bg-white p-4 text-center ${i === compareProducts.length - 1 ? 'rounded-br-2xl' : ''}`}>
-                        <Link
-                          to={`/scheda-prodotto?id=${p.id}`}
-                          className={`inline-block px-4 py-2 text-xs font-semibold rounded-full transition-colors ${
-                            i === 0 ? 'bg-[#FF6B35] text-white' : 'bg-[#1d1d1f] text-white hover:bg-[#FF6B35]'
-                          }`}
-                        >
+                        <Link to={`/scheda-prodotto?id=${p.id}`} className={`inline-block px-4 py-2 text-xs font-semibold rounded-full transition-colors ${i === 0 ? 'bg-[#FF6B35] text-white' : 'bg-[#1d1d1f] text-white hover:bg-[#FF6B35]'}`}>
                           {i === 0 ? 'Nel carrello' : 'Vedi dettagli'}
                         </Link>
                       </td>
@@ -444,7 +380,6 @@ export default function SchedaProdotto() {
         </section>
       )}
 
-      {/* Prodotti correlati */}
       {relatedProducts.length > 0 && (
         <section className="py-16 px-6 lg:px-8 bg-white">
           <div className="max-w-7xl mx-auto">

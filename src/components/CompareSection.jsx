@@ -3,48 +3,15 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Image } from '@/components/ui/image';
 import { fadeUp } from '@/lib/motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import ProductActions from '@/components/ProductActions';
-import {
-  IPHONE_17_PRO_COLORS,
-  IPHONE_17_AIR_COLORS,
-  IPHONE_17_COLORS,
-  IPHONE_16_COLORS,
-} from '@/lib/productCatalog';
-
-const MODELS = [
-  {
-    name: 'iPhone 17 Pro',
-    tagline: 'Il più potente di sempre.',
-    price: '€1.199',
-    productId: 1,
-    colors: IPHONE_17_PRO_COLORS,
-  },
-  {
-    name: 'iPhone 17 Air',
-    tagline: 'Il più sottile mai realizzato.',
-    price: '€999',
-    productId: 2,
-    colors: IPHONE_17_AIR_COLORS,
-  },
-  {
-    name: 'iPhone 17',
-    tagline: 'Potenza per tutti.',
-    price: '€899',
-    productId: 3,
-    colors: IPHONE_17_COLORS,
-  },
-  {
-    name: 'iPhone 16',
-    tagline: 'Il nuovo controllo fotocamera.',
-    price: '€799',
-    productId: 4,
-    colors: IPHONE_16_COLORS,
-  },
-];
+import { useProducts } from '@/lib/useProducts';
 
 export default function CompareSection() {
+  const { products, loading } = useProducts();
   const scrollRef = useRef(null);
+
+  const models = products.filter(p => p.category === 'iPhone' && p.colors && p.colors.length > 0);
 
   const scroll = (dir) => {
     scrollRef.current?.scrollBy({ left: dir * 300, behavior: 'smooth' });
@@ -63,36 +30,27 @@ export default function CompareSection() {
           </p>
         </motion.div>
 
-        {/* Header con frecce di scroll */}
         <div className="flex items-center justify-between mb-6">
-          <p className="text-sm font-medium text-[#6e6e73]">{MODELS.length} modelli a confronto</p>
+          <p className="text-sm font-medium text-[#6e6e73]">{models.length} modelli a confronto</p>
           <div className="flex gap-2">
-            <button
-              onClick={() => scroll(-1)}
-              className="w-10 h-10 rounded-full bg-white border border-[#d2d2d7] flex items-center justify-center text-[#1d1d1f] hover:bg-[#1d1d1f] hover:text-white hover:border-[#1d1d1f] transition-colors"
-              aria-label="Precedente"
-            >
+            <button onClick={() => scroll(-1)} className="w-10 h-10 rounded-full bg-white border border-[#d2d2d7] flex items-center justify-center text-[#1d1d1f] hover:bg-[#1d1d1f] hover:text-white hover:border-[#1d1d1f] transition-colors" aria-label="Precedente">
               <ChevronLeft size={18} />
             </button>
-            <button
-              onClick={() => scroll(1)}
-              className="w-10 h-10 rounded-full bg-white border border-[#d2d2d7] flex items-center justify-center text-[#1d1d1f] hover:bg-[#1d1d1f] hover:text-white hover:border-[#1d1d1f] transition-colors"
-              aria-label="Successivo"
-            >
+            <button onClick={() => scroll(1)} className="w-10 h-10 rounded-full bg-white border border-[#d2d2d7] flex items-center justify-center text-[#1d1d1f] hover:bg-[#1d1d1f] hover:text-white hover:border-[#1d1d1f] transition-colors" aria-label="Successivo">
               <ChevronRight size={18} />
             </button>
           </div>
         </div>
 
-        {/* Scroll orizzontale */}
-        <div
-          ref={scrollRef}
-          className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-6 px-6 lg:mx-0 lg:px-0 scroll-smooth no-scrollbar"
-        >
-          {MODELS.map((model) => (
-            <CompareCard key={model.name} model={model} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex justify-center py-12"><Loader2 className="animate-spin text-[#FF6B35]" size={28} /></div>
+        ) : (
+          <div ref={scrollRef} className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 -mx-6 px-6 lg:mx-0 lg:px-0 scroll-smooth no-scrollbar">
+            {models.map((model) => (
+              <CompareCard key={model.id} model={model} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
@@ -100,7 +58,8 @@ export default function CompareSection() {
 
 function CompareCard({ model }) {
   const [activeColor, setActiveColor] = useState(0);
-  const active = model.colors[activeColor];
+  const colors = model.colors || [];
+  const active = colors[activeColor] || { image: model.image, name: '' };
 
   return (
     <motion.div
@@ -110,51 +69,39 @@ function CompareCard({ model }) {
       transition={{ duration: 0.4 }}
       className="snap-start shrink-0 w-[260px] sm:w-[280px] bg-white rounded-3xl overflow-hidden flex flex-col"
     >
-      {/* Immagine prodotto */}
       <div className="relative bg-[#f5f5f7]" style={{ aspectRatio: '1 / 1' }}>
-        <Image
-          src={active.image}
-          alt={`${model.name} — ${active.name}`}
-          className="w-full h-full"
-          fittingType="fit"
-        />
+        <Image src={active.image} alt={`${model.name} — ${active.name}`} className="w-full h-full" fittingType="fit" />
         <div className="absolute top-3 right-3 z-10">
-          <ProductActions product={{ id: model.productId, name: model.name, price: model.price, image: active.image, category: 'iPhone' }} />
+          <ProductActions product={{ id: model.id, name: model.name, price: model.price, image: active.image, category: 'iPhone' }} />
         </div>
       </div>
 
-      {/* Info */}
       <div className="p-5 flex flex-col flex-1">
         <h3 className="text-lg font-bold text-[#1d1d1f] tracking-tight">{model.name}</h3>
-        <p className="text-xs text-[#6e6e73] mt-1 leading-relaxed flex-1">{model.tagline}</p>
+        <p className="text-xs text-[#6e6e73] mt-1 leading-relaxed flex-1 line-clamp-2">{model.description}</p>
 
-        {/* Swatch colorazioni */}
-        <div className="flex items-center gap-2.5 mt-4 mb-3">
-          {model.colors.map((color, i) => (
-            <button
-              key={color.name}
-              onClick={() => setActiveColor(i)}
-              className={`w-6 h-6 rounded-full ring-1 transition-all ${
-                activeColor === i ? 'ring-2 ring-offset-2 ring-[#1d1d1f] scale-110' : 'ring-black/10'
-              }`}
-              style={{ backgroundColor: color.hex }}
-              aria-label={color.name}
-              title={color.name}
-            />
-          ))}
-        </div>
+        {colors.length > 0 && (
+          <div className="flex items-center gap-2.5 mt-4 mb-3">
+            {colors.map((color, i) => (
+              <button
+                key={i}
+                onClick={() => setActiveColor(i)}
+                className={`w-6 h-6 rounded-full ring-1 transition-all ${activeColor === i ? 'ring-2 ring-offset-2 ring-[#1d1d1f] scale-110' : 'ring-black/10'}`}
+                style={{ backgroundColor: color.hex }}
+                aria-label={color.name}
+                title={color.name}
+              />
+            ))}
+          </div>
+        )}
         <p className="text-xs text-[#6e6e73] mb-4">{active.name}</p>
 
-        {/* Prezzo + CTA */}
         <div className="flex items-end justify-between">
           <div>
             <p className="text-[10px] text-[#6e6e73] uppercase tracking-wide">A partire da</p>
             <p className="text-xl font-bold text-[#1d1d1f]">{model.price}</p>
           </div>
-          <Link
-            to={`/scheda-prodotto?id=${model.productId}`}
-            className="px-4 py-2 bg-[#1d1d1f] text-white text-xs font-semibold rounded-full hover:bg-[#FF6B35] transition-colors"
-          >
+          <Link to={`/scheda-prodotto?id=${model.id}`} className="px-4 py-2 bg-[#1d1d1f] text-white text-xs font-semibold rounded-full hover:bg-[#FF6B35] transition-colors">
             Acquista
           </Link>
         </div>

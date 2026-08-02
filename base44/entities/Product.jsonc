@@ -1,0 +1,88 @@
+{
+  "name": "Product",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Nome"
+    },
+    "price": {
+      "type": "string",
+      "title": "Prezzo (testo)"
+    },
+    "price_cents": {
+      "type": "number",
+      "title": "Prezzo in centesimi"
+    },
+    "badge": {
+      "type": "string",
+      "title": "Badge"
+    },
+    "category": {
+      "type": "string",
+      "title": "Categoria"
+    },
+    "image": {
+      "type": "string",
+      "title": "Immagine principale",
+      "format": "url"
+    },
+    "images": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "title": "Galleria immagini"
+    },
+    "colors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "hex": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string"
+          }
+        }
+      },
+      "title": "Colori"
+    },
+    "description": {
+      "type": "string",
+      "title": "Descrizione"
+    },
+    "sort_order": {
+      "type": "number",
+      "title": "Ordine"
+    }
+  },
+  "required": [
+    "name",
+    "price",
+    "category",
+    "image"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

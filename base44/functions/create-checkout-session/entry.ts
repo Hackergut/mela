@@ -1,3 +1,4 @@
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.41';
 import { secrets } from "base44:runtime";
 import Stripe from "npm:stripe@16.0.0";
 import { PRICE_MAP } from "../../shared/prices.ts";
@@ -7,14 +8,33 @@ export default async function(req) {
     const body = await req.json();
     const { productId, name, image, description, successUrl, cancelUrl } = body;
 
-    if (!productId || !PRICE_MAP[productId]) {
-      return Response.json({ error: "Prodotto non valido" }, { status: 400 });
-    }
-    if (!successUrl || !cancelUrl) {
-      return Response.json({ error: "URL di redirect mancanti" }, { status: 400 });
+    if (!productId || !successUrl || !cancelUrl) {
+      return Response.json({ error: "Parametri mancanti" }, { status: 400 });
     }
 
-    const unitAmount = PRICE_MAP[productId];
+    let unitAmount = PRICE_MAP[productId] || 0;
+    let productName = name;
+    let productImage = image;
+    let productDescription = description;
+
+    // Look up the product in the entity (source of truth for CMS-managed prices)
+    try {
+      const base44 = createClientFromRequest(req);
+      const product = await base44.asServiceRole.entities.Product.get(productId);
+      if (product && product.price_cents) {
+        unitAmount = product.price_cents;
+        productName = product.name;
+        productImage = product.image;
+        productDescription = product.description;
+      }
+    } catch (e) {
+      console.log("Product not found in entity, using PRICE_MAP fallback:", e.message);
+    }
+
+    if (!unitAmount) {
+      return Response.json({ error: "Prezzo non disponibile per questo prodotto" }, { status: 400 });
+    }
+
     const stripe = new Stripe(secrets.get("STRIPE_SECRET_KEY"));
 
     const session = await stripe.checkout.sessions.create({
@@ -25,9 +45,9 @@ export default async function(req) {
           currency: "eur",
           unit_amount: unitAmount,
           product_data: {
-            name: name || "Pezzo artigianale Terra-Mater",
-            description: description ? description.slice(0, 350) : undefined,
-            images: image ? [image] : undefined,
+            name: productName || "Prodotto Apple",
+            description: productDescription ? productDescription.slice(0, 350) : undefined,
+            images: productImage ? [productImage] : undefined,
           },
         },
       }],
@@ -37,7 +57,7 @@ export default async function(req) {
       metadata: {
         base44_app_id: secrets.get("BASE44_APP_ID"),
         product_id: String(productId),
-        product_name: name || "",
+        product_name: productName || "",
       },
     });
 

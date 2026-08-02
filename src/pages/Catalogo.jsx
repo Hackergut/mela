@@ -1,51 +1,53 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Search, SlidersHorizontal, ArrowLeft } from 'lucide-react';
+import { Search, SlidersHorizontal, ArrowLeft, Loader2 } from 'lucide-react';
 import PromoBanner from '@/components/PromoBanner';
 import Navbar from '@/components/Navbar';
 import FooterSection from '@/components/FooterSection';
 import { Image } from '@/components/ui/image';
 import { fadeUp, staggerContainer, staggerItem } from '@/lib/motion';
-import { PRODUCT_CATALOG, CATEGORIES } from '@/lib/productCatalog';
+import { useProducts } from '@/lib/useProducts';
 import ProductActions from '@/components/ProductActions';
 
 export default function Catalogo() {
+  const { products, loading } = useProducts();
   const [activeFilter, setActiveFilter] = useState('Tutti');
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('default');
 
+  const categories = useMemo(() => ['Tutti', ...new Set(products.map(p => p.category).filter(Boolean))], [products]);
+
   const filtered = useMemo(() => {
     let result = activeFilter === 'Tutti'
-      ? [...PRODUCT_CATALOG]
-      : PRODUCT_CATALOG.filter(p => p.category === activeFilter);
+      ? [...products]
+      : products.filter(p => p.category === activeFilter);
 
     if (search.trim()) {
       const q = search.toLowerCase();
       result = result.filter(p =>
         p.name.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q) ||
+        (p.description || '').toLowerCase().includes(q) ||
         p.category.toLowerCase().includes(q)
       );
     }
 
     if (sortBy === 'price-asc') {
-      result.sort((a, b) => parseFloat(a.price.replace('€', '').replace('.', '')) - parseFloat(b.price.replace('€', '').replace('.', '')));
+      result.sort((a, b) => (a.price_cents || 0) - (b.price_cents || 0));
     } else if (sortBy === 'price-desc') {
-      result.sort((a, b) => parseFloat(b.price.replace('€', '').replace('.', '')) - parseFloat(a.price.replace('€', '').replace('.', '')));
+      result.sort((a, b) => (b.price_cents || 0) - (a.price_cents || 0));
     } else if (sortBy === 'name') {
       result.sort((a, b) => a.name.localeCompare(b.name));
     }
 
     return result;
-  }, [activeFilter, search, sortBy]);
+  }, [products, activeFilter, search, sortBy]);
 
   return (
     <div className="min-h-screen bg-[#f5f5f7] font-sans">
       <PromoBanner />
       <Navbar />
 
-      {/* Header */}
       <section className="bg-white pt-12 pb-8 px-6 lg:px-8 border-b border-gray-100">
         <div className="max-w-7xl mx-auto">
           <Link to="/" className="inline-flex items-center gap-2 text-sm text-[#6e6e73] hover:text-[#FF6B35] transition-colors mb-4">
@@ -53,20 +55,16 @@ export default function Catalogo() {
           </Link>
           <motion.div {...fadeUp}>
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#FF6B35] mb-3">Catalogo Completo</p>
-            <h1 className="text-4xl md:text-5xl font-bold text-[#1d1d1f] tracking-tight">
-              Tutti i Prodotti Apple
-            </h1>
+            <h1 className="text-4xl md:text-5xl font-bold text-[#1d1d1f] tracking-tight">Tutti i Prodotti Apple</h1>
             <p className="mt-3 text-[#6e6e73] max-w-lg">
-              Esplora l'intero catalogo di {PRODUCT_CATALOG.length} prodotti. Usa i filtri e la ricerca per trovare quello perfetto per te.
+              Esplora l'intero catalogo di {products.length} prodotti. Usa i filtri e la ricerca per trovare quello perfetto per te.
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Barra filtri */}
       <section className="sticky top-16 z-40 bg-[#f5f5f7]/95 backdrop-blur-md border-b border-gray-200 px-6 lg:px-8 py-4">
         <div className="max-w-7xl mx-auto space-y-4">
-          {/* Ricerca + ordinamento */}
           <div className="flex flex-col md:flex-row gap-3">
             <div className="relative flex-1">
               <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6e6e73]" />
@@ -93,9 +91,8 @@ export default function Catalogo() {
             </div>
           </div>
 
-          {/* Filtri categoria */}
           <div className="flex items-center gap-2 flex-wrap">
-            {CATEGORIES.map(f => (
+            {categories.map(f => (
               <button
                 key={f}
                 onClick={() => setActiveFilter(f)}
@@ -108,17 +105,16 @@ export default function Catalogo() {
                 {f}
               </button>
             ))}
-            <span className="ml-auto text-sm text-[#6e6e73] font-medium">
-              {filtered.length} risultati
-            </span>
+            <span className="ml-auto text-sm text-[#6e6e73] font-medium">{filtered.length} risultati</span>
           </div>
         </div>
       </section>
 
-      {/* Griglia */}
       <section className="py-10 px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          {filtered.length === 0 ? (
+          {loading ? (
+            <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#FF6B35]" size={28} /></div>
+          ) : filtered.length === 0 ? (
             <div className="text-center py-20">
               <Search size={48} className="mx-auto text-gray-300 mb-4" />
               <p className="text-lg font-semibold text-[#1d1d1f] mb-1">Nessun prodotto trovato</p>
@@ -153,21 +149,12 @@ function CatalogCard({ product }) {
       >
         <div className="relative overflow-hidden" style={{ paddingBottom: '100%' }}>
           <div className="absolute inset-0">
-            <Image
-              src={product.image}
-              alt={product.name}
-              className="w-full h-full transition-transform duration-500 group-hover:scale-105"
-              fittingType="fill"
-            />
+            <Image src={product.image} alt={product.name} className="w-full h-full transition-transform duration-500 group-hover:scale-105" fittingType="fill" />
           </div>
           {product.badge && (
-            <div className="absolute top-3 left-3 px-2.5 py-1 bg-[#FF6B35] text-white text-xs font-semibold rounded-full">
-              {product.badge}
-            </div>
+            <div className="absolute top-3 left-3 px-2.5 py-1 bg-[#FF6B35] text-white text-xs font-semibold rounded-full">{product.badge}</div>
           )}
-          <div className="absolute top-3 right-3 px-2.5 py-1 bg-black/60 backdrop-blur-sm text-white text-xs font-semibold rounded-full">
-            {product.category}
-          </div>
+          <div className="absolute top-3 right-3 px-2.5 py-1 bg-black/60 backdrop-blur-sm text-white text-xs font-semibold rounded-full">{product.category}</div>
           <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             <ProductActions product={product} />
           </div>

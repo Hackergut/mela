@@ -14,6 +14,7 @@ import Carrello from './pages/Carrello';
 import Preferiti from './pages/Preferiti';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Admin from './pages/Admin';
 import { StoreProvider } from '@/lib/StoreContext';
 
 const AuthenticatedApp = () => {
@@ -49,6 +50,7 @@ const AuthenticatedApp = () => {
       <Route path="/preferiti" element={<Preferiti />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/admin" element={<Admin />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
