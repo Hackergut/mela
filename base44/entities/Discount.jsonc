@@ -1,0 +1,73 @@
+{
+  "name": "Discount",
+  "type": "object",
+  "properties": {
+    "code": {
+      "type": "string",
+      "title": "Codice"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "percent",
+        "fixed"
+      ],
+      "default": "percent",
+      "title": "Tipo"
+    },
+    "value": {
+      "type": "number",
+      "title": "Valore (% o centesimi)"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "title": "Attivo"
+    },
+    "usage_count": {
+      "type": "number",
+      "default": 0,
+      "title": "Utilizzi"
+    },
+    "max_uses": {
+      "type": "number",
+      "title": "Utilizzi massimi"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Scadenza"
+    },
+    "description": {
+      "type": "string",
+      "title": "Descrizione"
+    }
+  },
+  "required": [
+    "code",
+    "type",
+    "value"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -14,6 +14,20 @@
       "type": "number",
       "title": "Prezzo in centesimi"
     },
+    "cost_cents": {
+      "type": "number",
+      "title": "Costo di acquisto (cent)"
+    },
+    "stock": {
+      "type": "number",
+      "default": 0,
+      "title": "Giacenza magazzino"
+    },
+    "low_stock_threshold": {
+      "type": "number",
+      "default": 5,
+      "title": "Soglia stock basso"
+    },
     "badge": {
       "type": "string",
       "title": "Badge"

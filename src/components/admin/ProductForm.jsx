@@ -52,6 +52,9 @@ export default function ProductForm({ product, categories, password, onSave, onC
       colors: form.colors.filter(c => c.name && c.image),
       description: form.description,
       sort_order: Number(form.sort_order) || 0,
+      stock: Number(form.stock) || 0,
+      cost_cents: Number(form.cost_cents) || 0,
+      low_stock_threshold: Number(form.low_stock_threshold) || 5,
     });
   };
 
@@ -84,6 +87,22 @@ export default function ProductForm({ product, categories, password, onSave, onC
           <label className="block">
             <span className="text-xs font-medium text-[#6e6e73] mb-1 block">Ordine</span>
             <input type="number" value={form.sort_order} onChange={e => set('sort_order', e.target.value)} className={INP} />
+          </label>
+        </div>
+
+        {/* Inventario */}
+        <div className="grid grid-cols-3 gap-3">
+          <label className="block">
+            <span className="text-xs font-medium text-[#6e6e73] mb-1 block">Stock</span>
+            <input type="number" value={form.stock ?? ''} onChange={e => set('stock', e.target.value)} className={INP} />
+          </label>
+          <label className="block">
+            <span className="text-xs font-medium text-[#6e6e73] mb-1 block">Costo (€)</span>
+            <input type="number" step="0.01" value={form.cost_cents ? String(form.cost_cents / 100) : ''} onChange={e => set('cost_cents', Math.round(Number(e.target.value) * 100))} className={INP} />
+          </label>
+          <label className="block">
+            <span className="text-xs font-medium text-[#6e6e73] mb-1 block">Soglia stock basso</span>
+            <input type="number" value={form.low_stock_threshold ?? 5} onChange={e => set('low_stock_threshold', e.target.value)} className={INP} />
           </label>
         </div>
 

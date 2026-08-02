@@ -99,6 +99,7 @@ export default function SchedaProdotto() {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState(null);
   const [paymentStatus, setPaymentStatus] = useState(null);
+  const [discountCode, setDiscountCode] = useState('');
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -166,6 +167,7 @@ export default function SchedaProdotto() {
         name: product.name,
         image: product.image,
         description: product.description,
+        discountCode: discountCode || undefined,
         successUrl: `${origin}/scheda-prodotto?id=${product.id}&payment=success`,
         cancelUrl: `${origin}/scheda-prodotto?id=${product.id}&payment=cancelled`,
       });
@@ -283,6 +285,11 @@ export default function SchedaProdotto() {
                 </div>
               </div>
             )}
+
+            <div className="mt-6 flex items-center gap-2">
+              <input value={discountCode} onChange={e => setDiscountCode(e.target.value.toUpperCase())} placeholder="Codice sconto" className="flex-1 px-4 py-2.5 rounded-full border border-gray-200 text-sm uppercase tracking-wide focus:outline-none focus:border-[#FF6B35]" />
+              {discountCode && <button onClick={() => setDiscountCode('')} className="text-xs text-[#6e6e73] hover:text-red-500">rimuovi</button>}
+            </div>
 
             <div className="mt-6 flex flex-col sm:flex-row gap-3">
               <button onClick={handleBuyNow} disabled={checkoutLoading} className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-full text-sm font-semibold transition-all duration-200 bg-[#1d1d1f] text-white hover:bg-[#FF6B35] disabled:opacity-60 disabled:cursor-not-allowed">
