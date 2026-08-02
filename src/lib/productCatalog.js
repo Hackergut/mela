@@ -3,33 +3,30 @@
 
 const IMG = 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b';
 
+// Sequenza fotografica standard, identica per ogni modello iPhone.
+export const IPHONE_GALLERY = [
+  `${IMG}/7d56fefdb_IMG_1342.jpeg`,
+  `${IMG}/c933de856_IMG_1339.jpeg`,
+  `${IMG}/b2b227688_IMG_1338.jpeg`,
+  `${IMG}/3663c67ac_IMG_1391.jpeg`,
+  `${IMG}/f50e646a3_IMG_1390.jpeg`,
+  `${IMG}/c23ec71f1_IMG_1402.jpeg`,
+  `${IMG}/0f331a081_IMG_1669.webp`,
+  `${IMG}/b541b89c1_IMG_1620.jpeg`,
+  `${IMG}/e1c117802_IMG_1618.jpeg`,
+  `${IMG}/b9530564b_IMG_1670.jpeg`,
+];
+
 export const PRODUCT_CATALOG = [
-  // ===== iPhone (un prodotto per modello, con galleria completa) =====
+  // ===== iPhone (un prodotto per modello, stessa sequenza fotografica) =====
   {
     id: 1,
     name: 'iPhone 17 Pro',
     price: '€1.199',
     badge: 'Nuovo',
     category: 'iPhone',
-    image: `${IMG}/f731cdad5_IMG_1704.png`,
-    images: [
-      `${IMG}/f731cdad5_IMG_1704.png`,
-      `${IMG}/a53ee8668_IMG_1669.webp`,
-      `${IMG}/b9530564b_IMG_1670.jpeg`,
-      `${IMG}/2abb70f56_IMG_1671.jpeg`,
-      `${IMG}/b2fed9641_IMG_1705.png`,
-      `${IMG}/928b2127d_IMG_1668.webp`,
-      `${IMG}/bf58c6cc9_IMG_1706.png`,
-      `${IMG}/5eced5370_IMG_1679.webp`,
-      `${IMG}/4552cdca7_IMG_1680.webp`,
-      `${IMG}/e0d184381_IMG_1648.webp`,
-    ],
-    colors: [
-      { name: 'Arancione Cosmico', hex: '#E85D2F', image: `${IMG}/a53ee8668_IMG_1669.webp` },
-      { name: 'Argento', hex: '#D8D8DC', image: `${IMG}/5eced5370_IMG_1679.webp` },
-      { name: 'Blu', hex: '#3B5B7A', image: `${IMG}/928b2127d_IMG_1668.webp` },
-      { name: 'Nero', hex: '#2C2C2E', image: `${IMG}/e0d184381_IMG_1648.webp` },
-    ],
+    image: IPHONE_GALLERY[0],
+    images: IPHONE_GALLERY,
     description: 'iPhone 17 Pro con chip A19 Pro vapor-cooled, struttura in alluminio forgiato e display ProMotion da 6,3". Sistema fotocamera Pro con tripla lente 48MP e teleobiettivo 5x.',
   },
   {
@@ -38,18 +35,8 @@ export const PRODUCT_CATALOG = [
     price: '€999',
     badge: 'Nuovo',
     category: 'iPhone',
-    image: `${IMG}/ae167da00_IMG_1676.webp`,
-    images: [
-      `${IMG}/ae167da00_IMG_1676.webp`,
-      `${IMG}/502c9901e_IMG_1684.jpeg`,
-      `${IMG}/e7b796fbe_IMG_1685.jpeg`,
-      `${IMG}/dabbb9a2e_IMG_1682.webp`,
-      `${IMG}/63d33f72a_IMG_1683.webp`,
-    ],
-    colors: [
-      { name: 'Azzurro', hex: '#7BA7C9', image: `${IMG}/ae167da00_IMG_1676.webp` },
-      { name: 'Bianco', hex: '#E8E8EC', image: `${IMG}/dabbb9a2e_IMG_1682.webp` },
-    ],
+    image: IPHONE_GALLERY[0],
+    images: IPHONE_GALLERY,
     description: 'iPhone 17 Air, il più sottile mai realizzato con soli 5,6 mm di spessore. Chip A19, display OLED da 6,6" e fotocamera 48MP in un corpo leggerissimo.',
   },
   {
@@ -58,15 +45,8 @@ export const PRODUCT_CATALOG = [
     price: '€899',
     badge: 'Nuovo',
     category: 'iPhone',
-    image: `${IMG}/37d4e3218_IMG_1673.webp`,
-    images: [
-      `${IMG}/37d4e3218_IMG_1673.webp`,
-      `${IMG}/9567fcd33_IMG_1678.webp`,
-      `${IMG}/58f298cc3_IMG_1707.png`,
-    ],
-    colors: [
-      { name: 'Tutte le finiture', hex: '#8AB4F8', image: `${IMG}/37d4e3218_IMG_1673.webp` },
-    ],
+    image: IPHONE_GALLERY[0],
+    images: IPHONE_GALLERY,
     description: 'iPhone 17 con chip A19, doppia fotocamera da 48MP e display Super Retina XDR da 6,1". Disponibile in cinque colorazioni.',
   },
   {
@@ -75,21 +55,8 @@ export const PRODUCT_CATALOG = [
     price: '€799',
     badge: null,
     category: 'iPhone',
-    image: `${IMG}/afaae44e7_IMG_1675.webp`,
-    images: [
-      `${IMG}/afaae44e7_IMG_1675.webp`,
-      `${IMG}/bbc5ad376_IMG_1647.jpeg`,
-      `${IMG}/41f49baf1_IMG_1674.webp`,
-      `${IMG}/20b84ec9d_IMG_1677.jpeg`,
-      `${IMG}/bb0ae7c20_IMG_1646.jpeg`,
-      `${IMG}/4fd4fd8a0_IMG_1681.webp`,
-    ],
-    colors: [
-      { name: 'Verde', hex: '#4E6B54', image: `${IMG}/afaae44e7_IMG_1675.webp` },
-      { name: 'Viola', hex: '#8C7BB0', image: `${IMG}/41f49baf1_IMG_1674.webp` },
-      { name: 'Rosa', hex: '#E7B5C0', image: `${IMG}/bb0ae7c20_IMG_1646.jpeg` },
-      { name: 'Crema', hex: '#E5DCC8', image: `${IMG}/4fd4fd8a0_IMG_1681.webp` },
-    ],
+    image: IPHONE_GALLERY[0],
+    images: IPHONE_GALLERY,
     description: 'iPhone 16 con chip A18, Controllo Fotocamera dedicato e doppia fotocamera da 48MP. Display Super Retina XDR da 6,1" e batteria che dura tutto il giorno.',
   },
 

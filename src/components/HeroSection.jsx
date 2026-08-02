@@ -73,7 +73,7 @@ export default function HeroSection() {
         >
           <div className="relative mx-auto" style={{ maxWidth: '900px' }}>
             <Image
-              src="https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/f731cdad5_IMG_1704.png"
+              src="https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/b2b227688_IMG_1338.jpeg"
               alt="iPhone 17 Pro Arancione Cosmico"
               className="w-full h-auto"
               fittingType="fit"

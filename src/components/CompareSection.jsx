@@ -5,8 +5,9 @@ import { Image } from '@/components/ui/image';
 import { fadeUp } from '@/lib/motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductActions from '@/components/ProductActions';
+import { IPHONE_GALLERY } from '@/lib/productCatalog';
 
-const IMG = 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b';
+const HERO = IPHONE_GALLERY[0];
 
 const MODELS = [
   {
@@ -15,9 +16,10 @@ const MODELS = [
     price: '€1.199',
     productId: 1,
     colors: [
-      { name: 'Arancione Cosmico', hex: '#E85D2F', image: `${IMG}/a53ee8668_IMG_1669.webp` },
-      { name: 'Argento', hex: '#D8D8DC', image: `${IMG}/5eced5370_IMG_1679.webp` },
-      { name: 'Nero', hex: '#2C2C2E', image: `${IMG}/e0d184381_IMG_1648.webp` },
+      { name: 'Arancione Cosmico', hex: '#E85D2F', image: HERO },
+      { name: 'Argento', hex: '#D8D8DC', image: HERO },
+      { name: 'Blu', hex: '#3B5B7A', image: HERO },
+      { name: 'Nero', hex: '#2C2C2E', image: HERO },
     ],
   },
   {
@@ -26,8 +28,8 @@ const MODELS = [
     price: '€999',
     productId: 2,
     colors: [
-      { name: 'Azzurro', hex: '#7BA7C9', image: `${IMG}/ae167da00_IMG_1676.webp` },
-      { name: 'Bianco', hex: '#E8E8EC', image: `${IMG}/dabbb9a2e_IMG_1682.webp` },
+      { name: 'Azzurro', hex: '#7BA7C9', image: HERO },
+      { name: 'Bianco', hex: '#E8E8EC', image: HERO },
     ],
   },
   {
@@ -36,7 +38,7 @@ const MODELS = [
     price: '€899',
     productId: 3,
     colors: [
-      { name: 'Tutte le finiture', hex: '#8AB4F8', image: `${IMG}/37d4e3218_IMG_1673.webp` },
+      { name: 'Tutte le finiture', hex: '#8AB4F8', image: HERO },
     ],
   },
   {
@@ -45,10 +47,10 @@ const MODELS = [
     price: '€799',
     productId: 4,
     colors: [
-      { name: 'Verde', hex: '#4E6B54', image: `${IMG}/bbc5ad376_IMG_1647.jpeg` },
-      { name: 'Viola', hex: '#8C7BB0', image: `${IMG}/41f49baf1_IMG_1674.webp` },
-      { name: 'Rosa', hex: '#E7B5C0', image: `${IMG}/bb0ae7c20_IMG_1646.jpeg` },
-      { name: 'Crema', hex: '#E5DCC8', image: `${IMG}/4fd4fd8a0_IMG_1681.webp` },
+      { name: 'Verde', hex: '#4E6B54', image: HERO },
+      { name: 'Viola', hex: '#8C7BB0', image: HERO },
+      { name: 'Rosa', hex: '#E7B5C0', image: HERO },
+      { name: 'Crema', hex: '#E5DCC8', image: HERO },
     ],
   },
 ];
