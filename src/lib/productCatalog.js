@@ -1,6 +1,7 @@
 // Catalogo prodotti organizzato per categoria con descrizioni in italiano
+// Immagini reali estratte da Apple Store
 
-const BASE = 'https://media.base44.com/images/public/user_6a6d2ae9b2386fa15db72587';
+const IMG = 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b';
 
 export const PRODUCT_CATALOG = [
   // === IPHONE ===
@@ -10,7 +11,7 @@ export const PRODUCT_CATALOG = [
     price: '€1.099',
     badge: 'Nuovo',
     category: 'iPhone',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/cef4a37ed_generated_image.png',
+    image: `${IMG}/bb0ae7c20_IMG_1646.jpeg`,
     description: 'Lo smartphone più avanzato di sempre con finitura Arancione Cosmico. Chip A19 Pro, sistema fotocamera Pro con teleobiettivo 5x e display ProMotion da 6,3".',
   },
   {
@@ -19,8 +20,8 @@ export const PRODUCT_CATALOG = [
     price: '€1.099',
     badge: 'Nuovo',
     category: 'iPhone',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/e12197b0d_generated_image.png',
-    description: 'Scopri tutte le finiture disponibili per iPhone 17 Pro. Struttura in titanio di grado aerospaziale e vetro Ceramic Shield di ultima generazione.',
+    image: `${IMG}/bbc5ad376_IMG_1647.jpeg`,
+    description: 'Scopri tutte le finiture disponibili per iPhone 17 Pro. Struttura in alluminio forgiato e vetro Ceramic Shield 2 di ultima generazione.',
   },
   {
     id: 3,
@@ -28,8 +29,8 @@ export const PRODUCT_CATALOG = [
     price: '€1.099',
     badge: null,
     category: 'iPhone',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/ee73fc09e_generated_image.png',
-    description: 'Eleganza essenziale in Titanio Naturale. Design ultra-sottile, prestazioni eccezionali e autonomia che dura tutto il giorno.',
+    image: `${IMG}/e0d184381_IMG_1648.webp`,
+    description: 'Eleganza essenziale in finitura Argento. Design ultra-sottile, prestazioni eccezionali e autonomia che dura tutto il giorno.',
   },
   {
     id: 4,
@@ -37,7 +38,7 @@ export const PRODUCT_CATALOG = [
     price: '€999',
     badge: 'Nuovo',
     category: 'iPhone',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/e5dc60d8b_generated_image.png',
+    image: `${IMG}/d7f4e4986_IMG_1649.jpg`,
     description: 'Il più sottile mai realizzato. iPhone 17 Air in Azzurro unisce leggerezza estrema e potenza professionale in soli 5,6 mm di spessore.',
   },
   {
@@ -46,7 +47,7 @@ export const PRODUCT_CATALOG = [
     price: '€999',
     badge: null,
     category: 'iPhone',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/763351eac_generated_image.png',
+    image: `${IMG}/9330a7561_IMG_1650.jpg`,
     description: 'Purezza e minimalismo nella finitura Bianca. Il nuovo iPhone 17 Air ridefinisce il concetto di smartphone sottile senza compromessi.',
   },
   {
@@ -55,7 +56,7 @@ export const PRODUCT_CATALOG = [
     price: '€899',
     badge: null,
     category: 'iPhone',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/f451f557e_generated_image.png',
+    image: `${IMG}/5c59fa55f_IMG_1651.jpg`,
     description: 'Il nuovo iPhone 17 in elegante colore Nero. Display Super Retina XDR, doppia fotocamera e chip A19 per prestazioni da top di gamma.',
   },
   {
@@ -64,7 +65,7 @@ export const PRODUCT_CATALOG = [
     price: '€1.199',
     badge: 'Nuovo',
     category: 'iPhone',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/8b9eead1b_generated_image.png',
+    image: `${IMG}/65b3e0a90_IMG_1652.jpg`,
     description: 'Il modello Pro Max con il più grande display ever, batteria a lunga autonomia e fotocamera professionale. Finitura Arancione Cosmico esclusiva.',
   },
   {
@@ -73,7 +74,7 @@ export const PRODUCT_CATALOG = [
     price: '€899',
     badge: null,
     category: 'iPhone',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/d743ae409_generated_image.png',
+    image: `${IMG}/6af752a1f_IMG_1653.jpg`,
     description: 'iPhone 17 nella vibrante colorazione Arancione. Design rinnovato, fotocamera avanzata e prestazioni eccezionali a un prezzo accessibile.',
   },
   {
@@ -82,7 +83,7 @@ export const PRODUCT_CATALOG = [
     price: '€1.099',
     badge: 'Nuovo',
     category: 'iPhone',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/96cc8fa2a_generated_image.png',
+    image: `${IMG}/62e7a836b_IMG_1654.jpg`,
     description: 'Lo splendido display ProMotion da 120Hz dell\'iPhone 17 Pro. Luminosità fino a 2000 nit all\'aperto e True Tone per colori sempre perfetti.',
   },
   {
@@ -91,7 +92,7 @@ export const PRODUCT_CATALOG = [
     price: '€799',
     badge: null,
     category: 'iPhone',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/d3da008bd_generated_image.png',
+    image: `${IMG}/124b7c63f_IMG_1655.jpg`,
     description: 'L\'intera gamma iPhone 16 in un\'unica immagine. Quattro modelli, quattro dimensioni, tutte le finiture per trovare quella perfetta per te.',
   },
   {
@@ -100,7 +101,7 @@ export const PRODUCT_CATALOG = [
     price: '€799',
     badge: null,
     category: 'iPhone',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/caa5547ab_generated_image.png',
+    image: `${IMG}/b76136720_IMG_1656.jpg`,
     description: 'iPhone 16 nella sua confezione originale. Include cavo USB-C, documentazione e adesivo Apple. Il nuovo controllo fotocamera rivoluziona gli scatti.',
   },
   {
@@ -109,7 +110,7 @@ export const PRODUCT_CATALOG = [
     price: '€1.099',
     badge: 'Nuovo',
     category: 'iPhone',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/d4434dbbf_generated_image.png',
+    image: `${IMG}/5819c7c2d_IMG_1657.jpeg`,
     description: 'Il sistema fotocamera Pro dell\'iPhone 17 Pro in dettaglio. Teleobiettivo 5x, grandangolo e ultra-grandangolo per foto da vero professionista.',
   },
   {
@@ -118,7 +119,7 @@ export const PRODUCT_CATALOG = [
     price: '€999',
     badge: null,
     category: 'iPhone',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/4af6f9c37_generated_image.png',
+    image: `${IMG}/a86207ae7_IMG_1658.jpeg`,
     description: 'iPhone 16 Pro nella sofisticata finitura Blu Notte. Titanio di grado 5, Action Button e Fotocamera di Controllo per un\'esperienza completa.',
   },
   {
@@ -127,7 +128,7 @@ export const PRODUCT_CATALOG = [
     price: '€1.099',
     badge: 'Nuovo',
     category: 'iPhone',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/5ae17ef02_generated_image.png',
+    image: `${IMG}/f2bd4d78a_IMG_1659.jpeg`,
     description: 'iPhone 17 Pro nella vita di tutti i giorni. Prestazioni eccezionali per lavoro, creatività e intrattenimento senza limiti.',
   },
   {
@@ -136,8 +137,8 @@ export const PRODUCT_CATALOG = [
     price: '€1.099',
     badge: 'Nuovo',
     category: 'iPhone',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/2609a0409_generated_image.png',
-    description: 'I dettagli artigianali dell\'iPhone 17 Pro. Cornici ultra-sottili, pulsanti precisione e struttura in titanio per un feel premium assoluto.',
+    image: `${IMG}/2d8934003_IMG_1660.jpeg`,
+    description: 'I dettagli artigianali dell\'iPhone 17 Pro. Cornici ultra-sottili, pulsanti precisione e struttura in alluminio forgiato per un feel premium assoluto.',
   },
   {
     id: 16,
@@ -145,17 +146,17 @@ export const PRODUCT_CATALOG = [
     price: '€1.099',
     badge: null,
     category: 'iPhone',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/e12197b0d_generated_image.png',
-    description: 'Tre finiture esclusive per iPhone 17 Pro: Titanio Naturale, Titanio Scuro e Arancione Cosmico. Scegli lo stile che ti rappresenta.',
+    image: `${IMG}/f661dd828_IMG_1661.jpeg`,
+    description: 'Tre finiture esclusive per iPhone 17 Pro: Arancione Cosmico, Deep Blue e Argento. Scegli lo stile che ti rappresenta.',
   },
   {
     id: 17,
-    name: 'iPhone 17 — Render 3D',
+    name: 'iPhone 17 Pro — Render 3D',
     price: '€1.099',
     badge: 'Nuovo',
     category: 'iPhone',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/adb6d123d_generated_image.png',
-    description: 'Rendering 3D dell\'iPhone 17 che mostra ogni dettaglio del design. Linee pulite, materiali premium e ingegneria di precisione.',
+    image: `${IMG}/7d50b1a27_IMG_1662.jpeg`,
+    description: 'Rendering 3D dell\'iPhone 17 Pro che mostra ogni dettaglio del design. Linee pulite, materiali premium e ingegneria di precisione.',
   },
   {
     id: 60,
@@ -163,7 +164,7 @@ export const PRODUCT_CATALOG = [
     price: '€1.099',
     badge: 'Nuovo',
     category: 'iPhone',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/d4434dbbf_generated_image.png',
+    image: `${IMG}/6594f9a7e_IMG_1663.jpeg`,
     description: 'Primo piano sul modulo fotocamera dell\'iPhone 17 Pro. Lenti smerigliate, sensore LiDAR e flash True Tone per risultati sorprendenti.',
   },
   {
@@ -172,7 +173,7 @@ export const PRODUCT_CATALOG = [
     price: '€1.099',
     badge: 'Nuovo',
     category: 'iPhone',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/f4a75677a_generated_image.png',
+    image: `${IMG}/db1a61bfe_IMG_1664.jpg`,
     description: 'Il sistema tripla fotocamera Pro: grandangolo, ultra-grandangolo e teleobiettivo 5x. Foto notturne, ritratti e macro di qualità professionale.',
   },
   {
@@ -181,7 +182,7 @@ export const PRODUCT_CATALOG = [
     price: '€1.199',
     badge: 'Nuovo',
     category: 'iPhone',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/8b9eead1b_generated_image.png',
+    image: `${IMG}/985a98b88_IMG_1665.jpg`,
     description: 'iPhone 17 Pro Max in Arancione Cosmico nella vita reale. Il display più grande e la batteria più duratura della gamma Pro.',
   },
   {
@@ -190,7 +191,7 @@ export const PRODUCT_CATALOG = [
     price: '€1.099',
     badge: 'Nuovo',
     category: 'iPhone',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/cef4a37ed_generated_image.png',
+    image: `${IMG}/5b70b72a5_IMG_1666.png`,
     description: 'Due esemplari di iPhone 17 Pro in Arancione Cosmico. Confronta il design anteriore e posteriore in un\'unica immagine d\'impatto.',
   },
   {
@@ -199,7 +200,7 @@ export const PRODUCT_CATALOG = [
     price: '€999',
     badge: null,
     category: 'iPhone',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/4af6f9c37_generated_image.png',
+    image: `${IMG}/3e4cbc97a_IMG_1667.png`,
     description: 'Dettaglio ravvicinato della fotocamera dell\'iPhone 16 Pro. Sistema Pro con sensore da 48MP e stabilizzazione ottica per foto sempre nitide.',
   },
   {
@@ -208,7 +209,7 @@ export const PRODUCT_CATALOG = [
     price: '€1.099',
     badge: 'Nuovo',
     category: 'iPhone',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/cef4a37ed_generated_image.png',
+    image: `${IMG}/928b2127d_IMG_1668.webp`,
     description: 'Concept design dell\'iPhone 17 Pro in Arancione Cosmico. Una visione futuristica che anticipa il design della prossima generazione.',
   },
   {
@@ -217,7 +218,7 @@ export const PRODUCT_CATALOG = [
     price: '€1.099',
     badge: 'Nuovo',
     category: 'iPhone',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/d4434dbbf_generated_image.png',
+    image: `${IMG}/a53ee8668_IMG_1669.webp`,
     description: 'Macro estrema dell\'obiettivo fotocamera dell\'iPhone 17 Pro. Precisione millimetrica e qualità ottica superiore per catturare ogni dettaglio.',
   },
   {
@@ -226,7 +227,7 @@ export const PRODUCT_CATALOG = [
     price: '€1.099',
     badge: 'Nuovo',
     category: 'iPhone',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/adb6d123d_generated_image.png',
+    image: `${IMG}/b9530564b_IMG_1670.jpeg`,
     description: 'Render tridimensionale dell\'iPhone 17 Pro in Arancione Cosmico. Visualizza ogni angolazione del design più innovativo di Apple.',
   },
 
@@ -237,7 +238,7 @@ export const PRODUCT_CATALOG = [
     price: '€449',
     badge: 'Nuovo',
     category: 'Apple Watch',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/6e65c0c7f_generated_image.png',
+    image: `${IMG}/2abb70f56_IMG_1671.jpeg`,
     description: 'Apple Watch Series 10 con cassa in alluminio Nero. Display sempre attivo più grande e sottile, sensori sanitari avanzati e nuovo ciclo di carica rapida.',
   },
   {
@@ -246,7 +247,7 @@ export const PRODUCT_CATALOG = [
     price: '€449',
     badge: null,
     category: 'Apple Watch',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/1be5cf482_generated_image.png',
+    image: `${IMG}/07818d309_IMG_1672.jpeg`,
     description: 'Apple Watch Series 10 con cinturino Sport fluoroelastomerico. Leggero, resistente all\'acqua e perfetto per l\'allenamento quotidiano.',
   },
   {
@@ -255,7 +256,7 @@ export const PRODUCT_CATALOG = [
     price: '€799',
     badge: 'Nuovo',
     category: 'Apple Watch',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/a097da49a_generated_image.png',
+    image: `${IMG}/37d4e3218_IMG_1673.webp`,
     description: 'Apple Watch Ultra 2 con cinturino Ocean Band. Costruito per gli avventurieri: cassa in titanio, GPS dual-band e autonomia fino a 72 ore.',
   },
   {
@@ -264,7 +265,7 @@ export const PRODUCT_CATALOG = [
     price: '€799',
     badge: null,
     category: 'Apple Watch',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/26a516880_generated_image.png',
+    image: `${IMG}/41f49baf1_IMG_1674.webp`,
     description: 'Apple Watch Ultra 2 con cinturino Alpine Loop arancione. Robustezza estrema per le attività outdoor più impegnative, con display luminosissimo.',
   },
   {
@@ -273,7 +274,7 @@ export const PRODUCT_CATALOG = [
     price: '€399',
     badge: null,
     category: 'Apple Watch',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/91d7775ef_generated_image.png',
+    image: `${IMG}/afaae44e7_IMG_1675.webp`,
     description: 'Apple Watch Series 9 con cinturino magnetico. Chip S9, gesto Doppio Tocco e Siri on-device per un\'esperienza più fluida che mai.',
   },
   {
@@ -282,7 +283,7 @@ export const PRODUCT_CATALOG = [
     price: '€449',
     badge: null,
     category: 'Apple Watch',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/73eb14eaf_generated_image.png',
+    image: `${IMG}/ae167da00_IMG_1676.webp`,
     description: 'Il nuovo quadrante dell\'Apple Watch Series 10. Display ultra-luminoso con refresh rate adattivo e watchface completamente rinnovate.',
   },
   {
@@ -291,7 +292,7 @@ export const PRODUCT_CATALOG = [
     price: '€449',
     badge: 'Nuovo',
     category: 'Apple Watch',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/73eb14eaf_generated_image.png',
+    image: `${IMG}/20b84ec9d_IMG_1677.jpeg`,
     description: 'Dettaglio macro dell\'Apple Watch Series 10. Corona digitale ridisegnata, cristallo più sottile e sensori di salute di nuova generazione.',
   },
   {
@@ -300,7 +301,7 @@ export const PRODUCT_CATALOG = [
     price: '€449',
     badge: null,
     category: 'Apple Watch',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/cb06d4621_generated_image.png',
+    image: `${IMG}/9567fcd33_IMG_1678.webp`,
     description: 'Profilo laterale dell\'Apple Watch Series 10. Lo spessore più sottile di sempre rende l\'orologio incredibilmente comodo al polso.',
   },
   {
@@ -309,7 +310,7 @@ export const PRODUCT_CATALOG = [
     price: '€349',
     badge: null,
     category: 'Apple Watch',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/603bb1a06_generated_image.png',
+    image: `${IMG}/5eced5370_IMG_1679.webp`,
     description: 'Apple Watch Series 7 in tutte le sue colorazioni. Display più ampio con cornici sottili e vetro frontale più resistente alle crepe.',
   },
   {
@@ -318,7 +319,7 @@ export const PRODUCT_CATALOG = [
     price: '€349',
     badge: null,
     category: 'Apple Watch',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/603bb1a06_generated_image.png',
+    image: `${IMG}/4552cdca7_IMG_1680.webp`,
     description: 'Due modelli di Apple Watch Series 7 a confronto. La gamma completa per ogni stile, dall\'alluminio all\'acciaio inossidabile.',
   },
   {
@@ -327,7 +328,7 @@ export const PRODUCT_CATALOG = [
     price: '€249',
     badge: null,
     category: 'Apple Watch',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/5b50b8017_generated_image.png',
+    image: `${IMG}/4fd4fd8a0_IMG_1681.webp`,
     description: 'Apple Watch Series 4, un classico senza tempo. Display più grande, ECG e rilevamento caduta: le fondamenta del moderno smartwatch.',
   },
   {
@@ -336,7 +337,7 @@ export const PRODUCT_CATALOG = [
     price: '€249',
     badge: 'Nuovo',
     category: 'Apple Watch',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/1f717dfa4_generated_image.png',
+    image: `${IMG}/dabbb9a2e_IMG_1682.webp`,
     description: 'La gamma Apple Watch SE completa. Tutte le funzioni essenziali a un prezzo accessibile: perfetto per chi si avvicina al mondo Apple Watch.',
   },
   {
@@ -345,7 +346,7 @@ export const PRODUCT_CATALOG = [
     price: '€449',
     badge: null,
     category: 'Apple Watch',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/eb180f4f4_generated_image.png',
+    image: `${IMG}/63d33f72a_IMG_1683.webp`,
     description: 'La corona digitale ridisegnata dell\'Apple Watch Series 10. Feedback aptico preciso e nuove funzioni di interazione touch-free.',
   },
   {
@@ -354,7 +355,7 @@ export const PRODUCT_CATALOG = [
     price: '€449',
     badge: null,
     category: 'Apple Watch',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/6e65c0c7f_generated_image.png',
+    image: `${IMG}/502c9901e_IMG_1684.jpeg`,
     description: 'Vista frontale macro dell\'Apple Watch. Il display sempre attivo mostra informazioni essenziali con un tocco di eleganza minimalista.',
   },
   {
@@ -363,7 +364,7 @@ export const PRODUCT_CATALOG = [
     price: '€399',
     badge: null,
     category: 'Apple Watch',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/73eb14eaf_generated_image.png',
+    image: `${IMG}/e7b796fbe_IMG_1685.jpeg`,
     description: 'Quadrante scuro dell\'Apple Watch per uno stile sofisticato. Modalità sempre attiva ottimizzata per ridurre il consumo batteria.',
   },
   {
@@ -372,7 +373,7 @@ export const PRODUCT_CATALOG = [
     price: '€399',
     badge: null,
     category: 'Apple Watch',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/6e65c0c7f_generated_image.png',
+    image: `${IMG}/7db828c51_IMG_1687.jpeg`,
     description: 'Design frontale minimalista dell\'Apple Watch. Pulizia visiva totale con interfaccia intuitiva e focus sulle informazioni che contano.',
   },
   {
@@ -381,7 +382,7 @@ export const PRODUCT_CATALOG = [
     price: '€449',
     badge: 'Nuovo',
     category: 'Apple Watch',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/c962b72ab_generated_image.png',
+    image: `${IMG}/810651f55_IMG_1688.jpeg`,
     description: 'Dettaglio costruttivo dell\'Apple Watch Series 10. Materiali premium, lavorazione di precisione e un design che unisce forma e funzione.',
   },
 
@@ -392,7 +393,7 @@ export const PRODUCT_CATALOG = [
     price: '€549',
     badge: 'Nuovo',
     category: 'AirPods Max',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/f6ca7809d_IMG_1434.jpg',
+    image: `${IMG}/4d51436f9_IMG_1689.jpeg`,
     description: 'AirPods Max nella colorazione Nero Mezzanotte. Cuffie over-ear premium con audio spaziale, cancellazione attiva del rumore e suono Hi-Fi.',
   },
   {
@@ -401,7 +402,7 @@ export const PRODUCT_CATALOG = [
     price: '€549',
     badge: null,
     category: 'AirPods Max',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/dce745ccf_IMG_1435.jpeg',
+    image: `${IMG}/79fd2128e_IMG_1690.jpeg`,
     description: 'AirPods Max in Grigio Siderale. Archetto in maglia intrecciata per comfort prolungato e driver dinamico per un audio ricco e dettagliato.',
   },
   {
@@ -410,7 +411,7 @@ export const PRODUCT_CATALOG = [
     price: '€549',
     badge: null,
     category: 'AirPods Max',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/3acddcedd_generated_image.png',
+    image: `${IMG}/dbf9ebdb0_IMG_1691.jpeg`,
     description: 'AirPods Max nella delicata finitura Blu Cielo. Audio spaziale con tracciamento dinamico della testa per un\'esperienza cinematografica immersiva.',
   },
   {
@@ -419,7 +420,7 @@ export const PRODUCT_CATALOG = [
     price: '€549',
     badge: null,
     category: 'AirPods Max',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/0f0bfa602_generated_image.png',
+    image: `${IMG}/4d118691e_IMG_1692.jpeg`,
     description: 'AirPods Max in Verde Alpino. Cancellazione del rumore leader di categoria e modalità Trasparenza per restare connessi al mondo esterno.',
   },
   {
@@ -428,7 +429,7 @@ export const PRODUCT_CATALOG = [
     price: '€549',
     badge: null,
     category: 'AirPods Max',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/d9e03807f_IMG_1436.jpeg',
+    image: `${IMG}/f35272caa_IMG_1693.jpeg`,
     description: 'AirPods Max indossate con stile. Comfort eccezionale grazie all\'archetto in maglia e cuscinetti in memory foam per sessioni di ascolto prolungate.',
   },
   {
@@ -437,7 +438,7 @@ export const PRODUCT_CATALOG = [
     price: '€549',
     badge: 'Nuovo',
     category: 'AirPods Max',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/4f211505c_generated_image.png',
+    image: `${IMG}/0dc052de1_IMG_1694.jpeg`,
     description: 'AirPods Max in un contesto lifestyle femminile. Design elegante, materiali premium e suono d\'alta fedeltà per ogni momento della giornata.',
   },
   {
@@ -446,7 +447,7 @@ export const PRODUCT_CATALOG = [
     price: '€549',
     badge: null,
     category: 'AirPods Max',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/648a4af58_IMG_1433.jpg',
+    image: `${IMG}/21c121f53_IMG_1695.jpeg`,
     description: 'AirPods Max in primo piano. La struttura in acciaio inossidabile e gli auricolari in memory foam garantiscono durata e comfort assoluti.',
   },
   {
@@ -455,7 +456,7 @@ export const PRODUCT_CATALOG = [
     price: '€549',
     badge: 'Nuovo',
     category: 'AirPods Max',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/b7ec9d39a_generated_image.png',
+    image: `${IMG}/1c7f85735_IMG_1696.jpeg`,
     description: 'AirPods Max nella fresca finitura Rosa Salmone. Un tocco di colore per amanti del suono premium con un occhio allo stile.',
   },
   {
@@ -464,7 +465,7 @@ export const PRODUCT_CATALOG = [
     price: '€549',
     badge: null,
     category: 'AirPods Max',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/8ca6add33_generated_image.png',
+    image: `${IMG}/57c940bf9_IMG_1697.jpeg`,
     description: 'AirPods Max in Turchese in uno scenario lifestyle vivace. Audio spaziale e design distintivo per chi non vuole passare inosservato.',
   },
   {
@@ -473,7 +474,7 @@ export const PRODUCT_CATALOG = [
     price: '€549',
     badge: null,
     category: 'AirPods Max',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/ecd24f81d_generated_image.png',
+    image: `${IMG}/17e4d98da_IMG_1698.jpeg`,
     description: 'AirPods Max in Argento, vista frontale. La classica eleganza Apple con finitura lucida e digitale corona per il controllo del volume.',
   },
   {
@@ -482,7 +483,7 @@ export const PRODUCT_CATALOG = [
     price: '€549',
     badge: 'Nuovo',
     category: 'AirPods Max',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/ba7a544b4_generated_image.png',
+    image: `${IMG}/960bf9908_IMG_1699.jpeg`,
     description: 'AirPods Max in Blu in un contesto lifestyle. Cancellazione del rumore adattiva e audio spaziale personalizzato per un\'immersione totale.',
   },
 
@@ -493,7 +494,7 @@ export const PRODUCT_CATALOG = [
     price: '€279',
     badge: 'Nuovo',
     category: 'AirPods',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/8ca959c27_generated_image.png',
+    image: `${IMG}/e64ed3c7d_IMG_1700.jpeg`,
     description: 'AirPods Pro 3 di terza generazione. Cancellazione del rumore potenziata, nuovo design degli auricolari e case con ricarica USB-C.',
   },
   {
@@ -502,7 +503,7 @@ export const PRODUCT_CATALOG = [
     price: '€279',
     badge: 'Nuovo',
     category: 'AirPods',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/8ca959c27_generated_image.png',
+    image: `${IMG}/4f2c4607d_IMG_1701.jpeg`,
     description: 'Dettaglio macro degli AirPods Pro 3. Driver ridisegnati per un suono più ricco, con audio spaziale e adattamento automatico all\'orecchio.',
   },
   {
@@ -511,7 +512,7 @@ export const PRODUCT_CATALOG = [
     price: '€279',
     badge: 'Nuovo',
     category: 'AirPods',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/17db7f969_generated_image.png',
+    image: `${IMG}/99e222047_IMG_1702.png`,
     description: 'AirPods Pro 3 in vista sospesa. Design ergonomico, resistenza all\'acqua e al sudore IP54 e autonomia fino a 6 ore con una sola carica.',
   },
   {
@@ -520,7 +521,7 @@ export const PRODUCT_CATALOG = [
     price: '€149',
     badge: null,
     category: 'AirPods',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/e6f82887d_generated_image.png',
+    image: `${IMG}/6eb07533c_IMG_1703.png`,
     description: 'AirPods 4 in due varianti: standard e con cancellazione del rumore. Design semi-in-ear rivoluzionato per comfort e qualità audio superiori.',
   },
   {
@@ -529,7 +530,7 @@ export const PRODUCT_CATALOG = [
     price: '€249',
     badge: null,
     category: 'AirPods',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/2def9d4ff_generated_image.png',
+    image: `${IMG}/f731cdad5_IMG_1704.png`,
     description: 'AirPods Pro 2 in vista sospesa. Chip H2 per cancellazione del rumore 2x più efficace e audio spaziale personalizzato con tracciamento testa.',
   },
   {
@@ -538,7 +539,7 @@ export const PRODUCT_CATALOG = [
     price: '€249',
     badge: null,
     category: 'AirPods',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/a281839aa_generated_image.png',
+    image: `${IMG}/b2fed9641_IMG_1705.png`,
     description: 'Dettaglio macro degli AirPods Pro 2. Auricolari in silicone morbido, sensore di forza per il controllo touch e griglia acustica ridisegnata.',
   },
   {
@@ -547,7 +548,7 @@ export const PRODUCT_CATALOG = [
     price: '€249',
     badge: null,
     category: 'AirPods',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/5cbf35af4_generated_image.png',
+    image: `${IMG}/bf58c6cc9_IMG_1706.png`,
     description: 'AirPods Pro 2 con case di ricarica MagSafe. Lacciolo integrato, indicatore di carica e ricarica wireless per la massima praticità.',
   },
   {
@@ -556,7 +557,7 @@ export const PRODUCT_CATALOG = [
     price: '€129',
     badge: null,
     category: 'AirPods',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/f55af5747_generated_image.png',
+    image: `${IMG}/58f298cc3_IMG_1707.png`,
     description: 'AirPods di seconda generazione in un contesto lifestyle rosso. Doppio microfono, chip H1 e "Ehi Siri" sempre attivo per un uso semplice.',
   },
   {
@@ -565,7 +566,7 @@ export const PRODUCT_CATALOG = [
     price: '€169',
     badge: null,
     category: 'AirPods',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/ddfc30c0f_generated_image.png',
+    image: `${IMG}/2c75866bd_IMG_1708.png`,
     description: 'AirPods 3 in uno scenario lifestyle. Design leggero con sensore di forza per il controllo touch e resistenza all\'acqua IPX4.',
   },
   {
@@ -574,7 +575,7 @@ export const PRODUCT_CATALOG = [
     price: '€169',
     badge: null,
     category: 'AirPods',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/46f36b217_generated_image.png',
+    image: `${IMG}/a70b6b104_IMG_1709.png`,
     description: 'AirPods 3 in vista flatlay. Case di ricarica MagSafe compatto, autonomia fino a 6 ore e audio spaziale per un\'esperienza immersiva.',
   },
 
@@ -585,7 +586,7 @@ export const PRODUCT_CATALOG = [
     price: '€1.499',
     badge: null,
     category: 'Ecosistema',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/6810e4062_IMG_1437.jpeg',
+    image: `${IMG}/5c4627e1c_IMG_1710.png`,
     description: 'L\'intero ecosistema Apple in un\'unica soluzione. iPhone, iPad, MacBook, Apple Watch e AirPods che lavorano insieme in perfetta sinergia.',
   },
   {
@@ -594,7 +595,7 @@ export const PRODUCT_CATALOG = [
     price: '€1.299',
     badge: null,
     category: 'Ecosistema',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/164b03a6c_IMG_1439.jpeg',
+    image: `${IMG}/bb0ae7c20_IMG_1646.jpeg`,
     description: 'Il duo perfetto per la produttività: MacBook e iPad con Sidecar, AirDrop e Universal Control per un flusso di lavoro senza interruzioni.',
   },
   {
@@ -603,7 +604,7 @@ export const PRODUCT_CATALOG = [
     price: '€999',
     badge: null,
     category: 'Ecosistema',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/8830314f0_IMG_1430.jpg',
+    image: `${IMG}/bbc5ad376_IMG_1647.jpeg`,
     description: 'Il pacchetto Family dell\'ecosistema Apple. Condivisione foto, calendari e abbonamenti con iCloud+ per tutta la famiglia.',
   },
   {
@@ -612,7 +613,7 @@ export const PRODUCT_CATALOG = [
     price: '€1.099',
     badge: null,
     category: 'Ecosistema',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/1c512ac45_IMG_1438.jpeg',
+    image: `${IMG}/e0d184381_IMG_1648.webp`,
     description: 'Ecosistema Apple in elegante finitura Argento. iPhone, iPad e MacBook coordinati per uno stile coerente e una connettività senza pari.',
   },
 ];
