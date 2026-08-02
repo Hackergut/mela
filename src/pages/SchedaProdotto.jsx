@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ShoppingCart, Heart, Share2, Check, Truck, Shield, RotateCcw, Headphones } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Heart, Share2, Check, Truck, Shield, RotateCcw, Headphones, Loader2 } from 'lucide-react';
 import PromoBanner from '@/components/PromoBanner';
 import Navbar from '@/components/Navbar';
 import FooterSection from '@/components/FooterSection';
@@ -9,6 +9,7 @@ import { Image } from '@/components/ui/image';
 import { fadeUp, staggerContainer, staggerItem, heroEntrance } from '@/lib/motion';
 import { PRODUCT_CATALOG } from '@/lib/productCatalog';
 import { PRODUCT_KEY_SPECS } from '@/lib/productSpecs';
+import { base44 } from '@/api/base44Client';
 
 const SPECS_BY_CATEGORY = {
   'iPhone': [
@@ -69,11 +70,22 @@ export default function SchedaProdotto() {
 
   const [activeImage, setActiveImage] = useState(0);
   const [added, setAdded] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutError, setCheckoutError] = useState(null);
+  const [paymentStatus, setPaymentStatus] = useState(null);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setActiveImage(0);
     setAdded(false);
+    setCheckoutError(null);
+    const urlParams = new URLSearchParams(window.location.search);
+    const payment = urlParams.get('payment');
+    if (payment === 'success' || payment === 'cancelled') {
+      setPaymentStatus(payment);
+    } else {
+      setPaymentStatus(null);
+    }
   }, [productId]);
 
   // Galleria: prodotto corrente + prodotti correlati della stessa categoria
@@ -115,6 +127,34 @@ export default function SchedaProdotto() {
     if (label === 'Categoria') return prod.category;
     if (label === 'Disponibilità') return prod.badge || 'Disponibile';
     return PRODUCT_KEY_SPECS[prod.id]?.[label] || '—';
+  };
+
+  const handleBuyNow = async () => {
+    if (window.self !== window.top) {
+      alert('Il checkout è disponibile solo dall\'app pubblicata. Apri l\'app in una nuova scheda per procedere.');
+      return;
+    }
+    setCheckoutError(null);
+    setCheckoutLoading(true);
+    try {
+      const origin = window.location.origin;
+      const response = await base44.functions.invoke('create-checkout-session', {
+        productId: product.id,
+        name: product.name,
+        image: product.image,
+        description: product.description,
+        successUrl: `${origin}/scheda-prodotto?id=${product.id}&payment=success`,
+        cancelUrl: `${origin}/scheda-prodotto?id=${product.id}&payment=cancelled`,
+      });
+      if (response.data?.url) {
+        window.location.href = response.data.url;
+      } else {
+        throw new Error('URL di checkout non ricevuto');
+      }
+    } catch (error) {
+      setCheckoutError(error.message || 'Errore durante il checkout');
+      setCheckoutLoading(false);
+    }
   };
 
   if (!product) {
@@ -160,6 +200,18 @@ export default function SchedaProdotto() {
 
       {/* Dettaglio prodotto */}
       <section className="py-8 px-6 lg:px-8">
+        {paymentStatus && (
+          <div className={`max-w-7xl mx-auto mb-6 px-5 py-4 rounded-2xl flex items-center justify-between ${
+            paymentStatus === 'success' ? 'bg-green-50 text-green-800' : 'bg-orange-50 text-orange-800'
+          }`}>
+            <p className="text-sm font-medium">
+              {paymentStatus === 'success'
+                ? '✓ Pagamento completato con successo. Grazie per il tuo acquisto!'
+                : 'Pagamento annullato. Puoi riprovare quando vuoi.'}
+            </p>
+            <button onClick={() => setPaymentStatus(null)} className="text-sm font-semibold hover:opacity-70">✕</button>
+          </div>
+        )}
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
           {/* Galleria */}
           <motion.div {...heroEntrance(0)} className="lg:sticky lg:top-24">
@@ -205,12 +257,11 @@ export default function SchedaProdotto() {
             {/* Azioni */}
             <div className="mt-6 flex flex-col sm:flex-row gap-3">
               <button
-                onClick={() => { setAdded(true); setTimeout(() => setAdded(false), 2000); }}
-                className={`flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-full text-sm font-semibold transition-all duration-200 ${
-                  added ? 'bg-green-500 text-white' : 'bg-[#1d1d1f] text-white hover:bg-[#FF6B35]'
-                }`}
+                onClick={handleBuyNow}
+                disabled={checkoutLoading}
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-full text-sm font-semibold transition-all duration-200 bg-[#1d1d1f] text-white hover:bg-[#FF6B35] disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {added ? <><Check size={18} /> Aggiunto al carrello</> : <><ShoppingCart size={18} /> Aggiungi al Carrello</>}
+                {checkoutLoading ? <><Loader2 size={18} className="animate-spin" /> Reindirizzamento…</> : <><ShoppingCart size={18} /> Acquista Ora</>}
               </button>
               <button className="w-12 h-12 sm:w-auto sm:h-auto sm:px-4 flex items-center justify-center rounded-full bg-white border border-gray-200 hover:border-[#FF6B35] text-[#1d1d1f] transition-colors">
                 <Heart size={18} />
@@ -219,6 +270,10 @@ export default function SchedaProdotto() {
                 <Share2 size={18} />
               </button>
             </div>
+
+            {checkoutError && (
+              <p className="mt-3 text-sm text-red-600 bg-red-50 rounded-xl px-4 py-3">{checkoutError}</p>
+            )}
 
             {/* Highlights */}
             <div className="mt-8 grid grid-cols-2 gap-3">
