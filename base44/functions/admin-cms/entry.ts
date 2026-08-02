@@ -4,45 +4,39 @@ import { secrets } from 'base44:runtime';
 export default async function(req) {
   try {
     const body = await req.json();
-    const { password, operation, payload } = body;
+    const { password, operation, resource, payload } = body;
 
     if (!password || password !== secrets.get("ADMIN_PASSWORD")) {
       return Response.json({ error: "Password non valida" }, { status: 401 });
     }
 
     const base44 = createClientFromRequest(req);
-    const db = base44.asServiceRole.entities.Product;
+    const dbMap = {
+      product: base44.asServiceRole.entities.Product,
+      category: base44.asServiceRole.entities.Category,
+      asset: base44.asServiceRole.entities.Asset,
+    };
+    const res = resource || 'product';
+    const db = dbMap[res];
+    if (!db) return Response.json({ error: "Risorsa non valida" }, { status: 400 });
 
     switch (operation) {
       case "list": {
-        const items = await db.list('-sort_order', 500);
-        return Response.json({ products: items });
+        const sort = res === 'category' ? 'sort_order' : (res === 'asset' ? '-created_date' : '-sort_order');
+        const items = await db.list(sort, 500);
+        return Response.json({ items });
       }
       case "create": {
-        const { name, price, price_cents, badge, category, image, images, colors, description, sort_order } = payload || {};
-        if (!name || !price || !category || !image) {
-          return Response.json({ error: "Nome, prezzo, categoria e immagine sono obbligatori" }, { status: 400 });
-        }
-        const created = await db.create({
-          name, price,
-          price_cents: Number(price_cents) || 0,
-          badge: badge || null,
-          category,
-          image,
-          images: images || [],
-          colors: colors || [],
-          description: description || "",
-          sort_order: Number(sort_order) || 0,
-        });
-        return Response.json({ product: created });
+        const item = await db.create(payload || {});
+        return Response.json({ item });
       }
       case "update": {
         const { id, ...data } = payload || {};
         if (!id) return Response.json({ error: "ID mancante" }, { status: 400 });
         if (data.price_cents !== undefined) data.price_cents = Number(data.price_cents);
         if (data.sort_order !== undefined) data.sort_order = Number(data.sort_order);
-        const updated = await db.update(id, data);
-        return Response.json({ product: updated });
+        const item = await db.update(id, data);
+        return Response.json({ item });
       }
       case "delete": {
         const { id } = payload || {};

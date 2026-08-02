@@ -1,30 +1,22 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Image } from '@/components/ui/image';
 import { fadeUp, staggerContainer, staggerItem } from '@/lib/motion';
 import { useProducts } from '@/lib/useProducts';
-import { IPHONE_GALLERY } from '@/lib/productCatalog';
-
-const IMG = 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b';
-
-const CATEGORY_DEFS = [
-  { id: 'iPhone', name: 'iPhone', image: IPHONE_GALLERY[0] },
-  { id: 'Apple Watch', name: 'Apple Watch', image: `${IMG}/f661dd828_IMG_1661.jpeg` },
-  { id: 'iPad', name: 'iPad', image: `${IMG}/4d118691e_IMG_1692.jpeg` },
-  { id: 'AirPods', name: 'AirPods', image: `${IMG}/4d51436f9_IMG_1689.jpeg` },
-  { id: 'AirPods Max', name: 'AirPods Max', image: `${IMG}/a70b6b104_IMG_1709.png` },
-  { id: 'Mac', name: 'Mac', image: `${IMG}/6eb07533c_IMG_1703.png` },
-  { id: 'Accessori', name: 'Accessori', image: `${IMG}/79fd2128e_IMG_1690.jpeg` },
-  { id: 'Ecosistema', name: 'Ecosistema Apple', image: `${IMG}/3e4cbc97a_IMG_1667.png` },
-];
+import { base44 } from '@/api/base44Client';
 
 export default function CategoriesSection() {
   const { products } = useProducts();
+  const [cats, setCats] = useState([]);
 
-  const categories = CATEGORY_DEFS.map(def => ({
-    ...def,
-    count: `${products.filter(p => p.category === def.id).length} ${def.id === 'iPhone' ? 'modelli' : 'pezzi'}`,
-  })).filter(c => c.count.startsWith('0') === false || true);
+  useEffect(() => {
+    base44.entities.Category.list('sort_order', 50).then(setCats).catch(() => {});
+  }, []);
+
+  const categories = cats.map(c => ({
+    ...c,
+    count: `${products.filter(p => p.category === c.name).length} ${c.name === 'iPhone' ? 'modelli' : 'pezzi'}`,
+  })).filter(c => c.count[0] !== '0' || true);
 
   return (
     <section id="categories" className="py-20 px-6 lg:px-8 bg-[#f5f5f7]">

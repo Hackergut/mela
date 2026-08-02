@@ -1,0 +1,40 @@
+{
+  "name": "Asset",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Nome file"
+    },
+    "url": {
+      "type": "string",
+      "title": "URL immagine",
+      "format": "url"
+    },
+    "category": {
+      "type": "string",
+      "title": "Categoria"
+    }
+  },
+  "required": [
+    "url"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

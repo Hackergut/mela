@@ -14,8 +14,8 @@ export default function AdminLogin({ onLogin }) {
     if (!password) return;
     setLoading(true); setError(null);
     try {
-      const res = await base44.functions.invoke('admin-cms', { password, operation: 'list' });
-      onLogin(password, res.data.products || []);
+      const res = await base44.functions.invoke('admin-cms', { password, operation: 'list', resource: 'product' });
+      onLogin(password, res.data.items || []);
     } catch (err) {
       setError(err.response?.data?.error || 'Password non valida');
     } finally { setLoading(false); }
