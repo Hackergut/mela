@@ -47,7 +47,7 @@ export default function HeroSection() {
         {/* Headline due righe */}
         <motion.h1
           {...heroEntrance(0.08)}
-          className="text-center text-4xl md:text-6xl lg:text-7xl font-bold text-[#F5F5F7] leading-[1.05] tracking-tight mb-12"
+          className="text-center text-4xl md:text-6xl lg:text-7xl font-bold text-[#F5F5F7] leading-[1.05] tracking-tight mb-8"
         >
           Tutto l'indispensabile.
           <br />
@@ -61,11 +61,11 @@ export default function HeroSection() {
           transition={{ delay: 0.15, duration: 0.9, ease: 'easeOut' }}
           className="relative flex justify-center"
         >
-          <div className="relative w-full max-w-3xl h-[360px] md:h-[520px] lg:h-[600px] overflow-hidden">
+          <div className="relative w-full max-w-5xl h-[420px] md:h-[640px] lg:h-[760px] overflow-hidden">
             <Image
               src={MOCKUP_URL}
               alt="iPhone 17 Pro — Arancione Cosmico e Blu"
-              className="relative w-full h-[160%]"
+              className="relative w-full h-full"
               fittingType="fit"
             />
           </div>
