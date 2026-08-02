@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ShoppingCart, Heart, Share2, Check, Truck, Shield, RotateCcw, Headphones, Loader2 } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Heart, Share2, Check, Truck, Shield, RotateCcw, Headphones, Loader2, Plus } from 'lucide-react';
 import PromoBanner from '@/components/PromoBanner';
 import Navbar from '@/components/Navbar';
 import FooterSection from '@/components/FooterSection';
@@ -10,6 +10,7 @@ import { fadeUp, staggerContainer, staggerItem, heroEntrance } from '@/lib/motio
 import { PRODUCT_CATALOG } from '@/lib/productCatalog';
 import { PRODUCT_KEY_SPECS } from '@/lib/productSpecs';
 import { base44 } from '@/api/base44Client';
+import { useStore } from '@/lib/StoreContext';
 
 const SPECS_BY_CATEGORY = {
   'iPhone': [
@@ -63,6 +64,7 @@ const HIGHLIGHTS = [
 
 export default function SchedaProdotto() {
   const navigate = useNavigate();
+  const { addToCart, toggleWishlist, isInWishlist } = useStore();
   const params = new URLSearchParams(window.location.search);
   const productId = parseInt(params.get('id'), 10);
 
@@ -128,6 +130,8 @@ export default function SchedaProdotto() {
     if (label === 'Disponibilità') return prod.badge || 'Disponibile';
     return PRODUCT_KEY_SPECS[prod.id]?.[label] || '—';
   };
+
+  const handleAddToCart = () => addToCart(product);
 
   const handleBuyNow = async () => {
     if (window.self !== window.top) {
@@ -263,8 +267,18 @@ export default function SchedaProdotto() {
               >
                 {checkoutLoading ? <><Loader2 size={18} className="animate-spin" /> Reindirizzamento…</> : <><ShoppingCart size={18} /> Acquista Ora</>}
               </button>
-              <button className="w-12 h-12 sm:w-auto sm:h-auto sm:px-4 flex items-center justify-center rounded-full bg-white border border-gray-200 hover:border-[#FF6B35] text-[#1d1d1f] transition-colors">
-                <Heart size={18} />
+              <button
+                onClick={handleAddToCart}
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-full text-sm font-semibold transition-all duration-200 bg-white border border-gray-200 text-[#1d1d1f] hover:border-[#1d1d1f]"
+              >
+                <Plus size={18} /> Aggiungi al carrello
+              </button>
+              <button
+                onClick={() => toggleWishlist(product)}
+                className={`w-12 h-12 sm:w-auto sm:h-auto sm:px-4 flex items-center justify-center rounded-full bg-white border transition-colors ${isInWishlist(product.id) ? 'border-[#FF6B35] text-[#FF6B35]' : 'border-gray-200 text-[#1d1d1f] hover:border-[#FF6B35]'}`}
+                aria-label="Aggiungi ai preferiti"
+              >
+                <Heart size={18} fill={isInWishlist(product.id) ? 'currentColor' : 'none'} />
               </button>
               <button className="w-12 h-12 sm:w-auto sm:h-auto sm:px-4 flex items-center justify-center rounded-full bg-white border border-gray-200 hover:border-[#FF6B35] text-[#1d1d1f] transition-colors">
                 <Share2 size={18} />

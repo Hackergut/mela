@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { ShoppingBag, Heart } from 'lucide-react';
+import { useStore } from '@/lib/StoreContext';
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const { cartCount, wishlistCount } = useStore();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -37,6 +40,11 @@ export default function Navbar() {
     { label: 'Newsletter', action: () => goHomeAndScroll('newsletter') },
   ];
 
+  const iconColor = scrolled ? 'text-[#1d1d1f] hover:bg-gray-100' : 'text-white hover:bg-white/10';
+  const Badge = ({ count }) => count > 0 ? (
+    <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 bg-[#FF6B35] text-white text-[10px] font-bold rounded-full flex items-center justify-center">{count}</span>
+  ) : null;
+
   return (
     <header className={`sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-md shadow-sm' : 'bg-black'}`}>
       <div className="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -62,28 +70,52 @@ export default function Navbar() {
           ))}
         </nav>
 
-        {/* CTA */}
-        <div className="hidden md:block">
+        {/* CTA + Azioni carrello/preferiti/account */}
+        <div className="hidden md:flex items-center gap-3">
+          <Link to="/preferiti" className={`relative p-2 rounded-full transition-colors ${iconColor}`} aria-label="Preferiti">
+            <Heart size={20} />
+            <Badge count={wishlistCount} />
+          </Link>
+          <Link to="/carrello" className={`relative p-2 rounded-full transition-colors ${iconColor}`} aria-label="Carrello">
+            <ShoppingBag size={20} />
+            <Badge count={cartCount} />
+          </Link>
           <button
             onClick={() => scrollTo('newsletter')}
             className={`px-5 py-2 text-sm font-medium rounded-full transition-colors duration-200 ${scrolled ? 'text-white bg-[#1d1d1f] hover:bg-[#FF6B35]' : 'text-black bg-white hover:bg-white/90'}`}
           >
             Iscriviti
           </button>
+          <Link
+            to="/login"
+            className={`px-5 py-2 text-sm font-medium rounded-full transition-colors duration-200 border ${scrolled ? 'text-[#1d1d1f] border-[#1d1d1f] hover:bg-[#1d1d1f] hover:text-white' : 'text-white border-white hover:bg-white hover:text-black'}`}
+          >
+            Accedi
+          </Link>
         </div>
 
-        {/* Mobile menu */}
-        <button
-          className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-          onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Toggle menu"
-        >
-          <div className="w-5 h-4 flex flex-col justify-between">
-            <span className={`block h-0.5 transition-all duration-200 ${scrolled ? 'bg-[#1d1d1f]' : 'bg-white'} ${menuOpen ? 'rotate-45 translate-y-1.5' : ''}`} />
-            <span className={`block h-0.5 transition-all duration-200 ${scrolled ? 'bg-[#1d1d1f]' : 'bg-white'} ${menuOpen ? 'opacity-0' : ''}`} />
-            <span className={`block h-0.5 transition-all duration-200 ${scrolled ? 'bg-[#1d1d1f]' : 'bg-white'} ${menuOpen ? '-rotate-45 -translate-y-1.5' : ''}`} />
-          </div>
-        </button>
+        {/* Mobile actions */}
+        <div className="md:hidden flex items-center gap-1">
+          <Link to="/preferiti" className={`relative p-2 rounded-full transition-colors ${scrolled ? 'text-[#1d1d1f]' : 'text-white'}`} aria-label="Preferiti">
+            <Heart size={20} />
+            <Badge count={wishlistCount} />
+          </Link>
+          <Link to="/carrello" className={`relative p-2 rounded-full transition-colors ${scrolled ? 'text-[#1d1d1f]' : 'text-white'}`} aria-label="Carrello">
+            <ShoppingBag size={20} />
+            <Badge count={cartCount} />
+          </Link>
+          <button
+            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Toggle menu"
+          >
+            <div className="w-5 h-4 flex flex-col justify-between">
+              <span className={`block h-0.5 transition-all duration-200 ${scrolled ? 'bg-[#1d1d1f]' : 'bg-white'} ${menuOpen ? 'rotate-45 translate-y-1.5' : ''}`} />
+              <span className={`block h-0.5 transition-all duration-200 ${scrolled ? 'bg-[#1d1d1f]' : 'bg-white'} ${menuOpen ? 'opacity-0' : ''}`} />
+              <span className={`block h-0.5 transition-all duration-200 ${scrolled ? 'bg-[#1d1d1f]' : 'bg-white'} ${menuOpen ? '-rotate-45 -translate-y-1.5' : ''}`} />
+            </div>
+          </button>
+        </div>
       </div>
 
       {/* Mobile dropdown */}
@@ -112,6 +144,12 @@ export default function Navbar() {
               >
                 Iscriviti
               </button>
+              <div className={`pt-3 mt-3 border-t grid grid-cols-2 gap-2 ${scrolled ? 'border-gray-100' : 'border-white/10'}`}>
+                <Link to="/carrello" onClick={() => setMenuOpen(false)} className={`px-4 py-3 text-sm font-medium rounded-lg transition-colors ${scrolled ? 'text-[#1d1d1f] hover:bg-gray-50' : 'text-white hover:bg-white/10'}`}>Carrello ({cartCount})</Link>
+                <Link to="/preferiti" onClick={() => setMenuOpen(false)} className={`px-4 py-3 text-sm font-medium rounded-lg transition-colors ${scrolled ? 'text-[#1d1d1f] hover:bg-gray-50' : 'text-white hover:bg-white/10'}`}>Preferiti ({wishlistCount})</Link>
+                <Link to="/login" onClick={() => setMenuOpen(false)} className={`px-4 py-3 text-sm font-medium rounded-lg transition-colors ${scrolled ? 'text-[#1d1d1f] hover:bg-gray-50' : 'text-white hover:bg-white/10'}`}>Accedi</Link>
+                <Link to="/register" onClick={() => setMenuOpen(false)} className={`px-4 py-3 text-sm font-medium rounded-lg transition-colors ${scrolled ? 'text-[#1d1d1f] hover:bg-gray-50' : 'text-white hover:bg-white/10'}`}>Registrati</Link>
+              </div>
             </div>
           </motion.div>
         )}

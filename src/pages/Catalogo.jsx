@@ -8,6 +8,7 @@ import FooterSection from '@/components/FooterSection';
 import { Image } from '@/components/ui/image';
 import { fadeUp, staggerContainer, staggerItem } from '@/lib/motion';
 import { PRODUCT_CATALOG, CATEGORIES } from '@/lib/productCatalog';
+import ProductActions from '@/components/ProductActions';
 
 export default function Catalogo() {
   const [activeFilter, setActiveFilter] = useState('Tutti');
@@ -166,6 +167,9 @@ function CatalogCard({ product }) {
           )}
           <div className="absolute top-3 right-3 px-2.5 py-1 bg-black/60 backdrop-blur-sm text-white text-xs font-semibold rounded-full">
             {product.category}
+          </div>
+          <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <ProductActions product={product} />
           </div>
         </div>
         <div className="p-3 md:p-4 flex flex-col flex-1">

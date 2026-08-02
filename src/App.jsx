@@ -10,6 +10,11 @@ import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
 import Catalogo from './pages/Catalogo';
 import SchedaProdotto from './pages/SchedaProdotto';
+import Carrello from './pages/Carrello';
+import Preferiti from './pages/Preferiti';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import { StoreProvider } from '@/lib/StoreContext';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -40,6 +45,10 @@ const AuthenticatedApp = () => {
       <Route path="/" element={<Home />} />
       <Route path="/catalogo" element={<Catalogo />} />
       <Route path="/scheda-prodotto" element={<SchedaProdotto />} />
+      <Route path="/carrello" element={<Carrello />} />
+      <Route path="/preferiti" element={<Preferiti />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
@@ -53,7 +62,9 @@ function App() {
       <QueryClientProvider client={queryClientInstance}>
         <Router>
           <ScrollToTop />
-          <AuthenticatedApp />
+          <StoreProvider>
+            <AuthenticatedApp />
+          </StoreProvider>
         </Router>
         <Toaster />
       </QueryClientProvider>

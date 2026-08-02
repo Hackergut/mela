@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Image } from '@/components/ui/image';
 import { fadeUp } from '@/lib/motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import ProductActions from '@/components/ProductActions';
 
 const IMG = 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b';
 
@@ -143,6 +144,9 @@ function CompareCard({ model }) {
           className="w-full h-full"
           fittingType="fill"
         />
+        <div className="absolute top-3 right-3 z-10">
+          <ProductActions product={{ id: model.productId, name: model.name, price: model.price, image: active.image, category: 'iPhone' }} />
+        </div>
       </div>
 
       {/* Info */}
