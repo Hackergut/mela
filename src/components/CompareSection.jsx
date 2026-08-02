@@ -24,7 +24,7 @@ const MODELS = [
     name: 'iPhone 17 Air',
     tagline: 'Il più sottile mai realizzato.',
     price: '€999',
-    productId: 14,
+    productId: 2,
     colors: [
       { name: 'Azzurro', hex: '#7BA7C9', image: `${IMG}/ae167da00_IMG_1676.webp` },
       { name: 'Bianco', hex: '#E8E8EC', image: `${IMG}/dabbb9a2e_IMG_1682.webp` },
@@ -34,7 +34,7 @@ const MODELS = [
     name: 'iPhone 17',
     tagline: 'Potenza per tutti.',
     price: '€899',
-    productId: 11,
+    productId: 3,
     colors: [
       { name: 'Tutte le finiture', hex: '#8AB4F8', image: `${IMG}/37d4e3218_IMG_1673.webp` },
     ],
@@ -43,7 +43,7 @@ const MODELS = [
     name: 'iPhone 16',
     tagline: 'Il nuovo controllo fotocamera.',
     price: '€799',
-    productId: 19,
+    productId: 4,
     colors: [
       { name: 'Verde', hex: '#4E6B54', image: `${IMG}/bbc5ad376_IMG_1647.jpeg` },
       { name: 'Viola', hex: '#8C7BB0', image: `${IMG}/41f49baf1_IMG_1674.webp` },

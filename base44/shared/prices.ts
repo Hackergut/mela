@@ -2,15 +2,11 @@
 // Source of truth for checkout amounts — the frontend cannot override these.
 // Keep in sync with src/lib/productCatalog.js price strings.
 export const PRICE_MAP: Record<number, number> = {
-  // iPhone 17 Pro
-  1: 119900, 2: 119900, 3: 119900, 4: 119900, 5: 119900,
-  6: 119900, 7: 119900, 8: 119900, 9: 119900, 10: 119900,
-  // iPhone 17
-  11: 89900, 12: 89900, 13: 89900,
-  // iPhone 17 Air
-  14: 99900, 15: 99900, 16: 99900, 17: 99900, 18: 99900,
-  // iPhone 16
-  19: 79900, 20: 79900, 21: 79900, 22: 79900, 23: 79900, 24: 79900,
+  // iPhone (un prodotto per modello)
+  1: 119900, // iPhone 17 Pro
+  2: 99900,  // iPhone 17 Air
+  3: 89900,  // iPhone 17
+  4: 79900,  // iPhone 16
   // Apple Watch Series 10
   25: 44900, 26: 44900, 27: 44900, 28: 44900, 29: 44900,
   30: 44900, 31: 44900, 32: 44900,

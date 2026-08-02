@@ -18,15 +18,11 @@ const ACCESSORIO = { Compatibilità: 'Dispositivi USB-C Apple', Garanzia: '1 ann
 const ECOSISTEMA = { Dispositivi: 'iPhone + iPad + Mac + Watch', Integrazione: 'Continuity / Handoff', Cloud: 'iCloud+', Condivisione: 'Family Sharing' };
 
 export const PRODUCT_KEY_SPECS = {
-  // iPhone 17 Pro
-  1: IPHONE_17_PRO, 2: IPHONE_17_PRO, 3: IPHONE_17_PRO, 4: IPHONE_17_PRO, 5: IPHONE_17_PRO,
-  6: IPHONE_17_PRO, 7: IPHONE_17_PRO, 8: IPHONE_17_PRO, 9: IPHONE_17_PRO, 10: IPHONE_17_PRO,
-  // iPhone 17
-  11: IPHONE_17, 12: IPHONE_17, 13: IPHONE_17,
-  // iPhone 17 Air
-  14: IPHONE_17_AIR, 15: IPHONE_17_AIR, 16: IPHONE_17_AIR, 17: IPHONE_17_AIR, 18: IPHONE_17_AIR,
-  // iPhone 16
-  19: IPHONE_16, 20: IPHONE_16, 21: IPHONE_16, 22: IPHONE_16, 23: IPHONE_16, 24: IPHONE_16,
+  // iPhone
+  1: IPHONE_17_PRO,
+  2: IPHONE_17_AIR,
+  3: IPHONE_17,
+  4: IPHONE_16,
   // Apple Watch
   25: WATCH_10, 26: WATCH_10, 27: WATCH_10, 28: WATCH_10, 29: WATCH_10,
   30: WATCH_10, 31: WATCH_10, 32: WATCH_10,

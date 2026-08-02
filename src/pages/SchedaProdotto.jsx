@@ -114,9 +114,12 @@ export default function SchedaProdotto() {
     }
   }, [productId]);
 
-  // Galleria: prodotto corrente + prodotti correlati della stessa categoria
+  // Galleria: foto ufficiali del prodotto, oppure correlati se non disponibili
   const gallery = useMemo(() => {
     if (!product) return [];
+    if (product.images?.length) {
+      return product.images.map((url, i) => ({ url, name: `${product.name} — foto ${i + 1}` }));
+    }
     const related = PRODUCT_CATALOG
       .filter(p => p.category === product.category && p.id !== product.id)
       .slice(0, 4);
@@ -281,6 +284,31 @@ export default function SchedaProdotto() {
               <span className="text-3xl font-bold text-[#1d1d1f]">{product.price}</span>
               <span className="text-sm text-[#6e6e73]">IVA inclusa</span>
             </div>
+
+            {product.colors?.length > 1 && (
+              <div className="mt-6">
+                <p className="text-sm font-semibold text-[#1d1d1f] mb-3">Finitura</p>
+                <div className="flex items-center gap-4 flex-wrap">
+                  {product.colors.map((c) => {
+                    const idx = gallery.findIndex(g => g.url === c.image);
+                    const isActive = idx !== -1 && idx === activeImage;
+                    return (
+                      <button
+                        key={c.name}
+                        onClick={() => idx !== -1 && setActiveImage(idx)}
+                        className="flex flex-col items-center gap-2"
+                      >
+                        <span
+                          className={`w-8 h-8 rounded-full border transition-all ${isActive ? 'ring-2 ring-[#FF6B35] ring-offset-2 border-transparent' : 'border-gray-300'}`}
+                          style={{ backgroundColor: c.hex }}
+                        />
+                        <span className="text-[11px] text-[#6e6e73] font-medium">{c.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Azioni */}
             <div className="mt-6 flex flex-col sm:flex-row gap-3">
