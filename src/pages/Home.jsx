@@ -5,6 +5,7 @@ import HeroSection from '@/components/HeroSection';
 import CategoriesSection from '@/components/CategoriesSection';
 import FeaturesSection from '@/components/FeaturesSection';
 import PopularProducts from '@/components/PopularProducts';
+import CompareSection from '@/components/CompareSection';
 import TestimonialsSection from '@/components/TestimonialsSection';
 import AboutSection from '@/components/AboutSection';
 import BlogSection from '@/components/BlogSection';
@@ -21,6 +22,7 @@ export default function Home() {
         <CategoriesSection />
         <FeaturesSection />
         <PopularProducts />
+        <CompareSection />
         <TestimonialsSection />
         <AboutSection />
         <BlogSection />
