@@ -11,6 +11,11 @@ export default function HeroSection() {
 
   return (
     <section className="relative bg-black pt-6 pb-0 px-4 lg:px-8 overflow-hidden">
+      {/* Fade verso la sezione chiara successiva */}
+      <div
+        className="absolute inset-x-0 bottom-0 h-32 md:h-48 z-20 pointer-events-none"
+        style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, #f5f5f7 100%)' }}
+      />
       <div className="max-w-5xl mx-auto relative z-10">
         {/* Sub-nav prodotto a pillola */}
         <motion.div
