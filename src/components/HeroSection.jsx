@@ -54,44 +54,29 @@ export default function HeroSection() {
           Tutto su iPhone.
         </motion.h1>
 
-        {/* Mockup reale flottante */}
+        {/* Mockup referenza — tagliato sul fondo come nel design Apple */}
         <motion.div
-          initial={{ opacity: 0, y: 40, scale: 0.96 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ delay: 0.1, duration: 0.9, ease: 'easeOut' }}
-          className="relative flex items-center justify-center"
+          initial={{ opacity: 0, y: 60 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15, duration: 0.9, ease: 'easeOut' }}
+          className="relative flex justify-center"
         >
-          {/* Piatto luminoso: fa fondere lo sfondo bianco della foto sul nero */}
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                'radial-gradient(ellipse 52% 62% at 50% 46%, rgba(255,255,255,1) 0%, rgba(255,255,255,0.82) 38%, rgba(255,255,255,0) 72%)',
-            }}
-          />
-          <Image
-            src={MOCKUP_URL}
-            alt="iPhone 17 Pro — Arancione Cosmico e Blu"
-            className="relative w-full max-w-2xl mix-blend-multiply"
-            fittingType="fit"
-          />
-        </motion.div>
-
-        {/* Cue di scroll */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.9 }}
-          className="flex flex-col items-center gap-1.5 pt-10 pb-8 text-white/30"
-        >
-          <span className="text-[10px] tracking-[0.2em] uppercase">Scorri per esplorare</span>
-          <motion.svg
-            animate={{ y: [0, 5, 0] }}
-            transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-            width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-          >
-            <path d="M12 5v14M19 12l-7 7-7-7" />
-          </motion.svg>
+          <div className="relative w-full max-w-2xl h-[300px] md:h-[420px] lg:h-[480px] overflow-hidden">
+            {/* Piatto luminoso: fa fondere lo sfondo bianco della foto sul nero */}
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  'radial-gradient(ellipse 55% 75% at 50% 55%, rgba(255,255,255,1) 0%, rgba(255,255,255,0.85) 42%, rgba(255,255,255,0) 74%)',
+              }}
+            />
+            <Image
+              src={MOCKUP_URL}
+              alt="iPhone 17 Pro — Arancione Cosmico e Blu"
+              className="relative w-full h-[150%] mix-blend-multiply"
+              fittingType="fit"
+            />
+          </div>
         </motion.div>
       </div>
     </section>
