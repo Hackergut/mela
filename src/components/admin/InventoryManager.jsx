@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Image } from '@/components/ui/image';
-import { Loader2, AlertTriangle, Save, Search } from 'lucide-react';
+import { Loader2, AlertTriangle, Save, Search, Trash2 } from 'lucide-react';
+import { useBulkSelect, BulkActionBar, SelectAllCheckbox, RowCheckbox } from '@/lib/bulkSelect';
 
 const fmt = (c) => '€' + ((c || 0) / 100).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -33,6 +34,13 @@ export default function InventoryManager({ password }) {
   const totalCost = products.reduce((s, p) => s + (p.stock || 0) * (p.cost_cents || 0), 0);
   const lowCount = products.filter(p => (p.stock || 0) <= (p.low_stock_threshold ?? 5)).length;
 
+  const bulk = useBulkSelect(filtered);
+  const bulkDelete = async () => {
+    if (bulk.selectedIds.length === 0 || !confirm(`Eliminare ${bulk.selectedIds.length} prodotti dall'inventario?`)) return;
+    await base44.functions.invoke('admin-cms', { password, operation: 'bulk_delete', resource: 'product', payload: { ids: bulk.selectedIds } });
+    bulk.clear(); await load();
+  };
+
   return (
     <div>
       <div className="flex flex-wrap items-center gap-3 mb-4">
@@ -54,11 +62,14 @@ export default function InventoryManager({ password }) {
         </div>
       </div>
 
+      <div className="mb-3"><BulkActionBar count={bulk.selectedIds.length} onBulkDelete={bulkDelete} onClear={bulk.clear} /></div>
+
       {loading ? <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#FF6B35]" size={28} /></div> : (
         <div className="bg-white rounded-2xl overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-100 text-left text-xs text-[#6e6e73] uppercase">
+                <th className="p-3 w-10"><SelectAllCheckbox checked={bulk.allSelected} indeterminate={bulk.someSelected} onChange={bulk.toggleAll} /></th>
                 <th className="p-3">Prodotto</th>
                 <th className="p-3">Categoria</th>
                 <th className="p-3">Prezzo</th>
@@ -73,7 +84,8 @@ export default function InventoryManager({ password }) {
                 const margin = (p.price_cents || 0) - (p.cost_cents || 0);
                 const low = (p.stock || 0) <= (p.low_stock_threshold ?? 5);
                 return (
-                  <tr key={p.id} className="border-b border-gray-50">
+                  <tr key={p.id} className={`border-b border-gray-50 ${bulk.selected[p.id] ? 'bg-[#FF6B35]/5' : ''}`}>
+                    <td className="p-3"><RowCheckbox checked={!!bulk.selected[p.id]} onChange={() => bulk.toggleOne(p.id)} /></td>
                     <td className="p-3">
                       <div className="flex items-center gap-2">
                         <div className="w-10 h-10 rounded-lg overflow-hidden bg-[#f5f5f7] flex-shrink-0"><Image src={p.image} alt="" className="w-full h-full" fittingType="fill" /></div>

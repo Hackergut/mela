@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Loader2, Search } from 'lucide-react';
+import { useBulkSelect, BulkActionBar, SelectAllCheckbox, RowCheckbox } from '@/lib/bulkSelect';
 
 const fmt = (c) => '€' + ((c || 0) / 100).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const STATUSES = ['pending', 'paid', 'shipped', 'delivered', 'cancelled'];
@@ -32,6 +33,13 @@ export default function OrdersManager({ password }) {
     (!search || `${o.order_number} ${o.customer_email} ${o.customer_name || ''}`.toLowerCase().includes(search.toLowerCase()))
   );
 
+  const bulk = useBulkSelect(filtered);
+  const bulkDelete = async () => {
+    if (bulk.selectedIds.length === 0 || !confirm(`Eliminare ${bulk.selectedIds.length} ordini selezionati?`)) return;
+    await base44.functions.invoke('admin-cms', { password, operation: 'bulk_delete', resource: 'order', payload: { ids: bulk.selectedIds } });
+    bulk.clear(); await load();
+  };
+
   return (
     <div>
       <div className="flex flex-wrap items-center gap-2 mb-4">
@@ -45,12 +53,17 @@ export default function OrdersManager({ password }) {
         </select>
       </div>
 
+      <div className="mb-3">
+        <BulkActionBar count={bulk.selectedIds.length} onBulkDelete={bulkDelete} onClear={bulk.clear} />
+      </div>
+
       {loading ? <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#FF6B35]" size={28} /></div> :
         filtered.length === 0 ? <p className="text-center text-[#6e6e73] py-20">Nessun ordine.</p> : (
           <div className="bg-white rounded-2xl overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-100 text-left text-xs text-[#6e6e73] uppercase">
+                  <th className="p-3 w-10"><SelectAllCheckbox checked={bulk.allSelected} indeterminate={bulk.someSelected} onChange={bulk.toggleAll} /></th>
                   <th className="p-3">Ordine</th>
                   <th className="p-3">Cliente</th>
                   <th className="p-3">Data</th>
@@ -61,7 +74,8 @@ export default function OrdersManager({ password }) {
               </thead>
               <tbody>
                 {filtered.map(o => (
-                  <tr key={o.id} className="border-b border-gray-50">
+                  <tr key={o.id} className={`border-b border-gray-50 ${bulk.selected[o.id] ? 'bg-[#FF6B35]/5' : ''}`}>
+                    <td className="p-3"><RowCheckbox checked={!!bulk.selected[o.id]} onChange={() => bulk.toggleOne(o.id)} /></td>
                     <td className="p-3 text-sm font-semibold text-[#1d1d1f]">{o.order_number}</td>
                     <td className="p-3 text-sm text-[#6e6e73]">
                       <p className="font-medium text-[#1d1d1f]">{o.customer_name || '—'}</p>

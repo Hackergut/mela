@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Plus, Pencil, Trash2, Loader2, X, Tag, Power } from 'lucide-react';
+import { useBulkSelect, BulkActionBar, RowCheckbox } from '@/lib/bulkSelect';
 
 const INP = "w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-[#FF6B35] focus:outline-none";
 
@@ -37,10 +38,20 @@ export default function DiscountsManager({ password }) {
     await load();
   };
 
+  const bulk = useBulkSelect(discounts);
+  const bulkDelete = async () => {
+    if (bulk.selectedIds.length === 0 || !confirm(`Eliminare ${bulk.selectedIds.length} codici sconto selezionati?`)) return;
+    await base44.functions.invoke('admin-cms', { password, operation: 'bulk_delete', resource: 'discount', payload: { ids: bulk.selectedIds } });
+    bulk.clear(); await load();
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <p className="text-sm text-[#6e6e73]">{discounts.length} codici sconto</p>
+        <div className="flex items-center gap-3">
+          <p className="text-sm text-[#6e6e73]">{discounts.length} codici sconto</p>
+          <BulkActionBar count={bulk.selectedIds.length} onBulkDelete={bulkDelete} onClear={bulk.clear} />
+        </div>
         <button onClick={() => setEditing({ code: '', type: 'percent', value: 10, active: true, max_uses: '', expires_at: '', description: '' })} className="px-4 py-2 bg-[#FF6B35] text-white text-sm font-semibold rounded-lg flex items-center gap-2">
           <Plus size={16} /> Nuovo Codice
         </button>
@@ -50,10 +61,11 @@ export default function DiscountsManager({ password }) {
         discounts.length === 0 ? <p className="text-center text-[#6e6e73] py-20">Nessun codice sconto. Clicca "Nuovo Codice".</p> : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {discounts.map(d => (
-              <div key={d.id} className="bg-white rounded-2xl p-5 border border-gray-100">
+              <div key={d.id} className={`bg-white rounded-2xl p-5 border border-gray-100 ${bulk.selected[d.id] ? 'ring-2 ring-[#FF6B35]' : ''}`}>
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <div className="flex items-center gap-2">
+                      <RowCheckbox checked={!!bulk.selected[d.id]} onChange={() => bulk.toggleOne(d.id)} />
                       <Tag size={16} className={d.active ? 'text-[#FF6B35]' : 'text-gray-400'} />
                       <span className="text-lg font-bold text-[#1d1d1f] tracking-wide">{d.code}</span>
                     </div>

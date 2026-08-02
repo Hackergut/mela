@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { RotateCcw, Plus, Trash2, Loader2, X } from 'lucide-react';
+import { useBulkSelect, BulkActionBar, RowCheckbox } from '@/lib/bulkSelect';
 
 const REASONS = { defective: 'Difettoso', wrong_item: 'Articolo errato', not_as_described: 'Non conforme', changed_mind: 'Ripensamento', damaged: 'Arrivato danneggiato', other: 'Altro' };
 const STATUSES = { requested: 'Richiesto', approved: 'Approvato', completed: 'Completato', rejected: 'Rifiutato' };
@@ -53,6 +54,13 @@ export default function ReturnsManager({ password }) {
 
   const filtered = filter === 'all' ? returns : returns.filter(r => r.status === filter);
 
+  const bulk = useBulkSelect(filtered);
+  const bulkDelete = async () => {
+    if (bulk.selectedIds.length === 0 || !confirm(`Eliminare ${bulk.selectedIds.length} resi selezionati?`)) return;
+    await base44.functions.invoke('admin-cms', { password, operation: 'bulk_delete', resource: 'return', payload: { ids: bulk.selectedIds } });
+    bulk.clear(); await load();
+  };
+
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#FF6B35]" size={28} /></div>;
 
   return (
@@ -71,12 +79,16 @@ export default function ReturnsManager({ password }) {
         ))}
       </div>
 
+      <div className="mb-3"><BulkActionBar count={bulk.selectedIds.length} onBulkDelete={bulkDelete} onClear={bulk.clear} /></div>
+
       {filtered.length === 0 ? <p className="text-center text-[#6e6e73] py-16 text-sm">Nessun reso.</p> : (
         <div className="space-y-2">
           {filtered.map(r => (
-            <div key={r.id} className="bg-white rounded-xl p-4">
+            <div key={r.id} className={`bg-white rounded-xl p-4 ${bulk.selected[r.id] ? 'ring-2 ring-[#FF6B35]' : ''}`}>
               <div className="flex items-start justify-between gap-3">
-                <div className="flex-1">
+                <div className="flex-1 flex items-start gap-3">
+                  <div className="pt-0.5"><RowCheckbox checked={!!bulk.selected[r.id]} onChange={() => bulk.toggleOne(r.id)} /></div>
+                  <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-bold text-[#1d1d1f]">{r.return_number}</p>
                     <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${STATUS_COLORS[r.status]}`}>{STATUSES[r.status]}</span>
@@ -88,6 +100,7 @@ export default function ReturnsManager({ password }) {
                   </p>
                   <p className="text-xs text-[#6e6e73] mt-0.5">Motivo: {REASONS[r.reason] || r.reason}</p>
                   {r.notes && <p className="text-xs text-[#6e6e73] mt-1 italic">{r.notes}</p>}
+                  </div>
                 </div>
                 <div className="flex flex-col gap-1 items-end">
                   {r.status === 'requested' && (

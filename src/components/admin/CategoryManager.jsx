@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Image } from '@/components/ui/image';
 import ImagePicker from './ImagePicker';
 import { Plus, Pencil, Trash2, Loader2, X, ImageOff } from 'lucide-react';
+import { useBulkSelect, BulkActionBar, RowCheckbox } from '@/lib/bulkSelect';
 
 const INP = "w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-[#FF6B35] focus:outline-none";
 
@@ -36,10 +37,20 @@ export default function CategoryManager({ password }) {
     await load();
   };
 
+  const bulk = useBulkSelect(cats);
+  const bulkDelete = async () => {
+    if (bulk.selectedIds.length === 0 || !confirm(`Eliminare ${bulk.selectedIds.length} categorie selezionate?`)) return;
+    await base44.functions.invoke('admin-cms', { password, operation: 'bulk_delete', resource: 'category', payload: { ids: bulk.selectedIds } });
+    bulk.clear(); await load();
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <p className="text-sm text-[#6e6e73]">{cats.length} categorie</p>
+        <div className="flex items-center gap-3">
+          <p className="text-sm text-[#6e6e73]">{cats.length} categorie</p>
+          <BulkActionBar count={bulk.selectedIds.length} onBulkDelete={bulkDelete} onClear={bulk.clear} />
+        </div>
         <button onClick={startNew} className="px-4 py-2 bg-[#FF6B35] text-white text-sm font-semibold rounded-lg flex items-center gap-2">
           <Plus size={16} /> Aggiungi Categoria
         </button>
@@ -50,14 +61,17 @@ export default function CategoryManager({ password }) {
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {cats.map(c => (
-            <div key={c.id} className="bg-white rounded-2xl overflow-hidden border border-gray-100">
+            <div key={c.id} className={`bg-white rounded-2xl overflow-hidden border border-gray-100 ${bulk.selected[c.id] ? 'ring-2 ring-[#FF6B35]' : ''}`}>
               <div className="relative h-32 bg-[#f5f5f7]">
                 {c.image ? <Image src={c.image} alt={c.name} className="w-full h-full" fittingType="fill" /> : <div className="flex items-center justify-center h-full text-gray-300"><ImageOff size={28} /></div>}
               </div>
               <div className="p-3 flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-[#1d1d1f]">{c.name}</p>
-                  <p className="text-xs text-[#6e6e73]">Ordine {c.sort_order}</p>
+                <div className="flex items-center gap-2">
+                  <RowCheckbox checked={!!bulk.selected[c.id]} onChange={() => bulk.toggleOne(c.id)} />
+                  <div>
+                    <p className="text-sm font-semibold text-[#1d1d1f]">{c.name}</p>
+                    <p className="text-xs text-[#6e6e73]">Ordine {c.sort_order}</p>
+                  </div>
                 </div>
                 <div className="flex gap-2">
                   <button onClick={() => startEdit(c)} className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center"><Pencil size={14} /></button>

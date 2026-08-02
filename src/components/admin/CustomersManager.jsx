@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Loader2, Search, X, Mail, Phone, StickyNote, Pencil } from 'lucide-react';
+import { useBulkSelect, BulkActionBar, SelectAllCheckbox, RowCheckbox } from '@/lib/bulkSelect';
 
 const fmt = (c) => '€' + ((c || 0) / 100).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -33,6 +34,13 @@ export default function CustomersManager({ password }) {
 
   const filtered = customers.filter(c => !search || `${c.name} ${c.email} ${c.phone || ''}`.toLowerCase().includes(search.toLowerCase()));
 
+  const bulk = useBulkSelect(filtered);
+  const bulkDelete = async () => {
+    if (bulk.selectedIds.length === 0 || !confirm(`Eliminare ${bulk.selectedIds.length} clienti selezionati?`)) return;
+    await base44.functions.invoke('admin-cms', { password, operation: 'bulk_delete', resource: 'customer', payload: { ids: bulk.selectedIds } });
+    bulk.clear(); await load();
+  };
+
   const openDetail = (c) => {
     const cOrders = orders.filter(o => o.customer_email === c.email);
     setDetail({ customer: c, orders: cOrders });
@@ -48,12 +56,15 @@ export default function CustomersManager({ password }) {
         <p className="text-sm text-[#6e6e73]">{customers.length} clienti</p>
       </div>
 
+      <div className="mb-3"><BulkActionBar count={bulk.selectedIds.length} onBulkDelete={bulkDelete} onClear={bulk.clear} /></div>
+
       {loading ? <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#FF6B35]" size={28} /></div> :
         filtered.length === 0 ? <p className="text-center text-[#6e6e73] py-20">Nessun cliente.</p> : (
           <div className="bg-white rounded-2xl overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-100 text-left text-xs text-[#6e6e73] uppercase">
+                  <th className="p-3 w-10"><SelectAllCheckbox checked={bulk.allSelected} indeterminate={bulk.someSelected} onChange={bulk.toggleAll} /></th>
                   <th className="p-3">Cliente</th>
                   <th className="p-3">Email</th>
                   <th className="p-3">Telefono</th>
@@ -64,7 +75,8 @@ export default function CustomersManager({ password }) {
               </thead>
               <tbody>
                 {filtered.map(c => (
-                  <tr key={c.id} className="border-b border-gray-50 cursor-pointer hover:bg-gray-50" onClick={() => openDetail(c)}>
+                  <tr key={c.id} className={`border-b border-gray-50 cursor-pointer hover:bg-gray-50 ${bulk.selected[c.id] ? 'bg-[#FF6B35]/5' : ''}`} onClick={() => openDetail(c)}>
+                    <td className="p-3"><RowCheckbox checked={!!bulk.selected[c.id]} onChange={() => bulk.toggleOne(c.id)} /></td>
                     <td className="p-3 text-sm font-semibold text-[#1d1d1f]">{c.name || '—'}</td>
                     <td className="p-3 text-sm text-[#6e6e73]">{c.email}</td>
                     <td className="p-3 text-sm text-[#6e6e73]">{c.phone || '—'}</td>

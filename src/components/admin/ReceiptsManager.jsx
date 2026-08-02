@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Receipt as ReceiptIcon, Plus, Download, Trash2, Loader2, X, FileText } from 'lucide-react';
 import jsPDF from 'jspdf';
+import { useBulkSelect, BulkActionBar, RowCheckbox } from '@/lib/bulkSelect';
 
 export default function ReceiptsManager({ password }) {
   const [receipts, setReceipts] = useState([]);
@@ -84,6 +85,13 @@ export default function ReceiptsManager({ password }) {
 
   const filtered = filter === 'all' ? receipts : receipts.filter(r => r.type === filter);
 
+  const bulk = useBulkSelect(filtered);
+  const bulkDelete = async () => {
+    if (bulk.selectedIds.length === 0 || !confirm(`Eliminare ${bulk.selectedIds.length} ricevute selezionate?`)) return;
+    await base44.functions.invoke('admin-cms', { password, operation: 'bulk_delete', resource: 'receipt', payload: { ids: bulk.selectedIds } });
+    bulk.clear(); await load();
+  };
+
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#FF6B35]" size={28} /></div>;
 
   return (
@@ -102,6 +110,8 @@ export default function ReceiptsManager({ password }) {
         ))}
       </div>
 
+      <div className="mb-3"><BulkActionBar count={bulk.selectedIds.length} onBulkDelete={bulkDelete} onClear={bulk.clear} /></div>
+
       {filtered.length === 0 ? (
         <div className="text-center py-16">
           <FileText size={32} className="mx-auto text-gray-300 mb-3" />
@@ -110,8 +120,9 @@ export default function ReceiptsManager({ password }) {
       ) : (
         <div className="space-y-2">
           {filtered.map(r => (
-            <div key={r.id} className="bg-white rounded-xl p-4 flex items-center justify-between gap-3">
+            <div key={r.id} className={`bg-white rounded-xl p-4 flex items-center justify-between gap-3 ${bulk.selected[r.id] ? 'ring-2 ring-[#FF6B35]' : ''}`}>
               <div className="flex items-center gap-3 flex-1 min-w-0">
+                <RowCheckbox checked={!!bulk.selected[r.id]} onChange={() => bulk.toggleOne(r.id)} />
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${r.type==='sale'?'bg-emerald-50 text-emerald-600':'bg-blue-50 text-blue-600'}`}>
                   <ReceiptIcon size={18} />
                 </div>
