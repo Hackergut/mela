@@ -4,7 +4,7 @@ import { heroEntrance } from '@/lib/motion';
 import { Image } from '@/components/ui/image';
 
 const MOCKUP_URL =
-  'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/55e1a1fa8_IMG_1760.png';
+  'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/cf969972f_IMG_1770.png';
 
 export default function HeroSection() {
   const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
