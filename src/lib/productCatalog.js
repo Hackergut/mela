@@ -3,11 +3,12 @@
 
 const IMG = 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b';
 
-// Sequenza fotografica standard, identica per ogni modello iPhone.
-export const IPHONE_GALLERY = [
+// Sequenza fotografica dell'iPhone 17 Pro (Arancione Cosmico).
+// La copertina è la vista frontale del modello.
+export const IPHONE_17_PRO_GALLERY = [
+  `${IMG}/b2b227688_IMG_1338.jpeg`,
   `${IMG}/7d56fefdb_IMG_1342.jpeg`,
   `${IMG}/c933de856_IMG_1339.jpeg`,
-  `${IMG}/b2b227688_IMG_1338.jpeg`,
   `${IMG}/3663c67ac_IMG_1391.jpeg`,
   `${IMG}/f50e646a3_IMG_1390.jpeg`,
   `${IMG}/c23ec71f1_IMG_1402.jpeg`,
@@ -17,6 +18,9 @@ export const IPHONE_GALLERY = [
   `${IMG}/b9530564b_IMG_1670.jpeg`,
 ];
 
+// Alias mantenuto per i componenti che mostrano l'iPhone di punta.
+export const IPHONE_GALLERY = IPHONE_17_PRO_GALLERY;
+
 export const PRODUCT_CATALOG = [
   // ===== iPhone (un prodotto per modello, stessa sequenza fotografica) =====
   {
@@ -25,8 +29,8 @@ export const PRODUCT_CATALOG = [
     price: '€1.199',
     badge: 'Nuovo',
     category: 'iPhone',
-    image: IPHONE_GALLERY[0],
-    images: IPHONE_GALLERY,
+    image: IPHONE_17_PRO_GALLERY[0],
+    images: IPHONE_17_PRO_GALLERY,
     description: 'iPhone 17 Pro con chip A19 Pro vapor-cooled, struttura in alluminio forgiato e display ProMotion da 6,3". Sistema fotocamera Pro con tripla lente 48MP e teleobiettivo 5x.',
   },
   {
