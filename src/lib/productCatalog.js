@@ -1,10 +1,11 @@
-// Catalogo prodotti organizzato per categoria con descrizioni in italiano
-// Immagini reali estratte da Apple Store
+// Catalogo prodotti organizzato per categoria e modello
+// Ordinamento: per modello (più recente/premium prima), poi per variante colore/vista
+// Immagini reali estratte da Apple Store (asset già presenti)
 
 const IMG = 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b';
 
 export const PRODUCT_CATALOG = [
-  // === IPHONE ===
+  // === IPHONE 17 PRO ===
   {
     id: 1,
     name: 'iPhone 17 Pro — Arancione Cosmico',
@@ -16,66 +17,21 @@ export const PRODUCT_CATALOG = [
   },
   {
     id: 2,
-    name: 'iPhone 17 Pro — Variante Colori',
+    name: 'iPhone 17 Pro — Deep Blue',
     price: '€1.099',
     badge: 'Nuovo',
     category: 'iPhone',
     image: `${IMG}/bbc5ad376_IMG_1647.jpeg`,
-    description: 'Scopri tutte le finiture disponibili per iPhone 17 Pro. Struttura in alluminio forgiato e vetro Ceramic Shield 2 di ultima generazione.',
+    description: 'iPhone 17 Pro nella sofisticata finitura Deep Blue. Struttura in alluminio forgiato e vetro Ceramic Shield 2 di ultima generazione.',
   },
   {
     id: 3,
-    name: 'iPhone 17 Pro — Titanio Naturale',
+    name: 'iPhone 17 Pro — Argento',
     price: '€1.099',
     badge: null,
     category: 'iPhone',
     image: `${IMG}/e0d184381_IMG_1648.webp`,
-    description: 'Eleganza essenziale in finitura Argento. Design ultra-sottile, prestazioni eccezionali e autonomia che dura tutto il giorno.',
-  },
-  {
-    id: 4,
-    name: 'iPhone 17 Air — Azzurro',
-    price: '€999',
-    badge: 'Nuovo',
-    category: 'iPhone',
-    image: `${IMG}/d7f4e4986_IMG_1649.jpg`,
-    description: 'Il più sottile mai realizzato. iPhone 17 Air in Azzurro unisce leggerezza estrema e potenza professionale in soli 5,6 mm di spessore.',
-  },
-  {
-    id: 5,
-    name: 'iPhone 17 Air — Bianco',
-    price: '€999',
-    badge: null,
-    category: 'iPhone',
-    image: `${IMG}/9330a7561_IMG_1650.jpg`,
-    description: 'Purezza e minimalismo nella finitura Bianca. Il nuovo iPhone 17 Air ridefinisce il concetto di smartphone sottile senza compromessi.',
-  },
-  {
-    id: 6,
-    name: 'iPhone 17 — Nero',
-    price: '€899',
-    badge: null,
-    category: 'iPhone',
-    image: `${IMG}/5c59fa55f_IMG_1651.jpg`,
-    description: 'Il nuovo iPhone 17 in elegante colore Nero. Display Super Retina XDR, doppia fotocamera e chip A19 per prestazioni da top di gamma.',
-  },
-  {
-    id: 7,
-    name: 'iPhone 17 Pro Max — Arancione',
-    price: '€1.199',
-    badge: 'Nuovo',
-    category: 'iPhone',
-    image: `${IMG}/65b3e0a90_IMG_1652.jpg`,
-    description: 'Il modello Pro Max con il più grande display ever, batteria a lunga autonomia e fotocamera professionale. Finitura Arancione Cosmico esclusiva.',
-  },
-  {
-    id: 8,
-    name: 'iPhone 17 — Arancione',
-    price: '€899',
-    badge: null,
-    category: 'iPhone',
-    image: `${IMG}/6af752a1f_IMG_1653.jpg`,
-    description: 'iPhone 17 nella vibrante colorazione Arancione. Design rinnovato, fotocamera avanzata e prestazioni eccezionali a un prezzo accessibile.',
+    description: 'Eleganza essenziale nella finitura Argento. Design ultra-sottile, prestazioni eccezionali e autonomia che dura tutto il giorno.',
   },
   {
     id: 9,
@@ -87,60 +43,6 @@ export const PRODUCT_CATALOG = [
     description: 'Lo splendido display ProMotion da 120Hz dell\'iPhone 17 Pro. Luminosità fino a 2000 nit all\'aperto e True Tone per colori sempre perfetti.',
   },
   {
-    id: 10,
-    name: 'iPhone 16 — Lineup Completa',
-    price: '€799',
-    badge: null,
-    category: 'iPhone',
-    image: `${IMG}/124b7c63f_IMG_1655.jpg`,
-    description: 'L\'intera gamma iPhone 16 in un\'unica immagine. Quattro modelli, quattro dimensioni, tutte le finiture per trovare quella perfetta per te.',
-  },
-  {
-    id: 11,
-    name: 'iPhone 16 — Confezione',
-    price: '€799',
-    badge: null,
-    category: 'iPhone',
-    image: `${IMG}/b76136720_IMG_1656.jpg`,
-    description: 'iPhone 16 nella sua confezione originale. Include cavo USB-C, documentazione e adesivo Apple. Il nuovo controllo fotocamera rivoluziona gli scatti.',
-  },
-  {
-    id: 12,
-    name: 'iPhone 17 Pro — Macro Fotocamera',
-    price: '€1.099',
-    badge: 'Nuovo',
-    category: 'iPhone',
-    image: `${IMG}/5819c7c2d_IMG_1657.jpeg`,
-    description: 'Il sistema fotocamera Pro dell\'iPhone 17 Pro in dettaglio. Teleobiettivo 5x, grandangolo e ultra-grandangolo per foto da vero professionista.',
-  },
-  {
-    id: 13,
-    name: 'iPhone 16 Pro — Blu Notte',
-    price: '€999',
-    badge: null,
-    category: 'iPhone',
-    image: `${IMG}/a86207ae7_IMG_1658.jpeg`,
-    description: 'iPhone 16 Pro nella sofisticata finitura Blu Notte. Titanio di grado 5, Action Button e Fotocamera di Controllo per un\'esperienza completa.',
-  },
-  {
-    id: 14,
-    name: 'iPhone 17 Pro — Lifestyle',
-    price: '€1.099',
-    badge: 'Nuovo',
-    category: 'iPhone',
-    image: `${IMG}/f2bd4d78a_IMG_1659.jpeg`,
-    description: 'iPhone 17 Pro nella vita di tutti i giorni. Prestazioni eccezionali per lavoro, creatività e intrattenimento senza limiti.',
-  },
-  {
-    id: 15,
-    name: 'iPhone 17 Pro — Dettagli Design',
-    price: '€1.099',
-    badge: 'Nuovo',
-    category: 'iPhone',
-    image: `${IMG}/2d8934003_IMG_1660.jpeg`,
-    description: 'I dettagli artigianali dell\'iPhone 17 Pro. Cornici ultra-sottili, pulsanti precisione e struttura in alluminio forgiato per un feel premium assoluto.',
-  },
-  {
     id: 16,
     name: 'iPhone 17 Pro — Palette Colori',
     price: '€1.099',
@@ -150,13 +52,13 @@ export const PRODUCT_CATALOG = [
     description: 'Tre finiture esclusive per iPhone 17 Pro: Arancione Cosmico, Deep Blue e Argento. Scegli lo stile che ti rappresenta.',
   },
   {
-    id: 17,
-    name: 'iPhone 17 Pro — Render 3D',
+    id: 12,
+    name: 'iPhone 17 Pro — Macro Fotocamera',
     price: '€1.099',
     badge: 'Nuovo',
     category: 'iPhone',
-    image: `${IMG}/7d50b1a27_IMG_1662.jpeg`,
-    description: 'Rendering 3D dell\'iPhone 17 Pro che mostra ogni dettaglio del design. Linee pulite, materiali premium e ingegneria di precisione.',
+    image: `${IMG}/5819c7c2d_IMG_1657.jpeg`,
+    description: 'Il sistema fotocamera Pro dell\'iPhone 17 Pro in dettaglio. Teleobiettivo 5x, grandangolo e ultra-grandangolo per foto da vero professionista.',
   },
   {
     id: 60,
@@ -177,31 +79,40 @@ export const PRODUCT_CATALOG = [
     description: 'Il sistema tripla fotocamera Pro: grandangolo, ultra-grandangolo e teleobiettivo 5x. Foto notturne, ritratti e macro di qualità professionale.',
   },
   {
-    id: 62,
-    name: 'iPhone 17 Pro Max — Lifestyle Arancione',
-    price: '€1.199',
-    badge: 'Nuovo',
-    category: 'iPhone',
-    image: `${IMG}/985a98b88_IMG_1665.jpg`,
-    description: 'iPhone 17 Pro Max in Arancione Cosmico nella vita reale. Il display più grande e la batteria più duratura della gamma Pro.',
-  },
-  {
-    id: 63,
-    name: 'iPhone 17 Pro — Doppia Variante Arancione',
+    id: 66,
+    name: 'iPhone 17 Pro — Macro Obiettivo',
     price: '€1.099',
     badge: 'Nuovo',
     category: 'iPhone',
-    image: `${IMG}/5b70b72a5_IMG_1666.png`,
-    description: 'Due esemplari di iPhone 17 Pro in Arancione Cosmico. Confronta il design anteriore e posteriore in un\'unica immagine d\'impatto.',
+    image: `${IMG}/a53ee8668_IMG_1669.webp`,
+    description: 'Macro estrema dell\'obiettivo fotocamera dell\'iPhone 17 Pro. Precisione millimetrica e qualità ottica superiore per catturare ogni dettaglio.',
   },
   {
-    id: 64,
-    name: 'iPhone 16 Pro — Dettaglio Modulo Fotocamera',
-    price: '€999',
-    badge: null,
+    id: 15,
+    name: 'iPhone 17 Pro — Dettagli Design',
+    price: '€1.099',
+    badge: 'Nuovo',
     category: 'iPhone',
-    image: `${IMG}/3e4cbc97a_IMG_1667.png`,
-    description: 'Dettaglio ravvicinato della fotocamera dell\'iPhone 16 Pro. Sistema Pro con sensore da 48MP e stabilizzazione ottica per foto sempre nitide.',
+    image: `${IMG}/2d8934003_IMG_1660.jpeg`,
+    description: 'I dettagli artigianali dell\'iPhone 17 Pro. Cornici ultra-sottili, pulsanti precisione e struttura in alluminio forgiato per un feel premium assoluto.',
+  },
+  {
+    id: 14,
+    name: 'iPhone 17 Pro — Lifestyle',
+    price: '€1.099',
+    badge: 'Nuovo',
+    category: 'iPhone',
+    image: `${IMG}/f2bd4d78a_IMG_1659.jpeg`,
+    description: 'iPhone 17 Pro nella vita di tutti i giorni. Prestazioni eccezionali per lavoro, creatività e intrattenimento senza limiti.',
+  },
+  {
+    id: 17,
+    name: 'iPhone 17 Pro — Render 3D',
+    price: '€1.099',
+    badge: 'Nuovo',
+    category: 'iPhone',
+    image: `${IMG}/7d50b1a27_IMG_1662.jpeg`,
+    description: 'Rendering 3D dell\'iPhone 17 Pro che mostra ogni dettaglio del design. Linee pulite, materiali premium e ingegneria di precisione.',
   },
   {
     id: 65,
@@ -213,13 +124,13 @@ export const PRODUCT_CATALOG = [
     description: 'Concept design dell\'iPhone 17 Pro in Arancione Cosmico. Una visione futuristica che anticipa il design della prossima generazione.',
   },
   {
-    id: 66,
-    name: 'iPhone 17 Pro — Macro Obiettivo',
+    id: 63,
+    name: 'iPhone 17 Pro — Doppia Variante Arancione',
     price: '€1.099',
     badge: 'Nuovo',
     category: 'iPhone',
-    image: `${IMG}/a53ee8668_IMG_1669.webp`,
-    description: 'Macro estrema dell\'obiettivo fotocamera dell\'iPhone 17 Pro. Precisione millimetrica e qualità ottica superiore per catturare ogni dettaglio.',
+    image: `${IMG}/5b70b72a5_IMG_1666.png`,
+    description: 'Due esemplari di iPhone 17 Pro in Arancione Cosmico. Confronta il design anteriore e posteriore in un\'unica immagine d\'impatto.',
   },
   {
     id: 67,
@@ -231,7 +142,127 @@ export const PRODUCT_CATALOG = [
     description: 'Render tridimensionale dell\'iPhone 17 Pro in Arancione Cosmico. Visualizza ogni angolazione del design più innovativo di Apple.',
   },
 
-  // === APPLE WATCH ===
+  // === IPHONE 17 PRO MAX ===
+  {
+    id: 7,
+    name: 'iPhone 17 Pro Max — Arancione',
+    price: '€1.199',
+    badge: 'Nuovo',
+    category: 'iPhone',
+    image: `${IMG}/65b3e0a90_IMG_1652.jpg`,
+    description: 'Il modello Pro Max con il più grande display ever, batteria a lunga autonomia e fotocamera professionale. Finitura Arancione Cosmico esclusiva.',
+  },
+  {
+    id: 62,
+    name: 'iPhone 17 Pro Max — Lifestyle Arancione',
+    price: '€1.199',
+    badge: 'Nuovo',
+    category: 'iPhone',
+    image: `${IMG}/985a98b88_IMG_1665.jpg`,
+    description: 'iPhone 17 Pro Max in Arancione Cosmico nella vita reale. Il display più grande e la batteria più duratura della gamma Pro.',
+  },
+
+  // === IPHONE 17 AIR ===
+  {
+    id: 4,
+    name: 'iPhone 17 Air — Azzurro',
+    price: '€999',
+    badge: 'Nuovo',
+    category: 'iPhone',
+    image: `${IMG}/d7f4e4986_IMG_1649.jpg`,
+    description: 'Il più sottile mai realizzato. iPhone 17 Air in Azzurro unisce leggerezza estrema e potenza professionale in soli 5,6 mm di spessore.',
+  },
+  {
+    id: 5,
+    name: 'iPhone 17 Air — Bianco',
+    price: '€999',
+    badge: null,
+    category: 'iPhone',
+    image: `${IMG}/9330a7561_IMG_1650.jpg`,
+    description: 'Purezza e minimalismo nella finitura Bianca. Il nuovo iPhone 17 Air ridefinisce il concetto di smartphone sottile senza compromessi.',
+  },
+
+  // === IPHONE 17 ===
+  {
+    id: 6,
+    name: 'iPhone 17 — Nero',
+    price: '€899',
+    badge: null,
+    category: 'iPhone',
+    image: `${IMG}/5c59fa55f_IMG_1651.jpg`,
+    description: 'Il nuovo iPhone 17 in elegante colore Nero. Display Super Retina XDR, doppia fotocamera e chip A19 per prestazioni da top di gamma.',
+  },
+  {
+    id: 8,
+    name: 'iPhone 17 — Arancione',
+    price: '€899',
+    badge: null,
+    category: 'iPhone',
+    image: `${IMG}/6af752a1f_IMG_1653.jpg`,
+    description: 'iPhone 17 nella vibrante colorazione Arancione. Design rinnovato, fotocamera avanzata e prestazioni eccezionali a un prezzo accessibile.',
+  },
+
+  // === IPHONE 16 PRO ===
+  {
+    id: 13,
+    name: 'iPhone 16 Pro — Blu Notte',
+    price: '€999',
+    badge: null,
+    category: 'iPhone',
+    image: `${IMG}/a86207ae7_IMG_1658.jpeg`,
+    description: 'iPhone 16 Pro nella sofisticata finitura Blu Notte. Titanio di grado 5, Action Button e Fotocamera di Controllo per un\'esperienza completa.',
+  },
+  {
+    id: 64,
+    name: 'iPhone 16 Pro — Dettaglio Modulo Fotocamera',
+    price: '€999',
+    badge: null,
+    category: 'iPhone',
+    image: `${IMG}/3e4cbc97a_IMG_1667.png`,
+    description: 'Dettaglio ravvicinato della fotocamera dell\'iPhone 16 Pro. Sistema Pro con sensore da 48MP e stabilizzazione ottica per foto sempre nitide.',
+  },
+
+  // === IPHONE 16 ===
+  {
+    id: 10,
+    name: 'iPhone 16 — Lineup Completa',
+    price: '€799',
+    badge: null,
+    category: 'iPhone',
+    image: `${IMG}/124b7c63f_IMG_1655.jpg`,
+    description: 'L\'intera gamma iPhone 16 in un\'unica immagine. Quattro modelli, quattro dimensioni, tutte le finiture per trovare quella perfetta per te.',
+  },
+  {
+    id: 11,
+    name: 'iPhone 16 — Confezione',
+    price: '€799',
+    badge: null,
+    category: 'iPhone',
+    image: `${IMG}/b76136720_IMG_1656.jpg`,
+    description: 'iPhone 16 nella sua confezione originale. Include cavo USB-C, documentazione e adesivo Apple. Il nuovo controllo fotocamera rivoluziona gli scatti.',
+  },
+
+  // === APPLE WATCH ULTRA 2 ===
+  {
+    id: 20,
+    name: 'Apple Watch Ultra 2 — Ocean Band',
+    price: '€799',
+    badge: 'Nuovo',
+    category: 'Apple Watch',
+    image: `${IMG}/37d4e3218_IMG_1673.webp`,
+    description: 'Apple Watch Ultra 2 con cinturino Ocean Band. Costruito per gli avventurieri: cassa in titanio, GPS dual-band e autonomia fino a 72 ore.',
+  },
+  {
+    id: 21,
+    name: 'Apple Watch Ultra 2 — Arancione',
+    price: '€799',
+    badge: null,
+    category: 'Apple Watch',
+    image: `${IMG}/41f49baf1_IMG_1674.webp`,
+    description: 'Apple Watch Ultra 2 con cinturino Alpine Loop arancione. Robustezza estrema per le attività outdoor più impegnative, con display luminosissimo.',
+  },
+
+  // === APPLE WATCH SERIES 10 ===
   {
     id: 18,
     name: 'Apple Watch Series 10 — Nero',
@@ -251,33 +282,6 @@ export const PRODUCT_CATALOG = [
     description: 'Apple Watch Series 10 con cinturino Sport fluoroelastomerico. Leggero, resistente all\'acqua e perfetto per l\'allenamento quotidiano.',
   },
   {
-    id: 20,
-    name: 'Apple Watch Ultra 2 — Ocean Band',
-    price: '€799',
-    badge: 'Nuovo',
-    category: 'Apple Watch',
-    image: `${IMG}/37d4e3218_IMG_1673.webp`,
-    description: 'Apple Watch Ultra 2 con cinturino Ocean Band. Costruito per gli avventurieri: cassa in titanio, GPS dual-band e autonomia fino a 72 ore.',
-  },
-  {
-    id: 21,
-    name: 'Apple Watch Ultra 2 — Arancione',
-    price: '€799',
-    badge: null,
-    category: 'Apple Watch',
-    image: `${IMG}/41f49baf1_IMG_1674.webp`,
-    description: 'Apple Watch Ultra 2 con cinturino Alpine Loop arancione. Robustezza estrema per le attività outdoor più impegnative, con display luminosissimo.',
-  },
-  {
-    id: 22,
-    name: 'Apple Watch Series 9 — Cinturino Magnetico',
-    price: '€399',
-    badge: null,
-    category: 'Apple Watch',
-    image: `${IMG}/afaae44e7_IMG_1675.webp`,
-    description: 'Apple Watch Series 9 con cinturino magnetico. Chip S9, gesto Doppio Tocco e Siri on-device per un\'esperienza più fluida che mai.',
-  },
-  {
     id: 23,
     name: 'Apple Watch Series 10 — Quadrante',
     price: '€449',
@@ -285,6 +289,15 @@ export const PRODUCT_CATALOG = [
     category: 'Apple Watch',
     image: `${IMG}/ae167da00_IMG_1676.webp`,
     description: 'Il nuovo quadrante dell\'Apple Watch Series 10. Display ultra-luminoso con refresh rate adattivo e watchface completamente rinnovate.',
+  },
+  {
+    id: 25,
+    name: 'Apple Watch Series 10 — Vista Laterale',
+    price: '€449',
+    badge: null,
+    category: 'Apple Watch',
+    image: `${IMG}/9567fcd33_IMG_1678.webp`,
+    description: 'Profilo laterale dell\'Apple Watch Series 10. Lo spessore più sottile di sempre rende l\'orologio incredibilmente comodo al polso.',
   },
   {
     id: 24,
@@ -296,14 +309,36 @@ export const PRODUCT_CATALOG = [
     description: 'Dettaglio macro dell\'Apple Watch Series 10. Corona digitale ridisegnata, cristallo più sottile e sensori di salute di nuova generazione.',
   },
   {
-    id: 25,
-    name: 'Apple Watch Series 10 — Vista Laterale',
+    id: 30,
+    name: 'Apple Watch Series 10 — Dettaglio Corona',
     price: '€449',
     badge: null,
     category: 'Apple Watch',
-    image: `${IMG}/9567fcd33_IMG_1678.webp`,
-    description: 'Profilo laterale dell\'Apple Watch Series 10. Lo spessore più sottile di sempre rende l\'orologio incredibilmente comodo al polso.',
+    image: `${IMG}/63d33f72a_IMG_1683.webp`,
+    description: 'La corona digitale ridisegnata dell\'Apple Watch Series 10. Feedback aptico preciso e nuove funzioni di interazione touch-free.',
   },
+  {
+    id: 34,
+    name: 'Apple Watch Series 10 — Dettaglio Costruttivo',
+    price: '€449',
+    badge: 'Nuovo',
+    category: 'Apple Watch',
+    image: `${IMG}/810651f55_IMG_1688.jpeg`,
+    description: 'Dettaglio costruttivo dell\'Apple Watch Series 10. Materiali premium, lavorazione di precisione e un design che unisce forma e funzione.',
+  },
+
+  // === APPLE WATCH SERIES 9 ===
+  {
+    id: 22,
+    name: 'Apple Watch Series 9 — Cinturino Magnetico',
+    price: '€399',
+    badge: null,
+    category: 'Apple Watch',
+    image: `${IMG}/afaae44e7_IMG_1675.webp`,
+    description: 'Apple Watch Series 9 con cinturino magnetico. Chip S9, gesto Doppio Tocco e Siri on-device per un\'esperienza più fluida che mai.',
+  },
+
+  // === APPLE WATCH SERIES 7 ===
   {
     id: 26,
     name: 'Apple Watch Series 7 — Lineup Colori',
@@ -322,15 +357,8 @@ export const PRODUCT_CATALOG = [
     image: `${IMG}/4552cdca7_IMG_1680.webp`,
     description: 'Due modelli di Apple Watch Series 7 a confronto. La gamma completa per ogni stile, dall\'alluminio all\'acciaio inossidabile.',
   },
-  {
-    id: 28,
-    name: 'Apple Watch Series 4 — Vintage',
-    price: '€249',
-    badge: null,
-    category: 'Apple Watch',
-    image: `${IMG}/4fd4fd8a0_IMG_1681.webp`,
-    description: 'Apple Watch Series 4, un classico senza tempo. Display più grande, ECG e rilevamento caduta: le fondamenta del moderno smartwatch.',
-  },
+
+  // === APPLE WATCH SE ===
   {
     id: 29,
     name: 'Apple Watch SE — Lineup',
@@ -340,15 +368,19 @@ export const PRODUCT_CATALOG = [
     image: `${IMG}/dabbb9a2e_IMG_1682.webp`,
     description: 'La gamma Apple Watch SE completa. Tutte le funzioni essenziali a un prezzo accessibile: perfetto per chi si avvicina al mondo Apple Watch.',
   },
+
+  // === APPLE WATCH SERIES 4 ===
   {
-    id: 30,
-    name: 'Apple Watch Series 10 — Dettaglio Corona',
-    price: '€449',
+    id: 28,
+    name: 'Apple Watch Series 4 — Vintage',
+    price: '€249',
     badge: null,
     category: 'Apple Watch',
-    image: `${IMG}/63d33f72a_IMG_1683.webp`,
-    description: 'La corona digitale ridisegnata dell\'Apple Watch Series 10. Feedback aptico preciso e nuove funzioni di interazione touch-free.',
+    image: `${IMG}/4fd4fd8a0_IMG_1681.webp`,
+    description: 'Apple Watch Series 4, un classico senza tempo. Display più grande, ECG e rilevamento caduta: le fondamenta del moderno smartwatch.',
   },
+
+  // === APPLE WATCH — VISTE GENERICHE ===
   {
     id: 31,
     name: 'Apple Watch — Macro Frontale',
@@ -376,17 +408,8 @@ export const PRODUCT_CATALOG = [
     image: `${IMG}/7db828c51_IMG_1687.jpeg`,
     description: 'Design frontale minimalista dell\'Apple Watch. Pulizia visiva totale con interfaccia intuitiva e focus sulle informazioni che contano.',
   },
-  {
-    id: 34,
-    name: 'Apple Watch Series 10 — Dettaglio Costruttivo',
-    price: '€449',
-    badge: 'Nuovo',
-    category: 'Apple Watch',
-    image: `${IMG}/810651f55_IMG_1688.jpeg`,
-    description: 'Dettaglio costruttivo dell\'Apple Watch Series 10. Materiali premium, lavorazione di precisione e un design che unisce forma e funzione.',
-  },
 
-  // === AIRPODS MAX ===
+  // === AIRPODS MAX — COLORI SOLIDI ===
   {
     id: 35,
     name: 'AirPods Max — Nero Mezzanotte',
@@ -424,6 +447,26 @@ export const PRODUCT_CATALOG = [
     description: 'AirPods Max in Verde Alpino. Cancellazione del rumore leader di categoria e modalità Trasparenza per restare connessi al mondo esterno.',
   },
   {
+    id: 42,
+    name: 'AirPods Max — Rosa Salmone',
+    price: '€549',
+    badge: 'Nuovo',
+    category: 'AirPods Max',
+    image: `${IMG}/1c7f85735_IMG_1696.jpeg`,
+    description: 'AirPods Max nella fresca finitura Rosa Salmone. Un tocco di colore per amanti del suono premium con un occhio allo stile.',
+  },
+  {
+    id: 44,
+    name: 'AirPods Max — Argento Frontale',
+    price: '€549',
+    badge: null,
+    category: 'AirPods Max',
+    image: `${IMG}/17e4d98da_IMG_1698.jpeg`,
+    description: 'AirPods Max in Argento, vista frontale. La classica eleganza Apple con finitura lucida e digitale corona per il controllo del volume.',
+  },
+
+  // === AIRPODS MAX — LIFESTYLE ===
+  {
     id: 39,
     name: 'AirPods Max — Lifestyle Uomo',
     price: '€549',
@@ -451,15 +494,6 @@ export const PRODUCT_CATALOG = [
     description: 'AirPods Max in primo piano. La struttura in acciaio inossidabile e gli auricolari in memory foam garantiscono durata e comfort assoluti.',
   },
   {
-    id: 42,
-    name: 'AirPods Max — Rosa Salmone',
-    price: '€549',
-    badge: 'Nuovo',
-    category: 'AirPods Max',
-    image: `${IMG}/1c7f85735_IMG_1696.jpeg`,
-    description: 'AirPods Max nella fresca finitura Rosa Salmone. Un tocco di colore per amanti del suono premium con un occhio allo stile.',
-  },
-  {
     id: 43,
     name: 'AirPods Max — Lifestyle Turchese',
     price: '€549',
@@ -467,15 +501,6 @@ export const PRODUCT_CATALOG = [
     category: 'AirPods Max',
     image: `${IMG}/57c940bf9_IMG_1697.jpeg`,
     description: 'AirPods Max in Turchese in uno scenario lifestyle vivace. Audio spaziale e design distintivo per chi non vuole passare inosservato.',
-  },
-  {
-    id: 44,
-    name: 'AirPods Max — Argento Frontale',
-    price: '€549',
-    badge: null,
-    category: 'AirPods Max',
-    image: `${IMG}/17e4d98da_IMG_1698.jpeg`,
-    description: 'AirPods Max in Argento, vista frontale. La classica eleganza Apple con finitura lucida e digitale corona per il controllo del volume.',
   },
   {
     id: 45,
@@ -487,7 +512,7 @@ export const PRODUCT_CATALOG = [
     description: 'AirPods Max in Blu in un contesto lifestyle. Cancellazione del rumore adattiva e audio spaziale personalizzato per un\'immersione totale.',
   },
 
-  // === AIRPODS ===
+  // === AIRPODS PRO 3 ===
   {
     id: 46,
     name: 'AirPods Pro 3 — Nuova Generazione',
@@ -515,15 +540,8 @@ export const PRODUCT_CATALOG = [
     image: `${IMG}/99e222047_IMG_1702.png`,
     description: 'AirPods Pro 3 in vista sospesa. Design ergonomico, resistenza all\'acqua e al sudore IP54 e autonomia fino a 6 ore con una sola carica.',
   },
-  {
-    id: 49,
-    name: 'AirPods 4 — Lifestyle Doppio',
-    price: '€149',
-    badge: null,
-    category: 'AirPods',
-    image: `${IMG}/6eb07533c_IMG_1703.png`,
-    description: 'AirPods 4 in due varianti: standard e con cancellazione del rumore. Design semi-in-ear rivoluzionato per comfort e qualità audio superiori.',
-  },
+
+  // === AIRPODS PRO 2 ===
   {
     id: 50,
     name: 'AirPods Pro 2 — Floating',
@@ -551,15 +569,19 @@ export const PRODUCT_CATALOG = [
     image: `${IMG}/bf58c6cc9_IMG_1706.png`,
     description: 'AirPods Pro 2 con case di ricarica MagSafe. Lacciolo integrato, indicatore di carica e ricarica wireless per la massima praticità.',
   },
+
+  // === AIRPODS 4 ===
   {
-    id: 53,
-    name: 'AirPods 2 — Lifestyle Rosso',
-    price: '€129',
+    id: 49,
+    name: 'AirPods 4 — Lifestyle Doppio',
+    price: '€149',
     badge: null,
     category: 'AirPods',
-    image: `${IMG}/58f298cc3_IMG_1707.png`,
-    description: 'AirPods di seconda generazione in un contesto lifestyle rosso. Doppio microfono, chip H1 e "Ehi Siri" sempre attivo per un uso semplice.',
+    image: `${IMG}/6eb07533c_IMG_1703.png`,
+    description: 'AirPods 4 in due varianti: standard e con cancellazione del rumore. Design semi-in-ear rivoluzionato per comfort e qualità audio superiori.',
   },
+
+  // === AIRPODS 3 ===
   {
     id: 54,
     name: 'AirPods 3 — Lifestyle',
@@ -579,7 +601,18 @@ export const PRODUCT_CATALOG = [
     description: 'AirPods 3 in vista flatlay. Case di ricarica MagSafe compatto, autonomia fino a 6 ore e audio spaziale per un\'esperienza immersiva.',
   },
 
-  // === ECOSISTEMA ===
+  // === AIRPODS 2 ===
+  {
+    id: 53,
+    name: 'AirPods 2 — Lifestyle Rosso',
+    price: '€129',
+    badge: null,
+    category: 'AirPods',
+    image: `${IMG}/58f298cc3_IMG_1707.png`,
+    description: 'AirPods di seconda generazione in un contesto lifestyle rosso. Doppio microfono, chip H1 e "Ehi Siri" sempre attivo per un uso semplice.',
+  },
+
+  // === ECOSISTEMA APPLE ===
   {
     id: 56,
     name: 'Ecosistema Apple — Completo',
@@ -595,7 +628,7 @@ export const PRODUCT_CATALOG = [
     price: '€1.299',
     badge: null,
     category: 'Ecosistema',
-    image: `${IMG}/bb0ae7c20_IMG_1646.jpeg`,
+    image: `${IMG}/5c4627e1c_IMG_1710.png`,
     description: 'Il duo perfetto per la produttività: MacBook e iPad con Sidecar, AirDrop e Universal Control per un flusso di lavoro senza interruzioni.',
   },
   {
@@ -604,7 +637,7 @@ export const PRODUCT_CATALOG = [
     price: '€999',
     badge: null,
     category: 'Ecosistema',
-    image: `${IMG}/bbc5ad376_IMG_1647.jpeg`,
+    image: `${IMG}/5c4627e1c_IMG_1710.png`,
     description: 'Il pacchetto Family dell\'ecosistema Apple. Condivisione foto, calendari e abbonamenti con iCloud+ per tutta la famiglia.',
   },
   {
@@ -613,7 +646,7 @@ export const PRODUCT_CATALOG = [
     price: '€1.099',
     badge: null,
     category: 'Ecosistema',
-    image: `${IMG}/e0d184381_IMG_1648.webp`,
+    image: `${IMG}/5c4627e1c_IMG_1710.png`,
     description: 'Ecosistema Apple in elegante finitura Argento. iPhone, iPad e MacBook coordinati per uno stile coerente e una connettività senza pari.',
   },
 ];
