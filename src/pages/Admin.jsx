@@ -7,13 +7,15 @@ import InventoryManager from '@/components/admin/InventoryManager';
 import DiscountsManager from '@/components/admin/DiscountsManager';
 import CustomersManager from '@/components/admin/CustomersManager';
 import TeamManager from '@/components/admin/TeamManager';
+import NotificationsManager from '@/components/admin/NotificationsManager';
+import SettingsManager from '@/components/admin/SettingsManager';
 import ProductForm from '@/components/admin/ProductForm';
 import CategoryManager from '@/components/admin/CategoryManager';
 import AssetLibrary from '@/components/admin/AssetLibrary';
 import PromoBanner from '@/components/PromoBanner';
 import Navbar from '@/components/Navbar';
 import { Image } from '@/components/ui/image';
-import { Plus, Pencil, Trash2, LogOut, Loader2, Package, FolderOpen, Images, LayoutDashboard, ShoppingCart, Boxes, Tags, Users, Search } from 'lucide-react';
+import { Plus, Pencil, Trash2, LogOut, Loader2, Package, FolderOpen, Images, LayoutDashboard, ShoppingCart, Boxes, Tags, Users, Search, Bell, Settings as SettingsIcon } from 'lucide-react';
 
 const PW_KEY = 'tm_admin_pw';
 
@@ -27,6 +29,15 @@ export default function Admin() {
   const [error, setError] = useState(null);
   const [tab, setTab] = useState('dashboard');
   const [search, setSearch] = useState('');
+  const [unread, setUnread] = useState(0);
+
+  const loadUnread = async () => {
+    try {
+      const res = await base44.functions.invoke('admin-cms', { password, operation: 'list', resource: 'notification' });
+      setUnread((res.data.items || []).filter(n => !n.read).length);
+    } catch {}
+  };
+  useEffect(() => { if (authed) loadUnread(); }, [authed, tab]);
 
   const load = async (pw) => {
     setLoading(true); setError(null);
@@ -68,6 +79,8 @@ export default function Admin() {
     { id: 'categories', label: 'Categorie', icon: FolderOpen },
     { id: 'assets', label: 'Libreria Asset', icon: Images },
     { id: 'team', label: 'Team', icon: Users },
+    { id: 'notifiche', label: 'Notifiche', icon: Bell },
+    { id: 'impostazioni', label: 'Impostazioni', icon: SettingsIcon },
   ];
 
   return (
@@ -80,9 +93,18 @@ export default function Admin() {
             <h1 className="text-2xl font-bold text-[#1d1d1f]">Gestione Store</h1>
             <p className="text-sm text-[#6e6e73]">CMS e-commerce completo · analytics, ordini, inventario, CRM, sconti e team</p>
           </div>
-          <button onClick={handleLogout} className="px-4 py-2 bg-white border border-gray-200 text-sm font-semibold rounded-xl flex items-center gap-2">
-            <LogOut size={16} /> Esci
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={() => setTab('notifiche')} className="relative p-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50" aria-label="Notifiche">
+              <Bell size={18} className="text-[#1d1d1f]" />
+              {unread > 0 && <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-[#FF6B35] text-white text-[10px] font-bold rounded-full flex items-center justify-center">{unread}</span>}
+            </button>
+            <button onClick={() => setTab('impostazioni')} className="p-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50" aria-label="Impostazioni">
+              <SettingsIcon size={18} className="text-[#1d1d1f]" />
+            </button>
+            <button onClick={handleLogout} className="px-4 py-2 bg-white border border-gray-200 text-sm font-semibold rounded-xl flex items-center gap-2">
+              <LogOut size={16} /> Esci
+            </button>
+          </div>
         </div>
 
         {error && tab === 'products' && <p className="text-sm text-red-600 bg-red-50 rounded-xl px-4 py-3 mb-4">{error}</p>}
@@ -108,6 +130,8 @@ export default function Admin() {
         {tab === 'discounts' && <DiscountsManager password={password} />}
         {tab === 'customers' && <CustomersManager password={password} />}
         {tab === 'team' && <TeamManager password={password} />}
+        {tab === 'notifiche' && <NotificationsManager password={password} />}
+        {tab === 'impostazioni' && <SettingsManager password={password} />}
 
         {tab === 'products' && (
           <div>

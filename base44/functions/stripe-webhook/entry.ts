@@ -28,6 +28,10 @@ export default async function(req) {
       console.log("Payment completed:", { sessionId: session.id, orderId, email, amount: totalCents });
 
       if (orderId) {
+        // Fetch order for order_number
+        const order = await base44.asServiceRole.entities.Order.get(orderId).catch(() => null);
+        const orderNumber = order?.order_number || orderId;
+
         // Mark order paid
         await base44.asServiceRole.entities.Order.update(orderId, {
           status: "paid",
@@ -66,19 +70,41 @@ export default async function(req) {
           }
         }
 
-        // Decrement stock
+        // Decrement stock + low-stock notification
         if (productId) {
           try {
             const p = await base44.asServiceRole.entities.Product.get(productId);
             if (p && typeof p.stock === 'number') {
-              await base44.asServiceRole.entities.Product.update(productId, {
-                stock: Math.max(0, p.stock - 1),
-              });
+              const newStock = Math.max(0, p.stock - 1);
+              const threshold = p.low_stock_threshold ?? 5;
+              await base44.asServiceRole.entities.Product.update(productId, { stock: newStock });
+              if (newStock <= threshold) {
+                await base44.asServiceRole.entities.Notification.create({
+                  type: "stock",
+                  title: `Stock basso: ${p.name}`,
+                  message: `Rimangono ${newStock} unità (soglia: ${threshold}). Rifornire l'inventario.`,
+                  severity: newStock === 0 ? "error" : "warning",
+                  read: false,
+                  link: "inventory",
+                  ref_id: productId,
+                });
+              }
             }
           } catch (e) {
             console.log("stock decrement skipped:", e.message);
           }
         }
+
+        // Order notification
+        await base44.asServiceRole.entities.Notification.create({
+          type: "order",
+          title: `Nuovo ordine pagato ${orderNumber}`,
+          message: `${name || email || 'Cliente'} · ${(totalCents / 100).toFixed(2)} €${discountCode ? ` · sconto ${discountCode}` : ''}`,
+          severity: "success",
+          read: false,
+          link: "orders",
+          ref_id: orderId,
+        });
       }
     }
 

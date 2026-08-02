@@ -1,0 +1,76 @@
+{
+  "name": "Notification",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": [
+        "order",
+        "stock",
+        "discount",
+        "system",
+        "payment"
+      ],
+      "default": "system",
+      "title": "Tipo"
+    },
+    "title": {
+      "type": "string",
+      "title": "Titolo"
+    },
+    "message": {
+      "type": "string",
+      "title": "Messaggio"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "info",
+        "success",
+        "warning",
+        "error"
+      ],
+      "default": "info",
+      "title": "Severit\u00e0"
+    },
+    "read": {
+      "type": "boolean",
+      "default": false,
+      "title": "Letta"
+    },
+    "link": {
+      "type": "string",
+      "title": "Link"
+    },
+    "ref_id": {
+      "type": "string",
+      "title": "ID riferimento"
+    }
+  },
+  "required": [
+    "title",
+    "type"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
