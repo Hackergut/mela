@@ -87,6 +87,11 @@
     "sort_order": {
       "type": "number",
       "title": "Ordine"
+    },
+    "is_mockup": {
+      "type": "boolean",
+      "default": false,
+      "title": "Mockup (dato demo)"
     }
   },
   "required": [

@@ -13,6 +13,11 @@
     "label": {
       "type": "string",
       "title": "Etichetta"
+    },
+    "is_mockup": {
+      "type": "boolean",
+      "default": false,
+      "title": "Mockup (dato demo)"
     }
   },
   "required": [
