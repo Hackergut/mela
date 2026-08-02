@@ -4,7 +4,7 @@ import { heroEntrance } from '@/lib/motion';
 import { Image } from '@/components/ui/image';
 
 const MOCKUP_URL =
-  'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/cc8737af6_IMG_1766.jpg';
+  'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/71f36c7ee_Untitleddesign.png';
 
 export default function HeroSection() {
   const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -62,18 +62,10 @@ export default function HeroSection() {
           className="relative flex justify-center"
         >
           <div className="relative w-full max-w-3xl h-[360px] md:h-[520px] lg:h-[600px] overflow-hidden">
-            {/* Piatto luminoso: fa fondere lo sfondo bianco della foto sul nero */}
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  'radial-gradient(ellipse 60% 78% at 50% 50%, rgba(255,255,255,1) 0%, rgba(255,255,255,0.88) 40%, rgba(255,255,255,0) 75%)',
-              }}
-            />
             <Image
               src={MOCKUP_URL}
               alt="iPhone 17 Pro — Arancione Cosmico e Blu"
-              className="relative w-full h-[160%] mix-blend-multiply"
+              className="relative w-full h-[160%]"
               fittingType="fit"
             />
           </div>
