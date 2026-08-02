@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Lock, Loader2 } from 'lucide-react';
+import { Lock, Loader2, ShieldCheck } from 'lucide-react';
 import PromoBanner from '@/components/PromoBanner';
 import Navbar from '@/components/Navbar';
 import { base44 } from '@/api/base44Client';
@@ -15,7 +15,8 @@ export default function AdminLogin({ onLogin }) {
     setLoading(true); setError(null);
     try {
       const res = await base44.functions.invoke('admin-cms', { password, operation: 'list', resource: 'product' });
-      onLogin(password, res.data.items || []);
+      const role = res.data?.role || 'admin';
+      onLogin(password, res.data.items || [], role);
     } catch (err) {
       setError(err.response?.data?.error || 'Password non valida');
     } finally { setLoading(false); }
@@ -48,6 +49,9 @@ export default function AdminLogin({ onLogin }) {
           >
             {loading ? <><Loader2 size={18} className="animate-spin" /> Verifica…</> : 'Accedi'}
           </button>
+          <p className="mt-4 text-[11px] text-[#6e6e73] text-center flex items-center justify-center gap-1">
+            <ShieldCheck size={12} /> Super admin = password dedicata per settaggi CMS principali
+          </p>
         </form>
       </div>
     </div>

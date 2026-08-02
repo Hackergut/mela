@@ -7,9 +7,15 @@ export default async function(req) {
     const body = await req.json();
     const { password, operation, resource, payload } = body;
 
-    if (!password || password !== secrets.get("ADMIN_PASSWORD")) {
+    const adminPassword = secrets.get("ADMIN_PASSWORD");
+    const superPassword = secrets.get("SUPER_ADMIN_PASSWORD");
+    const isSuperAdmin = !!superPassword && password === superPassword;
+    const isAdmin = password === adminPassword;
+    if (!password || (!isAdmin && !isSuperAdmin)) {
       return Response.json({ error: "Password non valida" }, { status: 401 });
     }
+    // Se SUPER_ADMIN_PASSWORD non è impostata, il singolo admin ha pieni poteri
+    const canManageSettings = isSuperAdmin || !superPassword;
 
     const base44 = createClientFromRequest(req);
     const dbMap = {
@@ -28,6 +34,7 @@ export default async function(req) {
     const res = resource || 'product';
     const db = dbMap[res];
     if (!db) return Response.json({ error: "Risorsa non valida" }, { status: 400 });
+    const MAIN_SETTING_KEYS = ['store_name','store_email','store_currency','low_stock_threshold','free_shipping_threshold'];
 
     const sortMap = {
       product: '-sort_order', category: 'sort_order', asset: '-created_date',
@@ -38,7 +45,7 @@ export default async function(req) {
     switch (operation) {
       case "list": {
         const items = await db.list(sortMap[res] || '-created_date', 500);
-        return Response.json({ items });
+        return Response.json({ items, role: isSuperAdmin ? 'super_admin' : 'admin', canManageSettings });
       }
       case "create": {
         let data = { ...(payload || {}) };
@@ -74,8 +81,28 @@ export default async function(req) {
       case "delete": {
         const { id } = payload || {};
         if (!id) return Response.json({ error: "ID mancante" }, { status: 400 });
+        if (res === 'setting') {
+          const items = await db.list('-created_date', 500);
+          const target = items.find(s => s.id === id);
+          if (target && MAIN_SETTING_KEYS.includes(target.key) && !canManageSettings) {
+            return Response.json({ error: "Solo il super admin può modificare i settaggi CMS principali" }, { status: 403 });
+          }
+        }
         await db.delete(id);
         return Response.json({ ok: true });
+      }
+      case "bulk_delete": {
+        const ids = Array.isArray(payload?.ids) ? payload.ids : [];
+        if (ids.length === 0) return Response.json({ error: "Nessun id" }, { status: 400 });
+        if (res === 'setting') {
+          const items = await db.list('-created_date', 500);
+          const blocked = items.find(s => ids.includes(s.id) && MAIN_SETTING_KEYS.includes(s.key) && !canManageSettings);
+          if (blocked) {
+            return Response.json({ error: "Solo il super admin può eliminare i settaggi CMS principali" }, { status: 403 });
+          }
+        }
+        await db.deleteMany({ id: { $in: ids } });
+        return Response.json({ ok: true, deleted: ids.length });
       }
       case "invite_user": {
         const { email, role } = payload || {};
@@ -86,6 +113,9 @@ export default async function(req) {
       case "upsert_setting": {
         const { key, value, label } = payload || {};
         if (!key) return Response.json({ error: "Key mancante" }, { status: 400 });
+        if (MAIN_SETTING_KEYS.includes(key) && !canManageSettings) {
+          return Response.json({ error: "Solo il super admin può modificare i settaggi CMS principali" }, { status: 403 });
+        }
         const existing = await dbMap.setting.filter({ key });
         let item;
         if (existing.length > 0) {
