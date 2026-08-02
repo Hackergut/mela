@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { heroEntrance } from '@/lib/motion';
+import { Image } from '@/components/ui/image';
 
 // Due iPhone 17 Pro (fronte) su sfondo bianco puro — si fonde con la hero chiara
 const MOCKUP_URL =
@@ -59,18 +60,19 @@ export default function HeroSection() {
           Tutto su iPhone.
         </motion.h1>
 
-        {/* Mockup referenza — sfondo bianco nativo che si fonde con la hero chiara */}
+        {/* Mockup referenza — rendering ad alta qualità via Wix Media (srcset DPR, q100) */}
         <motion.div
           initial={{ opacity: 0, y: 60 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15, duration: 0.9, ease: 'easeOut' }}
-          className="relative flex justify-center w-full"
+          className="relative w-full max-w-5xl mx-auto aspect-[16/9]"
         >
-          <img
+          <Image
             src={MOCKUP_URL}
             alt="iPhone 17 Pro — Arancione Cosmico e Blu"
-            className="block w-full max-w-5xl h-auto"
-            loading="lazy"
+            fittingType="fit"
+            quality={100}
+            className="w-full h-full"
           />
         </motion.div>
       </div>
