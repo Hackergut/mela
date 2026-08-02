@@ -2,11 +2,12 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Image } from '@/components/ui/image';
 import { fadeUp, staggerContainer, staggerItem } from '@/lib/motion';
+import { IPHONE_GALLERY } from '@/lib/productCatalog';
 
 const IMG = 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b';
 
 const CATEGORIES = [
-  { id: 'iphone', name: 'iPhone', count: '4 modelli', image: `${IMG}/7d56fefdb_IMG_1342.jpeg` },
+  { id: 'iphone', name: 'iPhone', count: '4 modelli', image: IPHONE_GALLERY[0] },
   { id: 'applewatch', name: 'Apple Watch', count: '12 pezzi', image: `${IMG}/f661dd828_IMG_1661.jpeg` },
   { id: 'ipad', name: 'iPad', count: '9 pezzi', image: `${IMG}/4d118691e_IMG_1692.jpeg` },
   { id: 'airpods', name: 'AirPods', count: '3 pezzi', image: `${IMG}/4d51436f9_IMG_1689.jpeg` },

@@ -251,7 +251,7 @@ export default function SchedaProdotto() {
                 src={gallery[activeImage]?.url || product.image}
                 alt={gallery[activeImage]?.name || product.name}
                 className="w-full h-full"
-                fittingType="fill"
+                fittingType="fit"
               />
             </div>
             <div className="grid grid-cols-5 gap-2 md:gap-3">
@@ -264,7 +264,7 @@ export default function SchedaProdotto() {
                   }`}
                   style={{ aspectRatio: '1 / 1' }}
                 >
-                  <Image src={img.url} alt={img.name} className="w-full h-full" fittingType="fill" />
+                  <Image src={img.url} alt={img.name} className="w-full h-full" fittingType="fit" />
                 </button>
               ))}
             </div>

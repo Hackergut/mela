@@ -2,12 +2,9 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { heroEntrance } from '@/lib/motion';
 import { Image } from '@/components/ui/image';
+import { IPHONE_17_PRO_COLORS } from '@/lib/productCatalog';
 
-const COLOR_SWATCHES = [
-  { name: 'Arancione Cosmico', color: '#E85D2F' },
-  { name: 'Blu', color: '#3B5B7A' },
-  { name: 'Argento', color: '#D8D8DC' },
-];
+const COLOR_SWATCHES = IPHONE_17_PRO_COLORS.map(c => ({ name: c.name, color: c.hex }));
 
 export default function HeroSection() {
   const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -73,7 +70,7 @@ export default function HeroSection() {
         >
           <div className="relative mx-auto" style={{ maxWidth: '900px' }}>
             <Image
-              src="https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/b2b227688_IMG_1338.jpeg"
+              src={IPHONE_17_PRO_COLORS[0].image}
               alt="iPhone 17 Pro Arancione Cosmico"
               className="w-full h-auto"
               fittingType="fit"

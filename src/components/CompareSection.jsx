@@ -5,9 +5,12 @@ import { Image } from '@/components/ui/image';
 import { fadeUp } from '@/lib/motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductActions from '@/components/ProductActions';
-import { IPHONE_GALLERY } from '@/lib/productCatalog';
-
-const HERO = IPHONE_GALLERY[0];
+import {
+  IPHONE_17_PRO_COLORS,
+  IPHONE_17_AIR_COLORS,
+  IPHONE_17_COLORS,
+  IPHONE_16_COLORS,
+} from '@/lib/productCatalog';
 
 const MODELS = [
   {
@@ -15,43 +18,28 @@ const MODELS = [
     tagline: 'Il più potente di sempre.',
     price: '€1.199',
     productId: 1,
-    colors: [
-      { name: 'Arancione Cosmico', hex: '#E85D2F', image: HERO },
-      { name: 'Argento', hex: '#D8D8DC', image: HERO },
-      { name: 'Blu', hex: '#3B5B7A', image: HERO },
-      { name: 'Nero', hex: '#2C2C2E', image: HERO },
-    ],
+    colors: IPHONE_17_PRO_COLORS,
   },
   {
     name: 'iPhone 17 Air',
     tagline: 'Il più sottile mai realizzato.',
     price: '€999',
     productId: 2,
-    colors: [
-      { name: 'Azzurro', hex: '#7BA7C9', image: HERO },
-      { name: 'Bianco', hex: '#E8E8EC', image: HERO },
-    ],
+    colors: IPHONE_17_AIR_COLORS,
   },
   {
     name: 'iPhone 17',
     tagline: 'Potenza per tutti.',
     price: '€899',
     productId: 3,
-    colors: [
-      { name: 'Tutte le finiture', hex: '#8AB4F8', image: HERO },
-    ],
+    colors: IPHONE_17_COLORS,
   },
   {
     name: 'iPhone 16',
     tagline: 'Il nuovo controllo fotocamera.',
     price: '€799',
     productId: 4,
-    colors: [
-      { name: 'Verde', hex: '#4E6B54', image: HERO },
-      { name: 'Viola', hex: '#8C7BB0', image: HERO },
-      { name: 'Rosa', hex: '#E7B5C0', image: HERO },
-      { name: 'Crema', hex: '#E5DCC8', image: HERO },
-    ],
+    colors: IPHONE_16_COLORS,
   },
 ];
 
@@ -128,7 +116,7 @@ function CompareCard({ model }) {
           src={active.image}
           alt={`${model.name} — ${active.name}`}
           className="w-full h-full"
-          fittingType="fill"
+          fittingType="fit"
         />
         <div className="absolute top-3 right-3 z-10">
           <ProductActions product={{ id: model.productId, name: model.name, price: model.price, image: active.image, category: 'iPhone' }} />
