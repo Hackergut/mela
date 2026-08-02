@@ -392,7 +392,7 @@ export const PRODUCT_CATALOG = [
     price: '€549',
     badge: 'Nuovo',
     category: 'AirPods Max',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/becda9f88_generated_image.png',
+    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/f6ca7809d_IMG_1434.jpg',
     description: 'AirPods Max nella colorazione Nero Mezzanotte. Cuffie over-ear premium con audio spaziale, cancellazione attiva del rumore e suono Hi-Fi.',
   },
   {
@@ -401,7 +401,7 @@ export const PRODUCT_CATALOG = [
     price: '€549',
     badge: null,
     category: 'AirPods Max',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/68c29bf33_generated_image.png',
+    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/dce745ccf_IMG_1435.jpeg',
     description: 'AirPods Max in Grigio Siderale. Archetto in maglia intrecciata per comfort prolungato e driver dinamico per un audio ricco e dettagliato.',
   },
   {
@@ -428,7 +428,7 @@ export const PRODUCT_CATALOG = [
     price: '€549',
     badge: null,
     category: 'AirPods Max',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/18489cabb_generated_image.png',
+    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/d9e03807f_IMG_1436.jpeg',
     description: 'AirPods Max indossate con stile. Comfort eccezionale grazie all\'archetto in maglia e cuscinetti in memory foam per sessioni di ascolto prolungate.',
   },
   {
@@ -446,7 +446,7 @@ export const PRODUCT_CATALOG = [
     price: '€549',
     badge: null,
     category: 'AirPods Max',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/becda9f88_generated_image.png',
+    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/648a4af58_IMG_1433.jpg',
     description: 'AirPods Max in primo piano. La struttura in acciaio inossidabile e gli auricolari in memory foam garantiscono durata e comfort assoluti.',
   },
   {
@@ -585,7 +585,7 @@ export const PRODUCT_CATALOG = [
     price: '€1.499',
     badge: null,
     category: 'Ecosistema',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/68d30e668_generated_image.png',
+    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/6810e4062_IMG_1437.jpeg',
     description: 'L\'intero ecosistema Apple in un\'unica soluzione. iPhone, iPad, MacBook, Apple Watch e AirPods che lavorano insieme in perfetta sinergia.',
   },
   {
@@ -594,7 +594,7 @@ export const PRODUCT_CATALOG = [
     price: '€1.299',
     badge: null,
     category: 'Ecosistema',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/1aaf257f1_generated_image.png',
+    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/164b03a6c_IMG_1439.jpeg',
     description: 'Il duo perfetto per la produttività: MacBook e iPad con Sidecar, AirDrop e Universal Control per un flusso di lavoro senza interruzioni.',
   },
   {
@@ -603,7 +603,7 @@ export const PRODUCT_CATALOG = [
     price: '€999',
     badge: null,
     category: 'Ecosistema',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/b17099aff_generated_image.png',
+    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/8830314f0_IMG_1430.jpg',
     description: 'Il pacchetto Family dell\'ecosistema Apple. Condivisione foto, calendari e abbonamenti con iCloud+ per tutta la famiglia.',
   },
   {
@@ -612,7 +612,7 @@ export const PRODUCT_CATALOG = [
     price: '€1.099',
     badge: null,
     category: 'Ecosistema',
-    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/85a788729_generated_image.png',
+    image: 'https://media.base44.com/images/public/6a6d2bc9b1aeaa69d847a02b/1c512ac45_IMG_1438.jpeg',
     description: 'Ecosistema Apple in elegante finitura Argento. iPhone, iPad e MacBook coordinati per uno stile coerente e una connettività senza pari.',
   },
 ];
