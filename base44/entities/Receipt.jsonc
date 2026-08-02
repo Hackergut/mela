@@ -1,18 +1,31 @@
 {
-  "name": "Order",
+  "name": "Receipt",
   "type": "object",
   "properties": {
-    "order_number": {
+    "receipt_number": {
       "type": "string",
-      "title": "Numero ordine"
+      "title": "Numero ricevuta"
     },
-    "customer_name": {
+    "type": {
       "type": "string",
-      "title": "Cliente"
+      "enum": [
+        "sale",
+        "purchase"
+      ],
+      "default": "sale",
+      "title": "Tipo"
     },
-    "customer_email": {
+    "party_name": {
+      "type": "string",
+      "title": "Controparte (cliente/fornitore)"
+    },
+    "party_email": {
       "type": "string",
       "title": "Email"
+    },
+    "party_address": {
+      "type": "string",
+      "title": "Indirizzo"
     },
     "items": {
       "type": "array",
@@ -22,10 +35,13 @@
           "name": {
             "type": "string"
           },
-          "price_cents": {
+          "qty": {
             "type": "number"
           },
-          "qty": {
+          "unit_cents": {
+            "type": "number"
+          },
+          "total_cents": {
             "type": "number"
           }
         }
@@ -36,9 +52,10 @@
       "type": "number",
       "title": "Subtotale (cent)"
     },
-    "discount_amount_cents": {
+    "tax_cents": {
       "type": "number",
-      "title": "Sconto (cent)"
+      "default": 0,
+      "title": "IVA (cent)"
     },
     "total_cents": {
       "type": "number",
@@ -47,59 +64,28 @@
     "status": {
       "type": "string",
       "enum": [
-        "pending",
-        "paid",
-        "shipped",
-        "delivered",
-        "cancelled",
-        "refunded"
+        "issued",
+        "void"
       ],
-      "default": "pending",
+      "default": "issued",
       "title": "Stato"
     },
-    "discount_code": {
+    "notes": {
       "type": "string",
-      "title": "Codice sconto"
+      "title": "Note"
     },
-    "stripe_session_id": {
+    "order_id": {
       "type": "string",
-      "title": "Stripe Session ID"
+      "title": "ID ordine collegato"
     },
-    "tracking_number": {
+    "payment_method": {
       "type": "string",
-      "title": "Numero tracking"
-    },
-    "carrier": {
-      "type": "string",
-      "enum": [
-        "",
-        "DHL",
-        "UPS",
-        "FedEx",
-        "BRT",
-        "Poste Italiane",
-        "SDA"
-      ],
-      "default": "",
-      "title": "Corriere"
-    },
-    "shipped_date": {
-      "type": "string",
-      "format": "date-time",
-      "title": "Data spedizione"
-    },
-    "delivered_date": {
-      "type": "string",
-      "format": "date-time",
-      "title": "Data consegna"
-    },
-    "receipt_number": {
-      "type": "string",
-      "title": "Numero ricevuta"
+      "title": "Metodo pagamento"
     }
   },
   "required": [
-    "order_number"
+    "receipt_number",
+    "type"
   ],
   "rls": {
     "read": {

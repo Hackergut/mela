@@ -22,6 +22,8 @@ export default async function(req) {
       user: base44.asServiceRole.entities.User,
       notification: base44.asServiceRole.entities.Notification,
       setting: base44.asServiceRole.entities.Setting,
+      receipt: base44.asServiceRole.entities.Receipt,
+      return: base44.asServiceRole.entities.Return,
     };
     const res = resource || 'product';
     const db = dbMap[res];
@@ -30,7 +32,7 @@ export default async function(req) {
     const sortMap = {
       product: '-sort_order', category: 'sort_order', asset: '-created_date',
       order: '-created_date', discount: '-created_date', customer: '-created_date', user: '-created_date',
-      notification: '-created_date', setting: 'key',
+      notification: '-created_date', setting: 'key', receipt: '-created_date', return: '-created_date',
     };
 
     switch (operation) {
@@ -48,6 +50,12 @@ export default async function(req) {
           if (data.low_stock_threshold !== undefined) data.low_stock_threshold = Number(data.low_stock_threshold);
         }
         if (res === 'notification' && !data.severity) data.severity = 'info';
+        if (res === 'receipt' && !data.receipt_number) {
+          data.receipt_number = `R-${data.type === 'purchase' ? 'ACQ' : 'VEN'}-${Date.now().toString().slice(-6)}`;
+        }
+        if (res === 'return' && !data.return_number) {
+          data.return_number = `RES-${Date.now().toString().slice(-6)}`;
+        }
         const item = await db.create(data);
         return Response.json({ item });
       }

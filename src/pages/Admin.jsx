@@ -9,13 +9,17 @@ import CustomersManager from '@/components/admin/CustomersManager';
 import TeamManager from '@/components/admin/TeamManager';
 import NotificationsManager from '@/components/admin/NotificationsManager';
 import SettingsManager from '@/components/admin/SettingsManager';
+import AnalyticsManager from '@/components/admin/AnalyticsManager';
+import ShippingManager from '@/components/admin/ShippingManager';
+import ReturnsManager from '@/components/admin/ReturnsManager';
+import ReceiptsManager from '@/components/admin/ReceiptsManager';
 import ProductForm from '@/components/admin/ProductForm';
 import CategoryManager from '@/components/admin/CategoryManager';
 import AssetLibrary from '@/components/admin/AssetLibrary';
 import PromoBanner from '@/components/PromoBanner';
 import Navbar from '@/components/Navbar';
 import { Image } from '@/components/ui/image';
-import { Plus, Pencil, Trash2, LogOut, Loader2, Package, FolderOpen, Images, LayoutDashboard, ShoppingCart, Boxes, Tags, Users, Search, Bell, Settings as SettingsIcon } from 'lucide-react';
+import { Plus, Pencil, Trash2, LogOut, Loader2, Package, FolderOpen, Images, LayoutDashboard, ShoppingCart, Boxes, Tags, Users, Search, Bell, Settings as SettingsIcon, BarChart3, Truck, RotateCcw, Receipt as ReceiptIcon } from 'lucide-react';
 
 const PW_KEY = 'tm_admin_pw';
 
@@ -72,7 +76,11 @@ export default function Admin() {
   const TABS = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'products', label: 'Prodotti', icon: Package },
+    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
     { id: 'orders', label: 'Ordini', icon: ShoppingCart },
+    { id: 'shipping', label: 'Spedizioni', icon: Truck },
+    { id: 'returns', label: 'Resi/Storni', icon: RotateCcw },
+    { id: 'receipts', label: 'Ricevute', icon: ReceiptIcon },
     { id: 'inventory', label: 'Inventario', icon: Boxes },
     { id: 'discounts', label: 'Sconti', icon: Tags },
     { id: 'customers', label: 'Clienti (CRM)', icon: Users },
@@ -126,6 +134,10 @@ export default function Admin() {
 
         {tab === 'dashboard' && <AdminDashboard password={password} />}
         {tab === 'orders' && <OrdersManager password={password} />}
+        {tab === 'analytics' && <AnalyticsManager password={password} />}
+        {tab === 'shipping' && <ShippingManager password={password} />}
+        {tab === 'returns' && <ReturnsManager password={password} />}
+        {tab === 'receipts' && <ReceiptsManager password={password} />}
         {tab === 'inventory' && <InventoryManager password={password} />}
         {tab === 'discounts' && <DiscountsManager password={password} />}
         {tab === 'customers' && <CustomersManager password={password} />}

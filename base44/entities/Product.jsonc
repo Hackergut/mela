@@ -6,6 +6,10 @@
       "type": "string",
       "title": "Nome"
     },
+    "sku": {
+      "type": "string",
+      "title": "SKU"
+    },
     "price": {
       "type": "string",
       "title": "Prezzo (testo)"
@@ -27,6 +31,16 @@
       "type": "number",
       "default": 5,
       "title": "Soglia stock basso"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "withdrawn",
+        "discontinued"
+      ],
+      "default": "active",
+      "title": "Stato vendita"
     },
     "badge": {
       "type": "string",
