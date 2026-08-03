@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import PromoBanner from '@/components/PromoBanner';
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
+import InteractiveSpecsSection from '@/components/InteractiveSpecsSection';
 import CategoriesSection from '@/components/CategoriesSection';
 import FeaturesSection from '@/components/FeaturesSection';
 import PopularProducts from '@/components/PopularProducts';
@@ -19,6 +20,7 @@ export default function Home() {
       <Navbar />
       <main>
         <HeroSection />
+        <InteractiveSpecsSection />
         <CategoriesSection />
         <FeaturesSection />
         <PopularProducts />
