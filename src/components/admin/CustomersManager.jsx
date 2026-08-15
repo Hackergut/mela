@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Loader2, Search, X, Mail, Phone, StickyNote, Pencil } from 'lucide-react';
 import { useBulkSelect, BulkActionBar, SelectAllCheckbox, RowCheckbox } from '@/lib/bulkSelect';
@@ -13,7 +13,7 @@ export default function CustomersManager({ password }) {
   const [detail, setDetail] = useState(null);
   const [editing, setEditing] = useState(null);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const [c, o] = await Promise.all([
@@ -23,8 +23,8 @@ export default function CustomersManager({ password }) {
       setCustomers(c.data.items || []);
       setOrders(o.data.items || []);
     } finally { setLoading(false); }
-  };
-  useEffect(() => { load(); }, []);
+  }, [password]);
+  useEffect(() => { load(); }, [load]);
 
   const saveEdit = async (e) => {
     e.preventDefault();
@@ -51,14 +51,14 @@ export default function CustomersManager({ password }) {
       <div className="flex items-center justify-between mb-4 gap-3">
         <div className="relative flex-1 max-w-xs">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Cerca cliente…" className="w-full pl-9 pr-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#FF6B35]" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Cerca cliente…" className="w-full pl-9 pr-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#0071E3]" />
         </div>
         <p className="text-sm text-[#6e6e73]">{customers.length} clienti</p>
       </div>
 
       <div className="mb-3"><BulkActionBar count={bulk.selectedIds.length} onBulkDelete={bulkDelete} onClear={bulk.clear} /></div>
 
-      {loading ? <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#FF6B35]" size={28} /></div> :
+      {loading ? <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#0071E3]" size={28} /></div> :
         filtered.length === 0 ? <p className="text-center text-[#6e6e73] py-20">Nessun cliente.</p> : (
           <div className="bg-white rounded-2xl overflow-x-auto">
             <table className="w-full">
@@ -75,7 +75,7 @@ export default function CustomersManager({ password }) {
               </thead>
               <tbody>
                 {filtered.map(c => (
-                  <tr key={c.id} className={`border-b border-gray-50 cursor-pointer hover:bg-gray-50 ${bulk.selected[c.id] ? 'bg-[#FF6B35]/5' : ''}`} onClick={() => openDetail(c)}>
+                  <tr key={c.id} className={`border-b border-gray-50 cursor-pointer hover:bg-gray-50 ${bulk.selected[c.id] ? 'bg-[#0071E3]/5' : ''}`} onClick={() => openDetail(c)}>
                     <td className="p-3"><RowCheckbox checked={!!bulk.selected[c.id]} onChange={() => bulk.toggleOne(c.id)} /></td>
                     <td className="p-3 text-sm font-semibold text-[#1d1d1f]">{c.name || '—'}</td>
                     <td className="p-3 text-sm text-[#6e6e73]">{c.email}</td>
@@ -112,7 +112,7 @@ export default function CustomersManager({ password }) {
               </div>
               <div className="bg-[#f5f5f7] rounded-xl p-4">
                 <p className="text-xs text-[#6e6e73]">Totale speso</p>
-                <p className="text-2xl font-bold text-[#FF6B35]">{fmt(detail.customer.total_spent)}</p>
+                <p className="text-2xl font-bold text-[#0071E3]">{fmt(detail.customer.total_spent)}</p>
               </div>
             </div>
             <h3 className="text-sm font-bold text-[#1d1d1f] mb-2">Storico ordini</h3>
@@ -141,12 +141,12 @@ export default function CustomersManager({ password }) {
               <h2 className="text-xl font-bold text-[#1d1d1f]">Modifica Cliente</h2>
               <button type="button" onClick={() => setEditing(null)}><X size={20} /></button>
             </div>
-            <label className="block"><span className="text-xs font-medium text-[#6e6e73] mb-1 block">Nome</span><input value={editing.name || ''} onChange={e => setEditing({ ...editing, name: e.target.value })} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-[#FF6B35] focus:outline-none" /></label>
-            <label className="block"><span className="text-xs font-medium text-[#6e6e73] mb-1 block">Email</span><input value={editing.email || ''} onChange={e => setEditing({ ...editing, email: e.target.value })} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-[#FF6B35] focus:outline-none" /></label>
-            <label className="block"><span className="text-xs font-medium text-[#6e6e73] mb-1 block">Telefono</span><input value={editing.phone || ''} onChange={e => setEditing({ ...editing, phone: e.target.value })} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-[#FF6B35] focus:outline-none" /></label>
-            <label className="block"><span className="text-xs font-medium text-[#6e6e73] mb-1 block">Note</span><textarea value={editing.notes || ''} onChange={e => setEditing({ ...editing, notes: e.target.value })} rows={3} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-[#FF6B35] focus:outline-none" /></label>
+            <label className="block"><span className="text-xs font-medium text-[#6e6e73] mb-1 block">Nome</span><input value={editing.name || ''} onChange={e => setEditing({ ...editing, name: e.target.value })} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-[#0071E3] focus:outline-none" /></label>
+            <label className="block"><span className="text-xs font-medium text-[#6e6e73] mb-1 block">Email</span><input value={editing.email || ''} onChange={e => setEditing({ ...editing, email: e.target.value })} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-[#0071E3] focus:outline-none" /></label>
+            <label className="block"><span className="text-xs font-medium text-[#6e6e73] mb-1 block">Telefono</span><input value={editing.phone || ''} onChange={e => setEditing({ ...editing, phone: e.target.value })} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-[#0071E3] focus:outline-none" /></label>
+            <label className="block"><span className="text-xs font-medium text-[#6e6e73] mb-1 block">Note</span><textarea value={editing.notes || ''} onChange={e => setEditing({ ...editing, notes: e.target.value })} rows={3} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-[#0071E3] focus:outline-none" /></label>
             <div className="flex gap-3 pt-2">
-              <button type="submit" className="flex-1 py-3 bg-[#FF6B35] text-white text-sm font-semibold rounded-xl">Salva</button>
+              <button type="submit" className="flex-1 py-3 bg-[#0071E3] text-white text-sm font-semibold rounded-xl">Salva</button>
               <button type="button" onClick={() => setEditing(null)} className="px-5 py-3 bg-gray-100 text-sm font-semibold rounded-xl">Annulla</button>
             </div>
           </form>

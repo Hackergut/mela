@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Truck, Package, CheckCircle2, Search, Loader2, MapPin } from 'lucide-react';
 
@@ -11,16 +11,16 @@ export default function ShippingManager({ password }) {
   const [search, setSearch] = useState('');
   const [saving, setSaving] = useState(null);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const res = await base44.functions.invoke('admin-cms', { password, operation: 'list', resource: 'order' });
       setOrders(res.data.items || []);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
-  };
+  }, [password]);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [load]);
 
   const update = async (id, data) => {
     setSaving(id);
@@ -34,8 +34,13 @@ export default function ShippingManager({ password }) {
   const shipOrder = async (o) => {
     const tracking = prompt('Numero tracking:', o.tracking_number || '');
     if (tracking === null) return;
-    const carrier = prompt('Corriere (DHL/UPS/FedEx/BRT/Poste/SDA):', o.carrier || 'DHL');
-    if (carrier === null) return;
+    const carrierInput = prompt(`Corriere (${CARRIERS.join('/')}):`, o.carrier || 'DHL');
+    if (carrierInput === null) return;
+    const carrier = CARRIERS.find(item => item.toLowerCase() === carrierInput.trim().toLowerCase());
+    if (!carrier) {
+      alert('Seleziona un corriere supportato.');
+      return;
+    }
     await update(o.id, { status: 'shipped', tracking_number: tracking, carrier, shipped_date: new Date().toISOString() });
   };
 
@@ -57,12 +62,12 @@ export default function ShippingManager({ password }) {
     delivered: orders.filter(o => o.status === 'delivered').length,
   };
 
-  if (loading) return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#FF6B35]" size={28} /></div>;
+  if (loading) return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#0071E3]" size={28} /></div>;
 
   return (
     <div>
       <div className="flex items-center gap-2 mb-4">
-        <Truck size={18} className="text-[#FF6B35]" />
+        <Truck size={18} className="text-[#0071E3]" />
         <h2 className="text-lg font-bold text-[#1d1d1f]">Tracking Spedizioni</h2>
       </div>
 
@@ -75,10 +80,10 @@ export default function ShippingManager({ password }) {
       <div className="flex flex-wrap items-center gap-2 mb-4">
         <div className="relative flex-1 min-w-[200px]">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Cerca per ordine, cliente, tracking…" className="w-full pl-9 pr-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#FF6B35]" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Cerca per ordine, cliente, tracking…" className="w-full pl-9 pr-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#0071E3]" />
         </div>
         {[['paid','Da spedire'],['shipped','In transito'],['delivered','Consegnati'],['all','Tutti']].map(([k,l]) => (
-          <button key={k} onClick={() => setFilter(k)} className={`px-3 py-2 text-xs font-semibold rounded-lg ${filter===k?'bg-[#FF6B35] text-white':'bg-white border border-gray-200 text-[#6e6e73]'}`}>{l}</button>
+          <button key={k} onClick={() => setFilter(k)} className={`px-3 py-2 text-xs font-semibold rounded-lg ${filter===k?'bg-[#0071E3] text-white':'bg-white border border-gray-200 text-[#6e6e73]'}`}>{l}</button>
         ))}
       </div>
 
@@ -98,12 +103,12 @@ export default function ShippingManager({ password }) {
                 </div>
                 <div className="flex items-center gap-2">
                   <StatusBadge status={o.status} />
-                  {saving === o.id && <Loader2 size={14} className="animate-spin text-[#FF6B35]" />}
+                  {saving === o.id && <Loader2 size={14} className="animate-spin text-[#0071E3]" />}
                 </div>
               </div>
 
               {o.status === 'paid' && (
-                <button onClick={() => shipOrder(o)} className="mt-3 w-full px-3 py-2 bg-[#FF6B35] text-white text-xs font-semibold rounded-lg flex items-center justify-center gap-2">
+                <button onClick={() => shipOrder(o)} className="mt-3 w-full px-3 py-2 bg-[#0071E3] text-white text-xs font-semibold rounded-lg flex items-center justify-center gap-2">
                   <Truck size={14} /> Registra spedizione
                 </button>
               )}
@@ -117,8 +122,8 @@ export default function ShippingManager({ password }) {
                   <div className="flex gap-2">
                     <input
                       placeholder="Aggiorna tracking…"
-                      className="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-[#FF6B35]"
-                      onKeyDown={e => { if (e.key === 'Enter' && e.target.value) { update(o.id, { tracking_number: e.target.value }); e.target.value=''; } }}
+                      className="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-[#0071E3]"
+                      onKeyDown={e => { if (e.key === 'Enter' && e.currentTarget.value) { update(o.id, { tracking_number: e.currentTarget.value }); e.currentTarget.value = ''; } }}
                     />
                     <button onClick={() => deliver(o)} className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-semibold rounded-lg">Consegnato</button>
                   </div>

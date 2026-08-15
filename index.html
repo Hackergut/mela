@@ -1,14 +1,62 @@
 <!doctype html>
-<html lang="en">
+<html lang="it">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="https://base44.com/logo_v2.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1d1d1f" />
+    <meta name="description" content="Scopri prodotti e accessori tecnologici selezionati da TechMania." />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="it_IT" />
+    <meta property="og:site_name" content="TechMania" />
+    <meta property="og:title" content="TechMania | Tecnologia e accessori" />
+    <meta property="og:description" content="Prodotti e accessori tecnologici selezionati, spedizione rapida e assistenza dedicata." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="manifest" href="/manifest.json" />
-    <title>Base44 APP</title>
+    <title>TechMania | Tecnologia e accessori</title>
+    <style>
+      #bootstrap-status {
+        box-sizing: border-box;
+        display: grid;
+        min-height: 100vh;
+        place-items: center;
+        padding: 24px;
+        background: #f5f5f7;
+        color: #1d1d1f;
+        font: 500 15px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+        text-align: center;
+      }
+      #bootstrap-status p { margin: 0; }
+      #bootstrap-status small { display: block; margin-top: 8px; color: #6e6e73; font-weight: 400; }
+    </style>
+    <script>
+      (() => {
+        const showBootstrapProblem = (message) => {
+          const status = document.getElementById('bootstrap-status');
+          if (!status) return;
+          status.innerHTML = '<div><p>Non è stato possibile avviare lo Store.</p><small></small></div>';
+          status.querySelector('small').textContent = message || 'Ricarica la pagina per riprovare.';
+        };
+        window.addEventListener('error', (event) => {
+          const source = event.target && event.target.src ? `Impossibile caricare ${event.target.src}` : event.message;
+          showBootstrapProblem(source);
+        }, true);
+        window.addEventListener('unhandledrejection', (event) => {
+          showBootstrapProblem(event.reason && (event.reason.message || String(event.reason)));
+        });
+        window.setTimeout(() => {
+          const note = document.querySelector('#bootstrap-status small');
+          if (note) note.textContent = 'Il caricamento richiede più tempo del previsto. Prova a ricaricare la pagina.';
+        }, 8000);
+      })();
+    </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="bootstrap-status" role="status" aria-live="polite">
+        <div><p>Apertura dello Store…</p><small>Caricamento dell’esperienza</small></div>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

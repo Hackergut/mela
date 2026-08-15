@@ -1,16 +1,40 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.41';
 import { secrets } from 'base44:runtime';
 
-const API_VERSION = '2024-01';
+const API_VERSION = '2025-10';
+
+function normalizeShopDomain(value) {
+  const raw = String(value || '').trim().toLowerCase();
+  if (!raw) return '';
+  try {
+    const parsed = new URL(raw.includes('://') ? raw : `https://${raw}`);
+    if (parsed.protocol !== 'https:' || !/^[a-z0-9][a-z0-9-]*\.myshopify\.com$/.test(parsed.hostname)) return '';
+    return parsed.hostname;
+  } catch {
+    return '';
+  }
+}
 
 async function shopifyFetch(domain, token, path) {
-  const url = path.startsWith('http') ? path : `https://${domain}/admin/api/${API_VERSION}/${path}`;
+  const normalizedDomain = normalizeShopDomain(domain);
+  if (!normalizedDomain) throw new Error('Invalid Shopify domain');
+
+  const baseUrl = new URL(`https://${normalizedDomain}`);
+  const url = new URL(
+    path.startsWith('http') ? path : `/admin/api/${API_VERSION}/${path}`,
+    baseUrl,
+  );
+  // Shopify pagination links are remote input too: never follow a Link header
+  // that leaves the configured shop origin.
+  if (url.origin !== baseUrl.origin) throw new Error('Invalid Shopify pagination URL');
+
   const res = await fetch(url, {
     headers: { 'X-Shopify-Access-Token': token, 'Content-Type': 'application/json' },
   });
   if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Shopify API ${res.status}: ${text.slice(0, 300)}`);
+    const detail = (await res.text()).slice(0, 300);
+    console.error(`Shopify API ${res.status}:`, detail);
+    throw new Error(`Shopify API request failed (${res.status})`);
   }
   const data = await res.json();
   const linkHeader = res.headers.get('link') || '';
@@ -100,8 +124,12 @@ export default async function(req) {
     }
 
     const resolveCreds = () => ({
-      domain: (payload?.shop_domain || getSetting('shopify_shop_domain') || '').trim(),
-      token: (payload?.access_token || getSetting('shopify_access_token') || '').trim(),
+      domain: normalizeShopDomain(
+        payload?.shop_domain || secrets.get('SHOPIFY_SHOP_DOMAIN') || getSetting('shopify_shop_domain'),
+      ),
+      token: String(
+        payload?.access_token || secrets.get('SHOPIFY_ACCESS_TOKEN') || getSetting('shopify_access_token') || '',
+      ).trim(),
     });
 
     switch (operation) {
@@ -115,9 +143,11 @@ export default async function(req) {
       }
       case "save_creds": {
         const { shop_domain, access_token } = payload || {};
-        if (!shop_domain || !access_token) return Response.json({ error: "Dominio e token obbligatori" }, { status: 400 });
-        await upsertSetting('shopify_shop_domain', shop_domain, 'Shopify Dominio');
-        await upsertSetting('shopify_access_token', access_token, 'Shopify Token');
+        const domain = normalizeShopDomain(shop_domain);
+        const token = String(access_token || '').trim();
+        if (!domain || !token || token.length > 512) return Response.json({ error: "Dominio Shopify o token non validi" }, { status: 400 });
+        await upsertSetting('shopify_shop_domain', domain, 'Shopify Dominio');
+        await upsertSetting('shopify_access_token', token, 'Shopify Token');
         return Response.json({ ok: true });
       }
       case "test": {
@@ -197,7 +227,7 @@ export default async function(req) {
         return Response.json({ error: "Operazione non valida" }, { status: 400 });
     }
   } catch (error) {
-    console.error("shopify-sync error:", error.message);
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error("shopify-sync error:", error);
+    return Response.json({ error: "Operazione Shopify non riuscita" }, { status: 500 });
   }
 }

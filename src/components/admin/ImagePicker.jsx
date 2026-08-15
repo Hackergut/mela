@@ -60,14 +60,14 @@ export default function ImagePicker({ password, onSelect, onClose }) {
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Cerca…" className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none" />
           </div>
-          <button onClick={() => fileRef.current?.click()} disabled={uploading} className="px-4 py-2 bg-[#FF6B35] text-white text-sm font-semibold rounded-lg flex items-center gap-2 disabled:opacity-50 whitespace-nowrap">
+          <button onClick={() => fileRef.current?.click()} disabled={uploading} className="px-4 py-2 bg-[#0071E3] text-white text-sm font-semibold rounded-lg flex items-center gap-2 disabled:opacity-50 whitespace-nowrap">
             {uploading ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />} Carica dal PC
           </button>
           <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleUpload} />
         </div>
         <div className="overflow-y-auto p-4 flex-1">
           {loading ? (
-            <div className="flex justify-center py-10"><Loader2 className="animate-spin text-[#FF6B35]" /></div>
+            <div className="flex justify-center py-10"><Loader2 className="animate-spin text-[#0071E3]" /></div>
           ) : filtered.length === 0 ? (
             <p className="text-center text-gray-400 py-10">Nessun asset. Carica un'immagine dal PC.</p>
           ) : (

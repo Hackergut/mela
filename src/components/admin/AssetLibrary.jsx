@@ -52,7 +52,7 @@ export default function AssetLibrary({ password }) {
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Cerca…" className="pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none bg-white" />
           </div>
-          <button onClick={() => fileRef.current?.click()} disabled={uploading} className="px-4 py-2 bg-[#FF6B35] text-white text-sm font-semibold rounded-lg flex items-center gap-2 disabled:opacity-50">
+          <button onClick={() => fileRef.current?.click()} disabled={uploading} className="px-4 py-2 bg-[#0071E3] text-white text-sm font-semibold rounded-lg flex items-center gap-2 disabled:opacity-50">
             {uploading ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />} Importa dal PC
           </button>
           <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleUpload} />
@@ -60,7 +60,7 @@ export default function AssetLibrary({ password }) {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#FF6B35]" size={28} /></div>
+        <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#0071E3]" size={28} /></div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-20">
           <Upload size={40} className="mx-auto text-gray-300 mb-3" />

@@ -6,6 +6,32 @@
       "type": "string",
       "title": "Nome"
     },
+    "slug": {
+      "type": "string",
+      "title": "Slug pubblico"
+    },
+    "description": {
+      "type": "string",
+      "title": "Descrizione"
+    },
+    "parent_id": {
+      "type": "string",
+      "title": "Categoria principale"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "hidden"
+      ],
+      "default": "active",
+      "title": "Stato"
+    },
+    "featured": {
+      "type": "boolean",
+      "default": false,
+      "title": "In evidenza"
+    },
     "image": {
       "type": "string",
       "title": "Immagine copertina",

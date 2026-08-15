@@ -29,10 +29,10 @@ export default function PopularProducts() {
     <section id="products" className="py-20 px-6 lg:px-8 bg-white">
       <div className="max-w-7xl mx-auto">
         <motion.div {...fadeUp} className="text-center mb-8">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#FF6B35] mb-3">Catalogo Prodotti</p>
-          <h2 className="text-4xl md:text-5xl font-bold text-[#1d1d1f] tracking-tight">Esplora il Nostro<br />Catalogo Completo.</h2>
-          <p className="mt-4 text-[#6e6e73] max-w-md mx-auto">
-            {products.length} prodotti selezionati, organizzati per categoria con descrizioni dettagliate.
+          <p className="text-sm font-semibold text-[#0066cc] mb-3">Lo Store</p>
+          <h2 className="text-4xl md:text-6xl font-semibold leading-[1.02] text-[#1d1d1f] tracking-[-0.045em]">Scegli. Configura.<br />Fallo tuo.</h2>
+          <p className="mt-5 text-[#6e6e73] text-base max-w-xl mx-auto leading-7">
+            {products.length} prodotti con prezzi, configurazioni e disponibilità aggiornati direttamente dal catalogo.
           </p>
         </motion.div>
 
@@ -57,7 +57,7 @@ export default function PopularProducts() {
         </motion.div>
 
         {loading ? (
-          <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#FF6B35]" size={28} /></div>
+          <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#0071E3]" size={28} /></div>
         ) : (
           <motion.div {...staggerContainer} layout className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
             <AnimatePresence mode="popLayout">
@@ -86,35 +86,34 @@ export default function PopularProducts() {
 }
 
 function ProductCard({ product }) {
+  const href = `/scheda-prodotto?id=${product.id}`;
   return (
-    <Link to={`/scheda-prodotto?id=${product.id}`} className="block h-full">
-      <motion.div
-        whileHover={{ y: -4 }}
-        transition={{ duration: 0.3, ease: 'easeOut' }}
-        className="group bg-[#f5f5f7] rounded-2xl overflow-hidden cursor-pointer h-full flex flex-col"
-      >
-        <div className="relative overflow-hidden" style={{ paddingBottom: '100%' }}>
-          <div className="absolute inset-0">
-            <Image src={product.image} alt={product.name} className="w-full h-full transition-transform duration-500 group-hover:scale-105" fittingType="fill" />
-          </div>
-          {product.badge && (
-            <div className="absolute top-3 left-3 px-2.5 py-1 bg-[#FF6B35] text-white text-xs font-semibold rounded-full">{product.badge}</div>
-          )}
-          <div className="absolute top-3 right-3 px-2.5 py-1 bg-white/90 backdrop-blur-sm text-[#1d1d1f] text-xs font-semibold rounded-full">{product.category}</div>
-          <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            <ProductActions product={product} />
-          </div>
+    <motion.article
+      whileHover={{ y: -4 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+      className="group flex h-full flex-col overflow-hidden rounded-[24px] bg-[#f5f5f7]"
+    >
+      <div className="relative aspect-square overflow-hidden">
+        <Link to={href} className="absolute inset-0 p-4" aria-label={`Scopri ${product.name}`}>
+          <Image src={product.image} alt={product.name} className="h-full w-full transition-transform duration-500 group-hover:scale-[1.025]" fittingType="fit" />
+        </Link>
+        {product.badge && <div className="pointer-events-none absolute left-3 top-3 rounded-full bg-[#0071E3] px-2.5 py-1 text-xs font-semibold text-white">{product.badge}</div>}
+        {product.category && <div className="pointer-events-none absolute right-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-[#1d1d1f] backdrop-blur-sm">{product.category}</div>}
+        <div className="absolute bottom-3 right-3 z-10 opacity-100 transition-opacity duration-200 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
+          <ProductActions product={product} />
         </div>
-        <div className="p-3 md:p-4 flex flex-col flex-1">
-          <p className="text-xs text-[#6e6e73] mb-1 font-medium uppercase tracking-wide">Disponibile</p>
-          <h3 className="text-sm font-semibold text-[#1d1d1f] leading-snug mb-2 line-clamp-2">{product.name}</h3>
-          <p className="text-xs text-[#6e6e73] leading-relaxed mb-3 line-clamp-3 flex-1">{product.description}</p>
-          <div className="flex items-center justify-between mt-auto">
-            <p className="text-sm font-bold text-[#1d1d1f]">{product.price}</p>
-            <span className="px-3 py-1.5 bg-[#1d1d1f] text-white text-xs font-semibold rounded-full group-hover:bg-[#FF6B35] transition-colors">Dettagli</span>
-          </div>
+      </div>
+      <div className="flex flex-1 flex-col p-3 md:p-4">
+        <p className={`mb-1 text-xs font-medium ${product.in_stock ? 'text-[#248a3d]' : 'text-[#d70015]'}`}>{product.in_stock ? 'Disponibile' : 'Esaurito'}</p>
+        <h3 className="mb-2 line-clamp-2 text-sm font-semibold leading-snug text-[#1d1d1f]">
+          <Link to={href} className="hover:text-[#0066cc]">{product.name}</Link>
+        </h3>
+        <p className="mb-3 line-clamp-3 flex-1 text-xs leading-relaxed text-[#6e6e73]">{product.description}</p>
+        <div className="mt-auto flex items-center justify-between gap-2">
+          <p className="text-sm font-semibold text-[#1d1d1f]">{product.price}</p>
+          <Link to={href} className="text-xs font-semibold text-[#0066cc] hover:underline">Scopri →</Link>
         </div>
-      </motion.div>
-    </Link>
+      </div>
+    </motion.article>
   );
 }

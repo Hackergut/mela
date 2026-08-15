@@ -1,421 +1,246 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ShoppingCart, Heart, Share2, Truck, Shield, RotateCcw, Headphones, Loader2, Plus } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, Check, Heart, Loader2, ShieldCheck, ShoppingBag, X } from 'lucide-react';
 import PromoBanner from '@/components/PromoBanner';
 import Navbar from '@/components/Navbar';
 import FooterSection from '@/components/FooterSection';
 import { Image } from '@/components/ui/image';
-import { fadeUp, staggerContainer, staggerItem, heroEntrance } from '@/lib/motion';
-import { PRODUCT_KEY_SPECS } from '@/lib/productSpecs';
 import { base44 } from '@/api/base44Client';
+import { useCatalog } from '@/lib/useProducts';
+import { formatPriceCents, variantOptionGroups } from '@/lib/catalog';
 import { useStore } from '@/lib/StoreContext';
 
-const SPECS_BY_CATEGORY = {
-  'iPhone': [
-    { label: 'Display', value: 'Super Retina XDR OLED, 120Hz ProMotion' },
-    { label: 'Chip', value: 'Apple A19 Pro, 6-core CPU' },
-    { label: 'Fotocamera', value: 'Sistema Pro tripla lente 48MP' },
-    { label: 'Resistenza', value: 'IP68 (6 metri fino a 30 minuti)' },
-    { label: 'Connettività', value: '5G, Wi-Fi 7, USB-C' },
-    { label: 'Sicurezza', value: 'Face ID' },
-  ],
-  'Apple Watch': [
-    { label: 'Display', value: 'Always-On Retina LTPO3 OLED' },
-    { label: 'Cassa', value: 'Alluminio / Titanio' },
-    { label: 'Sensori', value: 'ECG, SpO2, Temperatura, Cardiaco' },
-    { label: 'Resistenza', value: 'WR50 (50 metri)' },
-    { label: 'Connettività', value: 'GPS, Wi-Fi, Bluetooth 5.3' },
-    { label: 'Autonomia', value: 'Fino a 18 ore (72h risparmio)' },
-  ],
-  'AirPods Max': [
-    { label: 'Driver', value: 'Driver dinamico a bobina mobile da 40mm' },
-    { label: 'Cancellazione rumore', value: 'Active Noise Cancellation adattiva' },
-    { label: 'Audio', value: 'Audio spaziale con tracciamento testa' },
-    { label: 'Autonomia', value: 'Fino a 20 ore con ANC attiva' },
-    { label: 'Connettività', value: 'Bluetooth 5.3, chip Apple H2' },
-    { label: 'Materiali', value: 'Alluminio anodizzato, memory foam' },
-  ],
-  'AirPods': [
-    { label: 'Driver', value: 'Driver ad alta escursione personalizzato' },
-    { label: 'Cancellazione rumore', value: 'ANC adattiva + Modalità Trasparenza' },
-    { label: 'Audio', value: 'Audio spaziale personalizzato' },
-    { label: 'Autonomia', value: 'Fino a 6 ore (30h con case)' },
-    { label: 'Connettività', value: 'Bluetooth 5.3, chip Apple H2' },
-    { label: 'Resistenza', value: 'IP54 (sudore e polvere)' },
-  ],
-  'iPad': [
-    { label: 'Display', value: 'Ultra Retina XDR OLED 13", 120Hz' },
-    { label: 'Chip', value: 'Apple M4, Neural Engine 16-core' },
-    { label: 'Fotocamera', value: 'Grandangolo 12MP + LiDAR' },
-    { label: 'Accessori', value: 'Magic Keyboard e Apple Pencil Pro' },
-    { label: 'Connettività', value: 'Wi-Fi 6E, Bluetooth 5.3, USB-C Thunderbolt' },
-    { label: 'Autonomia', value: 'Fino a 10 ore di navigazione' },
-  ],
-  'Mac': [
-    { label: 'Chip', value: 'Apple silicon con Neural Engine' },
-    { label: 'Memoria', value: 'Memoria unificata ad alta banda' },
-    { label: 'Archiviazione', value: 'SSD ultraveloce configurabile' },
-    { label: 'Porte', value: 'Thunderbolt 4, HDMI, Ethernet' },
-    { label: 'Connettività', value: 'Wi-Fi 6E, Bluetooth 5.3' },
-    { label: 'Sistema', value: 'macOS con Apple Intelligence' },
-  ],
-  'Accessori': [
-    { label: 'Compatibilità', value: 'Dispositivi Apple con USB-C' },
-    { label: 'Materiali', value: 'Plastica riciclata e componenti certificati' },
-    { label: 'Sicurezza', value: 'Protezione da sovratensione integrata' },
-    { label: 'Confezione', value: 'Packaging Apple 100% riciclabile' },
-    { label: 'Garanzia', value: '1 anno di garanzia Apple' },
-    { label: 'Origine', value: 'Prodotto originale Apple' },
-  ],
-  'Ecosistema': [
-    { label: 'Dispositivi inclusi', value: 'iPhone, iPad, MacBook, Apple Watch' },
-    { label: 'Integrazione', value: 'Handoff, AirDrop, Universal Clipboard' },
-    { label: 'Cloud', value: 'iCloud+ con sincronizzazione automatica' },
-    { label: 'Compatibilità', value: 'iOS 18, iPadOS 18, macOS Sequoia' },
-    { label: 'Connettività', value: 'Wi-Fi 7, Bluetooth 5.3, 5G' },
-    { label: 'Garanzia', value: 'AppleCare+ incluso 2 anni' },
-  ],
-};
-
-const HIGHLIGHTS = [
-  { icon: Truck, title: 'Spedizione Gratuita', desc: 'Consegna in 1-3 giorni' },
-  { icon: Shield, title: '2 Anni Garanzia', desc: 'AppleCare+ disponibile' },
-  { icon: RotateCcw, title: 'Reso Gratuito', desc: '14 giorni per cambio idea' },
-  { icon: Headphones, title: 'Supporto Dedicato', desc: 'Assistenza esperti Apple' },
-];
+const optionLabel = (variant) => Object.values(variant?.option_values || {}).filter(Boolean).join(' · ');
 
 export default function SchedaProdotto() {
-  const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const id = params.get('id');
+  const payment = params.get('payment');
+  const { products, loading } = useCatalog();
   const { addToCart, toggleWishlist, isInWishlist } = useStore();
-  const params = new URLSearchParams(window.location.search);
-  const productId = params.get('id');
-
-  const [product, setProduct] = useState(null);
-  const [allProducts, setAllProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [activeImage, setActiveImage] = useState(0);
+  const [selectedVariantId, setSelectedVariantId] = useState('');
+  const [selectedImage, setSelectedImage] = useState('');
+  const [buying, setBuying] = useState(false);
+  const [checkoutError, setCheckoutError] = useState('');
   const [added, setAdded] = useState(false);
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
-  const [checkoutError, setCheckoutError] = useState(null);
-  const [paymentStatus, setPaymentStatus] = useState(null);
-  const [discountCode, setDiscountCode] = useState('');
+
+  const product = products.find(item => String(item.id) === String(id));
+  const activeVariants = useMemo(
+    () => (product?.variants || []).filter(variant => variant.status === 'active'),
+    [product],
+  );
+  const selectedVariant = activeVariants.find(variant => String(variant.id) === selectedVariantId)
+    || product?.default_variant
+    || activeVariants[0];
+  const groups = useMemo(() => variantOptionGroups(activeVariants), [activeVariants]);
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setActiveImage(0); setAdded(false); setCheckoutError(null);
-    const urlParams = new URLSearchParams(window.location.search);
-    const payment = urlParams.get('payment');
-    setPaymentStatus(payment === 'success' || payment === 'cancelled' ? payment : null);
-  }, []);
+    if (!product) return;
+    const initial = product.default_variant || activeVariants[0];
+    setSelectedVariantId(String(initial?.id || ''));
+    setSelectedImage(initial?.image || product.image || '');
+  }, [product?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (!productId) { setLoading(false); return; }
-    setLoading(true);
-    base44.entities.Product.get(productId)
-      .then(p => { setProduct(p); setLoading(false); })
-      .catch(() => { setProduct(null); setLoading(false); });
-    base44.entities.Product.list('-sort_order', 200).then(setAllProducts).catch(() => {});
-  }, [productId]);
+    if (selectedVariant) setSelectedImage(selectedVariant.image || product?.image || '');
+  }, [selectedVariant?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const gallery = useMemo(() => {
-    if (!product) return [];
-    if (product.images?.length) return product.images.map((url, i) => ({ url, name: `${product.name} — foto ${i + 1}` }));
-    const related = allProducts.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4);
-    return [product, ...related].map(p => ({ url: p.image, name: p.name }));
-  }, [product, allProducts]);
-
-  const relatedProducts = useMemo(() => {
-    if (!product) return [];
-    return allProducts.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4);
-  }, [product, allProducts]);
-
-  const specs = product ? (SPECS_BY_CATEGORY[product.category] || []) : [];
-
-  const compareProducts = useMemo(() => {
-    if (!product) return [];
-    const related = allProducts.filter(p => p.category === product.category && p.id !== product.id).slice(0, 3);
-    return [product, ...related];
-  }, [product, allProducts]);
-
-  const compareRows = useMemo(() => {
-    if (compareProducts.length === 0) return [];
-    const labels = Object.keys(PRODUCT_KEY_SPECS[compareProducts[0].id] || {});
-    return ['Prezzo', ...labels, 'Categoria', 'Disponibilità'];
-  }, [compareProducts]);
-
-  const getCompareValue = (prod, label) => {
-    if (label === 'Prezzo') return prod.price;
-    if (label === 'Categoria') return prod.category;
-    if (label === 'Disponibilità') return prod.badge || 'Disponibile';
-    return PRODUCT_KEY_SPECS[prod.id]?.[label] || '—';
+  const selectOption = (optionName, value) => {
+    const current = selectedVariant?.option_values || {};
+    const exact = activeVariants.find(variant =>
+      Object.entries({ ...current, [optionName]: value }).every(([key, option]) => variant.option_values?.[key] === option),
+    );
+    const fallback = activeVariants.find(variant => variant.option_values?.[optionName] === value);
+    const next = exact || fallback;
+    if (next) setSelectedVariantId(String(next.id));
   };
 
-  const handleAddToCart = () => addToCart(product);
+  const optionAvailable = (optionName, value) => activeVariants.some((variant) => {
+    if (variant.option_values?.[optionName] !== value || variant.stock <= 0) return false;
+    return Object.entries(selectedVariant?.option_values || {}).every(([key, selected]) =>
+      key === optionName || !variant.option_values?.[key] || variant.option_values[key] === selected,
+    );
+  });
 
-  const handleBuyNow = async () => {
-    if (window.self !== window.top) {
-      alert('Il checkout è disponibile solo dall\'app pubblicata. Apri l\'app in una nuova scheda per procedere.');
-      return;
-    }
-    setCheckoutError(null);
-    setCheckoutLoading(true);
+  const handleAdd = () => {
+    if (!product || !selectedVariant || selectedVariant.stock <= 0) return;
+    addToCart(product, selectedVariant);
+    setAdded(true);
+    window.setTimeout(() => setAdded(false), 1800);
+  };
+
+  const handleBuy = async () => {
+    if (!product || !selectedVariant || selectedVariant.stock <= 0) return;
+    setBuying(true);
+    setCheckoutError('');
     try {
-      const origin = window.location.origin;
       const response = await base44.functions.invoke('create-checkout-session', {
         productId: product.id,
-        name: product.name,
-        image: product.image,
-        description: product.description,
-        discountCode: discountCode || undefined,
-        successUrl: `${origin}/scheda-prodotto?id=${product.id}&payment=success`,
-        cancelUrl: `${origin}/scheda-prodotto?id=${product.id}&payment=cancelled`,
+        variantId: selectedVariant.legacy ? '' : selectedVariant.id,
+        quantity: 1,
       });
-      if (response.data?.url) {
-        window.location.href = response.data.url;
-      } else {
-        throw new Error('URL di checkout non ricevuto');
-      }
+      if (!response.data?.url) throw new Error(response.data?.error || 'Sessione di pagamento non disponibile.');
+      window.location.href = response.data.url;
     } catch (error) {
-      setCheckoutError(error.message || 'Errore durante il checkout');
-      setCheckoutLoading(false);
+      setCheckoutError(error?.response?.data?.error || error.message || 'Impossibile avviare il checkout.');
+      setBuying(false);
     }
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-[#f5f5f7] font-sans flex flex-col">
-        <PromoBanner /><Navbar />
-        <div className="flex-1 flex items-center justify-center"><Loader2 className="animate-spin text-[#FF6B35]" size={28} /></div>
-        <FooterSection />
-      </div>
-    );
+    return <div className="min-h-screen grid place-items-center bg-[#f5f5f7]"><Loader2 className="animate-spin text-[#0071e3]" size={32} /></div>;
   }
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-[#f5f5f7] font-sans flex flex-col">
-        <PromoBanner /><Navbar />
-        <div className="flex-1 flex items-center justify-center px-6">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-[#1d1d1f] mb-3">Prodotto non trovato</h1>
-            <p className="text-[#6e6e73] mb-6">Il prodotto richiesto non è disponibile.</p>
-            <button onClick={() => navigate('/catalogo')} className="px-6 py-3 bg-[#1d1d1f] text-white text-sm font-semibold rounded-full hover:bg-[#FF6B35] transition-colors">
-              Vai al Catalogo
-            </button>
-          </div>
+      <div className="min-h-screen bg-[#f5f5f7]">
+        <Navbar />
+        <div className="max-w-xl mx-auto px-6 py-32 text-center">
+          <h1 className="text-3xl font-semibold tracking-tight text-[#1d1d1f]">Prodotto non trovato.</h1>
+          <p className="mt-3 text-[#6e6e73]">Potrebbe essere stato ritirato o non essere più disponibile.</p>
+          <Link to="/catalogo" className="mt-8 inline-flex rounded-full bg-[#0071e3] px-6 py-3 text-sm font-medium text-white">Torna al catalogo</Link>
         </div>
-        <FooterSection />
       </div>
     );
   }
 
+  const gallery = [...new Set([
+    selectedVariant?.image,
+    ...(selectedVariant?.images || []),
+    product.image,
+    ...(product.images || []),
+  ].filter(Boolean))];
+  const inWishlist = isInWishlist(product.id);
+  const stock = Number(selectedVariant?.stock || 0);
+  const price = formatPriceCents(selectedVariant?.price_cents ?? product.price_cents);
+
   return (
-    <div className="min-h-screen bg-[#f5f5f7] font-sans">
+    <div className="min-h-screen bg-white text-[#1d1d1f]">
       <PromoBanner />
       <Navbar />
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 pt-6">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm text-[#6e6e73] hover:text-[#FF6B35] transition-colors">
-          <ArrowLeft size={16} /> Torna alla Home
-        </Link>
-        <div className="mt-2 text-xs text-[#6e6e73]">
-          <Link to="/catalogo" className="hover:text-[#FF6B35]">Catalogo</Link>
-          <span className="mx-2">/</span>
-          <span>{product.category}</span>
-          <span className="mx-2">/</span>
-          <span className="text-[#1d1d1f] font-medium">{product.name}</span>
-        </div>
-      </div>
-
-      <section className="py-8 px-6 lg:px-8">
-        {paymentStatus && (
-          <div className={`max-w-7xl mx-auto mb-6 px-5 py-4 rounded-2xl flex items-center justify-between ${paymentStatus === 'success' ? 'bg-green-50 text-green-800' : 'bg-orange-50 text-orange-800'}`}>
-            <p className="text-sm font-medium">
-              {paymentStatus === 'success' ? '✓ Pagamento completato con successo. Grazie per il tuo acquisto!' : 'Pagamento annullato. Puoi riprovare quando vuoi.'}
-            </p>
-            <button onClick={() => setPaymentStatus(null)} className="text-sm font-semibold hover:opacity-70">✕</button>
-          </div>
-        )}
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
-          <motion.div {...heroEntrance(0)} className="lg:sticky lg:top-24">
-            <div className="bg-white rounded-3xl overflow-hidden mb-4" style={{ aspectRatio: '1 / 1' }}>
-              <Image src={gallery[activeImage]?.url || product.image} alt={gallery[activeImage]?.name || product.name} className="w-full h-full" fittingType="fit" />
-            </div>
-            <div className="grid grid-cols-5 gap-2 md:gap-3">
-              {gallery.map((img, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveImage(i)}
-                  className={`rounded-xl overflow-hidden border-2 transition-all ${activeImage === i ? 'border-[#FF6B35]' : 'border-transparent opacity-70 hover:opacity-100'}`}
-                  style={{ aspectRatio: '1 / 1' }}
-                >
-                  <Image src={img.url} alt={img.name} className="w-full h-full" fittingType="fit" />
-                </button>
-              ))}
+      <AnimatePresence>
+        {payment && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className={payment === 'success' ? 'bg-[#eaf7ed]' : 'bg-[#fff4e5]'}>
+            <div className="mx-auto flex max-w-7xl items-center gap-3 px-6 py-3 text-sm font-medium">
+              {payment === 'success' ? <Check size={18} className="text-[#248a3d]" /> : <X size={18} className="text-[#b45309]" />}
+              {payment === 'success' ? 'Pagamento completato. Il tuo ordine è stato registrato.' : 'Pagamento annullato. Il carrello non è stato modificato.'}
             </div>
           </motion.div>
+        )}
+      </AnimatePresence>
 
-          <motion.div {...heroEntrance(0.15)}>
-            <div className="flex items-center gap-2 mb-3">
-              {product.badge && <span className="px-2.5 py-1 bg-[#FF6B35] text-white text-xs font-semibold rounded-full">{product.badge}</span>}
-              <span className="px-2.5 py-1 bg-[#e8e8ed] text-[#1d1d1f] text-xs font-semibold rounded-full">{product.category}</span>
-            </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-[#1d1d1f] tracking-tight leading-tight">{product.name}</h1>
-            <p className="mt-4 text-lg text-[#6e6e73] leading-relaxed">{product.description}</p>
-            <div className="mt-6 flex items-baseline gap-3">
-              <span className="text-3xl font-bold text-[#1d1d1f]">{product.price}</span>
-              <span className="text-sm text-[#6e6e73]">IVA inclusa</span>
-            </div>
+      <main>
+        <div className="mx-auto max-w-7xl px-5 pb-24 pt-6 sm:px-8 lg:px-10">
+          <Link to="/catalogo" className="mb-6 inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm text-[#6e6e73] transition-colors hover:bg-[#f5f5f7] hover:text-[#1d1d1f]">
+            <ArrowLeft size={16} /> Catalogo
+          </Link>
 
-            {product.colors?.length > 1 && (
-              <div className="mt-6">
-                <p className="text-sm font-semibold text-[#1d1d1f] mb-3">Finitura</p>
-                <div className="flex items-center gap-4 flex-wrap">
-                  {product.colors.map((c, i) => {
-                    const idx = gallery.findIndex(g => g.url === c.image);
-                    const isActive = idx !== -1 && idx === activeImage;
-                    return (
-                      <button key={i} onClick={() => idx !== -1 && setActiveImage(idx)} className="flex flex-col items-center gap-2">
-                        <span className={`w-8 h-8 rounded-full border transition-all ${isActive ? 'ring-2 ring-[#FF6B35] ring-offset-2 border-transparent' : 'border-gray-300'}`} style={{ backgroundColor: c.hex }} />
-                        <span className="text-[11px] text-[#6e6e73] font-medium">{c.name}</span>
-                      </button>
-                    );
-                  })}
-                </div>
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,.85fr)] lg:gap-16">
+            <section aria-label="Galleria prodotto" className="lg:sticky lg:top-24 lg:self-start">
+              <div className="relative aspect-square overflow-hidden rounded-[32px] bg-[#f5f5f7]">
+                <AnimatePresence mode="wait">
+                  <motion.div key={selectedImage} initial={{ opacity: 0, scale: .985 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: .22 }} className="absolute inset-0 p-5 sm:p-10">
+                    <Image src={selectedImage || product.image} alt={`${product.name}${optionLabel(selectedVariant) ? `, ${optionLabel(selectedVariant)}` : ''}`} className="h-full w-full" fittingType="fit" quality={90} />
+                  </motion.div>
+                </AnimatePresence>
+                {product.badge && <span className="absolute left-5 top-5 rounded-full bg-white/80 px-3 py-1.5 text-xs font-semibold text-[#1d1d1f] shadow-sm backdrop-blur-xl">{product.badge}</span>}
               </div>
-            )}
-
-            <div className="mt-6 flex items-center gap-2">
-              <input value={discountCode} onChange={e => setDiscountCode(e.target.value.toUpperCase())} placeholder="Codice sconto" className="flex-1 px-4 py-2.5 rounded-full border border-gray-200 text-sm uppercase tracking-wide focus:outline-none focus:border-[#FF6B35]" />
-              {discountCode && <button onClick={() => setDiscountCode('')} className="text-xs text-[#6e6e73] hover:text-red-500">rimuovi</button>}
-            </div>
-
-            <div className="mt-6 flex flex-col sm:flex-row gap-3">
-              <button onClick={handleBuyNow} disabled={checkoutLoading} className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-full text-sm font-semibold transition-all duration-200 bg-[#1d1d1f] text-white hover:bg-[#FF6B35] disabled:opacity-60 disabled:cursor-not-allowed">
-                {checkoutLoading ? <><Loader2 size={18} className="animate-spin" /> Reindirizzamento…</> : <><ShoppingCart size={18} /> Acquista Ora</>}
-              </button>
-              <button onClick={handleAddToCart} className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-full text-sm font-semibold transition-all duration-200 bg-white border border-gray-200 text-[#1d1d1f] hover:border-[#1d1d1f]">
-                <Plus size={18} /> Aggiungi al carrello
-              </button>
-              <button onClick={() => toggleWishlist(product)} className={`w-12 h-12 sm:w-auto sm:h-auto sm:px-4 flex items-center justify-center rounded-full bg-white border transition-colors ${isInWishlist(product.id) ? 'border-[#FF6B35] text-[#FF6B35]' : 'border-gray-200 text-[#1d1d1f] hover:border-[#FF6B35]'}`} aria-label="Aggiungi ai preferiti">
-                <Heart size={18} fill={isInWishlist(product.id) ? 'currentColor' : 'none'} />
-              </button>
-              <button className="w-12 h-12 sm:w-auto sm:h-auto sm:px-4 flex items-center justify-center rounded-full bg-white border border-gray-200 hover:border-[#FF6B35] text-[#1d1d1f] transition-colors">
-                <Share2 size={18} />
-              </button>
-            </div>
-
-            {checkoutError && <p className="mt-3 text-sm text-red-600 bg-red-50 rounded-xl px-4 py-3">{checkoutError}</p>}
-
-            <div className="mt-8 grid grid-cols-2 gap-3">
-              {HIGHLIGHTS.map(({ icon: Icon, title, desc }) => (
-                <div key={title} className="flex items-center gap-3 bg-white rounded-2xl p-4">
-                  <div className="w-10 h-10 rounded-full bg-[#FF6B35]/10 flex items-center justify-center flex-shrink-0"><Icon size={20} className="text-[#FF6B35]" /></div>
-                  <div>
-                    <p className="text-sm font-semibold text-[#1d1d1f]">{title}</p>
-                    <p className="text-xs text-[#6e6e73]">{desc}</p>
-                  </div>
+              {gallery.length > 1 && (
+                <div className="mt-4 flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+                  {gallery.map(image => (
+                    <button key={image} onClick={() => setSelectedImage(image)} aria-label="Mostra immagine" className={`h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-[#f5f5f7] p-1 transition ${selectedImage === image ? 'ring-2 ring-[#0071e3] ring-offset-2' : 'hover:bg-[#e8e8ed]'}`}>
+                      <Image src={image} alt="" className="h-full w-full" fittingType="fit" />
+                    </button>
+                  ))}
                 </div>
-              ))}
-            </div>
+              )}
+            </section>
 
-            <div className="mt-8">
-              <h2 className="text-xl font-bold text-[#1d1d1f] mb-4">Specifiche Tecniche</h2>
-              <div className="bg-white rounded-2xl divide-y divide-gray-100 overflow-hidden">
-                {specs.map((spec, i) => (
-                  <div key={i} className="flex flex-col sm:flex-row sm:items-center px-5 py-4">
-                    <span className="text-sm font-medium text-[#6e6e73] sm:w-40 flex-shrink-0 mb-1 sm:mb-0">{spec.label}</span>
-                    <span className="text-sm text-[#1d1d1f]">{spec.value}</span>
-                  </div>
+            <section className="py-1 lg:py-8">
+              <p className="text-sm font-semibold text-[#bf4800]">{product.subtitle || (stock > 0 ? 'Disponibile ora' : 'Momentaneamente esaurito')}</p>
+              <h1 className="mt-2 text-4xl font-semibold leading-[1.05] tracking-[-0.035em] sm:text-5xl">{product.name}</h1>
+              <p className="mt-4 text-2xl font-semibold tracking-tight">{price}</p>
+              {product.price_min_cents !== product.price_max_cents && <p className="mt-1 text-sm text-[#6e6e73]">Il prezzo cambia in base alla configurazione.</p>}
+              <p className="mt-6 text-base leading-7 text-[#6e6e73]">{product.description}</p>
+
+              <div className="mt-9 space-y-8">
+                {Object.entries(groups).map(([name, values]) => (
+                  <fieldset key={name}>
+                    <legend className="mb-3 text-sm font-semibold">{name}: <span className="font-normal text-[#6e6e73]">{selectedVariant?.option_values?.[name]}</span></legend>
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                      {values.map((value) => {
+                        const active = selectedVariant?.option_values?.[name] === value;
+                        const available = optionAvailable(name, value);
+                        const colorVariant = activeVariants.find(variant => variant.option_values?.[name] === value);
+                        const isColor = /colore|finitura/i.test(name);
+                        return (
+                          <button
+                            key={value}
+                            type="button"
+                            onClick={() => selectOption(name, value)}
+                            disabled={!available}
+                            className={`min-h-14 rounded-2xl border px-3 py-3 text-sm font-medium transition ${active ? 'border-[#0071e3] ring-1 ring-[#0071e3]' : 'border-[#d2d2d7] hover:border-[#86868b]'} disabled:cursor-not-allowed disabled:opacity-35`}
+                          >
+                            <span className="flex items-center justify-center gap-2">
+                              {isColor && <span className="h-4 w-4 rounded-full border border-black/10 shadow-inner" style={{ background: colorVariant?.color_hex || '#8e8e93' }} />}
+                              {value}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </fieldset>
                 ))}
               </div>
-            </div>
-          </motion.div>
+
+              <div className="mt-8 rounded-2xl bg-[#f5f5f7] p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold">{optionLabel(selectedVariant) || 'Configurazione standard'}</p>
+                    <p className={`mt-1 text-xs ${stock > 0 ? 'text-[#248a3d]' : 'text-[#d70015]'}`}>{stock > 0 ? `${stock} disponibili · SKU ${selectedVariant?.sku}` : 'Non disponibile'}</p>
+                  </div>
+                  <p className="text-base font-semibold">{price}</p>
+                </div>
+              </div>
+
+              {checkoutError && <div role="alert" className="mt-4 rounded-2xl bg-[#fff2f2] px-4 py-3 text-sm text-[#b42318]">{checkoutError}</div>}
+              <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_auto]">
+                <button disabled={stock <= 0 || buying} onClick={handleBuy} className="min-h-12 rounded-full bg-[#0071e3] px-8 text-sm font-semibold text-white transition hover:bg-[#0077ed] disabled:cursor-not-allowed disabled:opacity-45">
+                  {buying ? <span className="inline-flex items-center gap-2"><Loader2 size={17} className="animate-spin" /> Apertura checkout</span> : 'Acquista ora'}
+                </button>
+                <button disabled={stock <= 0} onClick={handleAdd} className="min-h-12 rounded-full bg-[#e8f2ff] px-6 text-sm font-semibold text-[#0066cc] transition hover:bg-[#dbeaff] disabled:opacity-45">
+                  <span className="inline-flex items-center gap-2"><ShoppingBag size={17} /> {added ? 'Aggiunto' : 'Aggiungi'}</span>
+                </button>
+              </div>
+              <button onClick={() => toggleWishlist(product)} className="mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-full text-sm font-medium text-[#0066cc] hover:bg-[#f5f5f7]">
+                <Heart size={17} fill={inWishlist ? 'currentColor' : 'none'} /> {inWishlist ? 'Nei preferiti' : 'Aggiungi ai preferiti'}
+              </button>
+
+              <div className="mt-8 border-y border-[#d2d2d7]">
+                <InfoRow icon={ShieldCheck} title="Pagamento sicuro" text="Prezzo e disponibilità sono verificati sul server prima del checkout Stripe." />
+              </div>
+
+              {Object.keys(product.specs || {}).length > 0 && (
+                <div className="mt-10">
+                  <h2 className="text-xl font-semibold tracking-tight">Specifiche</h2>
+                  <dl className="mt-4 divide-y divide-[#d2d2d7]">
+                    {Object.entries(product.specs).map(([key, value]) => (
+                      <div key={key} className="grid grid-cols-2 gap-4 py-3 text-sm"><dt className="text-[#6e6e73]">{key}</dt><dd className="font-medium">{value}</dd></div>
+                    ))}
+                  </dl>
+                </div>
+              )}
+            </section>
+          </div>
         </div>
-      </section>
-
-      {compareProducts.length > 1 && (
-        <section className="py-16 px-6 lg:px-8 bg-[#f5f5f7]">
-          <div className="max-w-7xl mx-auto">
-            <motion.div {...fadeUp} className="mb-8">
-              <h2 className="text-2xl md:text-3xl font-bold text-[#1d1d1f] tracking-tight">Confronta i Modelli Simili</h2>
-              <p className="mt-2 text-[#6e6e73]">Confronta le specifiche tecniche del prodotto selezionato con altri modelli della categoria {product.category}.</p>
-            </motion.div>
-
-            <motion.div {...fadeUp} className="overflow-x-auto">
-              <table className="w-full border-collapse min-w-[640px]">
-                <thead>
-                  <tr>
-                    <th className="bg-white p-4 text-left text-sm font-semibold text-[#6e6e73] rounded-tl-2xl sticky left-0 z-10 w-40">Specifica</th>
-                    {compareProducts.map((p, i) => (
-                      <th key={p.id} className={`bg-white p-4 text-center align-bottom ${i === 0 ? 'ring-2 ring-[#FF6B35] ring-inset' : ''} ${i === compareProducts.length - 1 ? 'rounded-tr-2xl' : ''}`}>
-                        <Link to={`/scheda-prodotto?id=${p.id}`} className="block group">
-                          <div className="w-20 h-20 mx-auto mb-3 rounded-xl overflow-hidden bg-[#f5f5f7]">
-                            <Image src={p.image} alt={p.name} className="w-full h-full" fittingType="fill" />
-                          </div>
-                          <p className="text-xs font-semibold text-[#1d1d1f] leading-snug line-clamp-2 group-hover:text-[#FF6B35] transition-colors">{p.name}</p>
-                          {i === 0 && <span className="inline-block mt-2 px-2 py-0.5 bg-[#FF6B35] text-white text-[10px] font-bold rounded-full uppercase tracking-wide">Selezionato</span>}
-                        </Link>
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {compareRows.map((label, rowIdx) => (
-                    <tr key={label} className={rowIdx % 2 === 0 ? 'bg-white' : 'bg-[#fafafa]'}>
-                      <td className={`p-4 text-left text-sm font-medium text-[#6e6e73] sticky left-0 z-10 ${rowIdx % 2 === 0 ? 'bg-white' : 'bg-[#fafafa]'}`}>{label}</td>
-                      {compareProducts.map((p, i) => (
-                        <td key={p.id} className={`p-4 text-center text-sm text-[#1d1d1f] ${i === 0 ? 'bg-[#FF6B35]/5 font-semibold ring-2 ring-[#FF6B35] ring-inset' : ''}`}>{getCompareValue(p, label)}</td>
-                      ))}
-                    </tr>
-                  ))}
-                  <tr>
-                    <td className="bg-white p-4 sticky left-0 z-10 rounded-bl-2xl"></td>
-                    {compareProducts.map((p, i) => (
-                      <td key={p.id} className={`bg-white p-4 text-center ${i === compareProducts.length - 1 ? 'rounded-br-2xl' : ''}`}>
-                        <Link to={`/scheda-prodotto?id=${p.id}`} className={`inline-block px-4 py-2 text-xs font-semibold rounded-full transition-colors ${i === 0 ? 'bg-[#FF6B35] text-white' : 'bg-[#1d1d1f] text-white hover:bg-[#FF6B35]'}`}>
-                          {i === 0 ? 'Nel carrello' : 'Vedi dettagli'}
-                        </Link>
-                      </td>
-                    ))}
-                  </tr>
-                </tbody>
-              </table>
-            </motion.div>
-          </div>
-        </section>
-      )}
-
-      {relatedProducts.length > 0 && (
-        <section className="py-16 px-6 lg:px-8 bg-white">
-          <div className="max-w-7xl mx-auto">
-            <motion.div {...fadeUp} className="mb-8">
-              <h2 className="text-2xl md:text-3xl font-bold text-[#1d1d1f] tracking-tight">Potrebbero interessarti</h2>
-              <p className="mt-2 text-[#6e6e73]">Altri prodotti della categoria {product.category}.</p>
-            </motion.div>
-            <motion.div {...staggerContainer} className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
-              {relatedProducts.map((p) => (
-                <motion.div key={p.id} {...staggerItem}>
-                  <Link to={`/scheda-prodotto?id=${p.id}`}>
-                    <div className="group bg-[#f5f5f7] rounded-2xl overflow-hidden cursor-pointer">
-                      <div className="relative overflow-hidden" style={{ aspectRatio: '1 / 1' }}>
-                        <Image src={p.image} alt={p.name} className="w-full h-full transition-transform duration-500 group-hover:scale-105" fittingType="fill" />
-                      </div>
-                      <div className="p-3">
-                        <h3 className="text-sm font-semibold text-[#1d1d1f] line-clamp-2 mb-1">{p.name}</h3>
-                        <p className="text-sm font-bold text-[#1d1d1f]">{p.price}</p>
-                      </div>
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
-        </section>
-      )}
-
+      </main>
       <FooterSection />
     </div>
   );
+}
+
+function InfoRow({ icon: Icon, title, text }) {
+  return <div className="flex gap-3 py-4"><Icon size={20} className="mt-0.5 shrink-0 text-[#1d1d1f]" /><div><p className="text-sm font-semibold">{title}</p><p className="mt-0.5 text-xs text-[#6e6e73]">{text}</p></div></div>;
 }

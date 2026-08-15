@@ -4,6 +4,13 @@
 
 @layer base {
   :root {
+    color-scheme: light;
+    --apple-blue: #0071e3;
+    --apple-blue-hover: #0077ed;
+    --apple-ink: #1d1d1f;
+    --apple-secondary: #6e6e73;
+    --apple-canvas: #f5f5f7;
+    --apple-separator: #d2d2d7;
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
@@ -86,8 +93,47 @@
     @apply border-border outline-ring/50;
   }
 
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
     @apply bg-background text-foreground font-body;
+    min-width: 320px;
+    color: var(--apple-ink);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+    font-optical-sizing: auto;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button,
+  [role="button"] {
+    touch-action: manipulation;
+  }
+
+  button:active:not(:disabled),
+  [role="button"]:active {
+    transform: scale(0.98);
+    transition: transform 100ms ease-out;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--apple-blue);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: rgba(0, 113, 227, 0.18);
   }
 }
 
@@ -99,4 +145,51 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  .apple-display {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
+    font-optical-sizing: auto;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+  }
+
+  .apple-material {
+    background: rgba(255, 255, 255, 0.72);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  }
+
+  .apple-card {
+    border-radius: 1.75rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.035);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .apple-material,
+  [class*="backdrop-blur"] {
+    background-color: #fff !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .apple-material {
+    background: #fff;
+    border-color: #1d1d1f;
+  }
+  :focus-visible { outline-width: 3px; }
 }

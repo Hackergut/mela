@@ -1,28 +1,31 @@
 import React from 'react';
-import { Plus, Heart } from 'lucide-react';
+import { Heart, Plus } from 'lucide-react';
 import { useStore } from '@/lib/StoreContext';
 
 export default function ProductActions({ product }) {
   const { addToCart, toggleWishlist, isInWishlist } = useStore();
-  const fav = isInWishlist(product.id);
+  const favorite = isInWishlist(product.id);
+  const quickVariant = (product.default_variant?.stock || 0) > 0
+    ? product.default_variant
+    : product.variants?.find(variant => variant.status === 'active' && variant.stock > 0);
+  const available = product.has_variants ? Boolean(quickVariant) : (product.stock ?? 0) > 0;
 
   return (
     <div className="flex gap-2">
       <button
-        onClick={(e) => { e.preventDefault(); e.stopPropagation(); addToCart(product); }}
-        className="w-9 h-9 rounded-full bg-white shadow-md flex items-center justify-center text-[#1d1d1f] hover:bg-[#1d1d1f] hover:text-white transition-colors"
-        aria-label="Aggiungi al carrello"
-        title="Aggiungi al carrello"
+        disabled={!available}
+        onClick={(event) => { event.preventDefault(); event.stopPropagation(); addToCart(product, quickVariant || product.default_variant); }}
+        className="grid h-9 w-9 place-items-center rounded-full bg-white/90 text-[#1d1d1f] shadow-sm backdrop-blur-xl transition-colors hover:bg-[#0071e3] hover:text-white disabled:cursor-not-allowed disabled:opacity-45"
+        aria-label={available ? `Aggiungi ${product.name} al carrello` : `${product.name} esaurito`}
       >
         <Plus size={16} />
       </button>
       <button
-        onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(product); }}
-        className={`w-9 h-9 rounded-full bg-white shadow-md flex items-center justify-center transition-colors ${fav ? 'text-[#FF6B35]' : 'text-[#1d1d1f] hover:text-[#FF6B35]'}`}
-        aria-label="Aggiungi ai preferiti"
-        title="Aggiungi ai preferiti"
+        onClick={(event) => { event.preventDefault(); event.stopPropagation(); toggleWishlist(product); }}
+        className={`grid h-9 w-9 place-items-center rounded-full bg-white/90 shadow-sm backdrop-blur-xl transition-colors ${favorite ? 'text-[#0071e3]' : 'text-[#1d1d1f] hover:text-[#0071e3]'}`}
+        aria-label={favorite ? `Rimuovi ${product.name} dai preferiti` : `Aggiungi ${product.name} ai preferiti`}
       >
-        <Heart size={16} fill={fav ? 'currentColor' : 'none'} />
+        <Heart size={16} fill={favorite ? 'currentColor' : 'none'} />
       </button>
     </div>
   );

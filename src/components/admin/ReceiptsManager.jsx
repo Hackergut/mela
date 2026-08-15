@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Receipt as ReceiptIcon, Plus, Download, Trash2, Loader2, X, FileText } from 'lucide-react';
 import jsPDF from 'jspdf';
@@ -7,24 +7,31 @@ import { useBulkSelect, BulkActionBar, RowCheckbox } from '@/lib/bulkSelect';
 export default function ReceiptsManager({ password }) {
   const [receipts, setReceipts] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [storeSettings, setStoreSettings] = useState({ store_name: '', store_email: '' });
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [showForm, setShowForm] = useState(false);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [r, o] = await Promise.all([
+      const [r, o, s] = await Promise.all([
         base44.functions.invoke('admin-cms', { password, operation: 'list', resource: 'receipt' }),
         base44.functions.invoke('admin-cms', { password, operation: 'list', resource: 'order' }),
+        base44.functions.invoke('admin-cms', { password, operation: 'list', resource: 'setting' }),
       ]);
       setReceipts(r.data.items || []);
       setOrders(o.data.items || []);
+      const settingValues = Object.fromEntries((s.data.items || []).map(setting => [setting.key, setting.value]));
+      setStoreSettings({
+        store_name: String(settingValues.store_name || ''),
+        store_email: String(settingValues.store_email || ''),
+      });
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
-  };
+  }, [password]);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [load]);
 
   const remove = async (id) => {
     if (!confirm('Eliminare questa ricevuta?')) return;
@@ -36,11 +43,12 @@ export default function ReceiptsManager({ password }) {
     const doc = new jsPDF();
     const isSale = r.type === 'sale';
     // Header
+    const storeName = String(storeSettings.store_name || 'Store');
+    const storeEmail = String(storeSettings.store_email || '');
     doc.setFontSize(20); doc.setFont('helvetica', 'bold');
-    doc.text('TERRA-MATER', 20, 25);
+    doc.text(storeName.slice(0, 60), 20, 25);
     doc.setFontSize(10); doc.setFont('helvetica', 'normal');
-    doc.text('Ceramiche Artigianali · P.IVA 01234567890', 20, 33);
-    doc.text('info@terra-mater.it', 20, 39);
+    if (storeEmail) doc.text(storeEmail.slice(0, 80), 20, 33);
     // Receipt info
     doc.setFontSize(14); doc.setFont('helvetica', 'bold');
     doc.text(isSale ? 'RICEVUTA DI VENDITA' : 'RICEVUTA DI ACQUISTO', 20, 55);
@@ -78,7 +86,7 @@ export default function ReceiptsManager({ password }) {
     doc.text(`TOTALE: ${(r.total_cents/100).toFixed(2)} €`, 150, y);
     // Footer
     doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
-    doc.text('Ricevuta generata dal sistema Terra-Mater CMS', 20, 285);
+    doc.text(`Ricevuta generata da ${storeName}`, 20, 285);
     if (r.notes) doc.text(`Note: ${r.notes}`, 20, 278);
     doc.save(`${r.receipt_number}.pdf`);
   };
@@ -92,21 +100,21 @@ export default function ReceiptsManager({ password }) {
     bulk.clear(); await load();
   };
 
-  if (loading) return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#FF6B35]" size={28} /></div>;
+  if (loading) return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#0071E3]" size={28} /></div>;
 
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <ReceiptIcon size={18} className="text-[#FF6B35]" />
+          <ReceiptIcon size={18} className="text-[#0071E3]" />
           <h2 className="text-lg font-bold text-[#1d1d1f]">Ricevute (Vendita & Acquisto)</h2>
         </div>
-        <button onClick={() => setShowForm(true)} className="px-3 py-2 bg-[#FF6B35] text-white text-sm font-semibold rounded-xl flex items-center gap-2"><Plus size={16} /> Nuova ricevuta</button>
+        <button onClick={() => setShowForm(true)} className="px-3 py-2 bg-[#0071E3] text-white text-sm font-semibold rounded-xl flex items-center gap-2"><Plus size={16} /> Nuova ricevuta</button>
       </div>
 
       <div className="flex gap-1 mb-4">
         {[['all','Tutte'],['sale','Vendita'],['purchase','Acquisto']].map(([k,l]) => (
-          <button key={k} onClick={() => setFilter(k)} className={`px-3 py-1.5 text-xs font-semibold rounded-full ${filter===k?'bg-[#FF6B35] text-white':'bg-white border border-gray-200 text-[#6e6e73]'}`}>{l}</button>
+          <button key={k} onClick={() => setFilter(k)} className={`px-3 py-1.5 text-xs font-semibold rounded-full ${filter===k?'bg-[#0071E3] text-white':'bg-white border border-gray-200 text-[#6e6e73]'}`}>{l}</button>
         ))}
       </div>
 
@@ -120,7 +128,7 @@ export default function ReceiptsManager({ password }) {
       ) : (
         <div className="space-y-2">
           {filtered.map(r => (
-            <div key={r.id} className={`bg-white rounded-xl p-4 flex items-center justify-between gap-3 ${bulk.selected[r.id] ? 'ring-2 ring-[#FF6B35]' : ''}`}>
+            <div key={r.id} className={`bg-white rounded-xl p-4 flex items-center justify-between gap-3 ${bulk.selected[r.id] ? 'ring-2 ring-[#0071E3]' : ''}`}>
               <div className="flex items-center gap-3 flex-1 min-w-0">
                 <RowCheckbox checked={!!bulk.selected[r.id]} onChange={() => bulk.toggleOne(r.id)} />
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${r.type==='sale'?'bg-emerald-50 text-emerald-600':'bg-blue-50 text-blue-600'}`}>
@@ -204,7 +212,7 @@ function ReceiptForm({ password, orders, onClose, onCreated }) {
         <div className="space-y-3">
           <div className="flex gap-2">
             {['sale','purchase'].map(t => (
-              <button key={t} onClick={() => setType(t)} className={`flex-1 py-2 text-sm font-semibold rounded-lg ${type===t?'bg-[#FF6B35] text-white':'bg-gray-100 text-[#6e6e73]'}`}>
+              <button key={t} onClick={() => setType(t)} className={`flex-1 py-2 text-sm font-semibold rounded-lg ${type===t?'bg-[#0071E3] text-white':'bg-gray-100 text-[#6e6e73]'}`}>
                 {t === 'sale' ? 'Vendita' : 'Acquisto'}
               </button>
             ))}
@@ -241,9 +249,19 @@ function ReceiptForm({ password, orders, onClose, onCreated }) {
                   <button onClick={() => setItems(items.filter((_, i) => i !== idx))} className="w-7 h-7 rounded-lg bg-red-50 text-red-600 flex items-center justify-center"><X size={14} /></button>
                 </div>
               ))}
-              <button onClick={() => setItems([...items, { name: '', qty: 1, unit_cents: 0 }])} className="text-xs text-[#FF6B35] font-semibold">+ Aggiungi riga</button>
+              <button onClick={() => setItems([...items, { name: '', qty: 1, unit_cents: 0 }])} className="text-xs text-[#0071E3] font-semibold">+ Aggiungi riga</button>
             </div>
           </div>
+
+          <label className="block">
+            <span className="text-xs font-medium text-[#6e6e73]">Note</span>
+            <textarea
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+              rows={2}
+              className="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-sm resize-y"
+            />
+          </label>
 
           <div className="bg-[#f5f5f7] rounded-xl p-3 text-sm space-y-1">
             <div className="flex justify-between"><span className="text-[#6e6e73]">Subtotale</span><span className="font-medium">{(subtotal/100).toFixed(2)} €</span></div>
@@ -251,7 +269,7 @@ function ReceiptForm({ password, orders, onClose, onCreated }) {
             <div className="flex justify-between font-bold text-[#1d1d1f] pt-1 border-t border-gray-200"><span>Totale</span><span>{(total/100).toFixed(2)} €</span></div>
           </div>
 
-          <button onClick={submit} disabled={saving || items.every(i => !i.name)} className="w-full px-4 py-2.5 bg-[#FF6B35] text-white text-sm font-semibold rounded-xl disabled:opacity-50 flex items-center justify-center gap-2">
+          <button onClick={submit} disabled={saving || items.every(i => !i.name)} className="w-full px-4 py-2.5 bg-[#0071E3] text-white text-sm font-semibold rounded-xl disabled:opacity-50 flex items-center justify-center gap-2">
             {saving ? <Loader2 size={16} className="animate-spin" /> : <ReceiptIcon size={16} />} Crea ricevuta
           </button>
         </div>

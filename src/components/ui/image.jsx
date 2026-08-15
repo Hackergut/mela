@@ -72,7 +72,31 @@ function buildSrcSet(parsed, options) {
   ).join(", ")
 }
 
-const ImageWrapper = React.forwardRef(({ aspectRatio, className, style, children }, ref) => (
+/**
+ * @typedef {React.HTMLAttributes<HTMLSpanElement> & {
+ *   aspectRatio?: string,
+ *   children?: React.ReactNode,
+ * }} ImageWrapperProps
+ * @typedef {React.ImgHTMLAttributes<HTMLImageElement> & {
+ *   fittingType?: "fill" | "fit",
+ *   originWidth?: number,
+ *   originHeight?: number,
+ *   focalPointX?: number,
+ *   focalPointY?: number,
+ *   quality?: number,
+ * }} ImageProps
+ * @typedef {ImageProps & {
+ *   parsed: { baseUrl: string, filename: string },
+ *   focalPoint?: { x: number, y: number },
+ *   aspectRatio?: string,
+ * }} ResponsiveImageProps
+ */
+
+/**
+ * @param {ImageWrapperProps} props
+ * @param {React.ForwardedRef<HTMLSpanElement>} ref
+ */
+const ImageWrapperRender = ({ aspectRatio, className, style, children }, ref) => (
   <span
     ref={ref}
     className={cn("inline-block relative", className)}
@@ -80,11 +104,18 @@ const ImageWrapper = React.forwardRef(({ aspectRatio, className, style, children
   >
     {children}
   </span>
-))
+)
+const ImageWrapper = React.forwardRef(ImageWrapperRender)
 ImageWrapper.displayName = "ImageWrapper"
 
-const ResponsiveImage = React.forwardRef(
-  ({ parsed, fittingType, focalPoint, quality, className, style, aspectRatio, onLoad, ...props }, parentRef) => {
+/**
+ * @param {ResponsiveImageProps} imageProps
+ * @param {React.ForwardedRef<HTMLImageElement>} parentRef
+ */
+const ResponsiveImageRender = (
+  { parsed, fittingType, focalPoint, quality, className, style, aspectRatio, onLoad, ...props },
+  parentRef
+) => {
     const wrapperRef = React.useRef(null)
     const imgRef = React.useRef(null)
     const size = useSize(wrapperRef)
@@ -161,8 +192,8 @@ const ResponsiveImage = React.forwardRef(
         )}
       </ImageWrapper>
     )
-  }
-)
+}
+const ResponsiveImage = React.forwardRef(ResponsiveImageRender)
 ResponsiveImage.displayName = "ResponsiveImage"
 
 /**
@@ -171,21 +202,23 @@ ResponsiveImage.displayName = "ResponsiveImage"
  * device pixel ratio) and re-encoded to WebP; `fittingType="fill"` crops
  * server-side, optionally anchored at a focal point. Other URLs render as a
  * plain <img>. Failed loads swap to a fallback image.
+ *
+ * @param {ImageProps} props
+ * @param {React.ForwardedRef<HTMLImageElement>} ref
  */
-const Image = React.forwardRef(
-  (
-    {
-      src,
-      fittingType = "fill",
-      originWidth,
-      originHeight,
-      focalPointX,
-      focalPointY,
-      quality = 90,
-      ...props
-    },
-    ref
-  ) => {
+const ImageRender = (
+  {
+    src,
+    fittingType = "fill",
+    originWidth,
+    originHeight,
+    focalPointX,
+    focalPointY,
+    quality = 90,
+    ...props
+  },
+  ref
+) => {
     const [imgSrc, setImgSrc] = React.useState(src)
 
     React.useEffect(() => {
@@ -236,8 +269,8 @@ const Image = React.forwardRef(
         {...imageProps}
       />
     )
-  }
-)
+}
+const Image = React.forwardRef(ImageRender)
 Image.displayName = "Image"
 
 export { Image }
