@@ -164,12 +164,12 @@
     "image"
   ],
   "rls": {
-    "read": {
+    "create": {
       "user_condition": {
         "role": "admin"
       }
     },
-    "create": {
+    "read": {
       "user_condition": {
         "role": "admin"
       }
