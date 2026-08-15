@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { CreditCard, Store, CheckCircle2, XCircle, Loader2, Save, Zap, ShieldAlert, Trash2, Plus, Lock } from 'lucide-react';
+import { queryClientInstance } from '@/lib/query-client';
+import { CATALOG_QUERY_KEY } from '@/lib/useProducts';
 
 const STORE_KEYS = [
-  { key: 'store_name', label: 'Nome store', value: 'Terra-Mater' },
-  { key: 'store_email', label: 'Email contatto', value: 'info@terra-mater.it' },
+  { key: 'store_name', label: 'Nome store', value: 'TechMania' },
+  { key: 'store_email', label: 'Email contatto', value: 'info@techmania.it' },
   { key: 'store_currency', label: 'Valuta', value: 'EUR' },
   { key: 'low_stock_threshold', label: 'Soglia stock basso (globale)', value: '5' },
   { key: 'free_shipping_threshold', label: 'Soglia spedizione gratuita (€)', value: '99' },
+  { key: 'shipping_flat_rate', label: 'Tariffa spedizione standard (€)', value: '0' },
+  { key: 'shipping_countries', label: 'Paesi di consegna (codici ISO separati da virgola)', value: 'IT' },
 ];
 const MAIN_KEYS = STORE_KEYS.map(s => s.key);
 
@@ -23,16 +27,17 @@ export default function SettingsManager({ password, isSuperAdmin }) {
   const [selected, setSelected] = useState({});
   const [showAddCustom, setShowAddCustom] = useState(false);
 
-  const loadPayment = async () => {
+  const loadPayment = useCallback(async () => {
     setLoadingPayment(true);
     try {
       const res = await base44.functions.invoke('admin-cms', { password, operation: 'payment_status' });
       setPayment(res.data);
+      return res.data;
     } catch (e) { console.error(e); }
     finally { setLoadingPayment(false); }
-  };
+  }, [password]);
 
-  const loadSettings = async () => {
+  const loadSettings = useCallback(async () => {
     try {
       const res = await base44.functions.invoke('admin-cms', { password, operation: 'list', resource: 'setting' });
       const items = res.data.items || [];
@@ -43,15 +48,15 @@ export default function SettingsManager({ password, isSuperAdmin }) {
       STORE_KEYS.forEach(({ key, value }) => { merged[key] = map[key]?.value ?? value; });
       setSettings(merged);
     } catch (e) { console.error(e); }
-  };
+  }, [password]);
 
-  useEffect(() => { loadPayment(); loadSettings(); }, []);
+  useEffect(() => { loadPayment(); loadSettings(); }, [loadPayment, loadSettings]);
 
   const testConnection = async () => {
     setTesting(true); setTestResult(null);
     try {
-      await loadPayment();
-      setTestResult({ ok: !!payment?.stripeKeySet, msg: payment?.stripeKeySet ? 'Connessione Stripe attiva' : 'Chiave Stripe non configurata' });
+      const currentPayment = await loadPayment();
+      setTestResult({ ok: !!currentPayment?.stripeKeySet, msg: currentPayment?.stripeKeySet ? 'Connessione Stripe attiva' : 'Chiave Stripe non configurata' });
     } catch (e) { setTestResult({ ok: false, msg: e.message }); }
     finally { setTesting(false); }
   };
@@ -64,6 +69,7 @@ export default function SettingsManager({ password, isSuperAdmin }) {
       }
       setSavedMsg(true);
       setTimeout(() => setSavedMsg(false), 2500);
+      await queryClientInstance.invalidateQueries({ queryKey: CATALOG_QUERY_KEY });
       loadSettings();
     } catch (e) { console.error(e); alert(e.response?.data?.error || e.message); }
     finally { setSaving(false); }
@@ -114,11 +120,11 @@ export default function SettingsManager({ password, isSuperAdmin }) {
       {/* Payment settings */}
       <div className="bg-white rounded-2xl p-6">
         <div className="flex items-center gap-2 mb-4">
-          <CreditCard size={18} className="text-[#FF6B35]" />
+          <CreditCard size={18} className="text-[#0071E3]" />
           <h2 className="text-lg font-bold text-[#1d1d1f]">Pagamenti (Stripe)</h2>
         </div>
 
-        {loadingPayment ? <div className="flex justify-center py-8"><Loader2 className="animate-spin text-[#FF6B35]" size={22} /></div> : (
+        {loadingPayment ? <div className="flex justify-center py-8"><Loader2 className="animate-spin text-[#0071E3]" size={22} /></div> : (
           <>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
               <StatusCard label="Connessione Stripe" ok={!!payment?.stripeKeySet} okText="Configurata" badText="Non configurata" />
@@ -168,7 +174,7 @@ export default function SettingsManager({ password, isSuperAdmin }) {
       <div className={`bg-white rounded-2xl p-6 ${!isSuperAdmin ? 'opacity-90' : ''}`}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Store size={18} className="text-[#FF6B35]" />
+            <Store size={18} className="text-[#0071E3]" />
             <h2 className="text-lg font-bold text-[#1d1d1f]">Settaggi CMS Principali</h2>
             {!isSuperAdmin && (
               <span className="flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full"><Lock size={10} /> Super admin</span>
@@ -183,13 +189,13 @@ export default function SettingsManager({ password, isSuperAdmin }) {
                 value={settings[key] ?? ''}
                 onChange={e => setSettings({ ...settings, [key]: e.target.value })}
                 disabled={!isSuperAdmin}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#FF6B35] disabled:bg-[#f5f5f7] disabled:text-[#6e6e73] disabled:cursor-not-allowed"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#0071E3] disabled:bg-[#f5f5f7] disabled:text-[#6e6e73] disabled:cursor-not-allowed"
               />
             </label>
           ))}
         </div>
         {isSuperAdmin ? (
-          <button onClick={saveSettings} disabled={saving} className="mt-4 px-4 py-2 bg-[#FF6B35] text-white text-sm font-semibold rounded-xl flex items-center gap-2 disabled:opacity-50">
+          <button onClick={saveSettings} disabled={saving} className="mt-4 px-4 py-2 bg-[#0071E3] text-white text-sm font-semibold rounded-xl flex items-center gap-2 disabled:opacity-50">
             {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Salva impostazioni
           </button>
         ) : (
@@ -202,12 +208,12 @@ export default function SettingsManager({ password, isSuperAdmin }) {
       <div className="bg-white rounded-2xl p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-[#1d1d1f]">Settaggi personalizzati & Mockup</h2>
-          <button onClick={() => setShowAddCustom(true)} className="px-3 py-2 bg-[#FF6B35] text-white text-sm font-semibold rounded-xl flex items-center gap-2"><Plus size={16} /> Aggiungi</button>
+          <button onClick={() => setShowAddCustom(true)} className="px-3 py-2 bg-[#0071E3] text-white text-sm font-semibold rounded-xl flex items-center gap-2"><Plus size={16} /> Aggiungi</button>
         </div>
 
         {selectedIds.length > 0 && (
-          <div className="flex items-center gap-2 bg-[#FF6B35]/10 border border-[#FF6B35]/30 rounded-xl px-3 py-2 mb-3">
-            <span className="text-sm font-semibold text-[#FF6B35]">{selectedIds.length} selezionati</span>
+          <div className="flex items-center gap-2 bg-[#0071E3]/10 border border-[#0071E3]/30 rounded-xl px-3 py-2 mb-3">
+            <span className="text-sm font-semibold text-[#0071E3]">{selectedIds.length} selezionati</span>
             <button onClick={bulkDelete} className="px-3 py-1.5 bg-red-600 text-white text-xs font-semibold rounded-lg flex items-center gap-1.5"><Trash2 size={13} /> Elimina</button>
             <button onClick={() => setSelected({})} className="text-xs text-[#6e6e73] hover:text-[#1d1d1f] px-2">Annulla</button>
           </div>
@@ -218,15 +224,15 @@ export default function SettingsManager({ password, isSuperAdmin }) {
         ) : (
           <div className="space-y-2">
             <div className="flex items-center gap-3 pb-2 border-b border-gray-100">
-              <input type="checkbox" checked={customSettings.length > 0 && customSettings.every(s => selected[s.id])} onChange={toggleAllCustom} className="w-4 h-4 accent-[#FF6B35] cursor-pointer" />
+              <input type="checkbox" checked={customSettings.length > 0 && customSettings.every(s => selected[s.id])} onChange={toggleAllCustom} className="w-4 h-4 accent-[#0071E3] cursor-pointer" />
               <span className="text-xs font-semibold text-[#6e6e73] uppercase">Chiave</span>
               <span className="text-xs font-semibold text-[#6e6e73] uppercase flex-1">Valore</span>
               <span className="text-xs font-semibold text-[#6e6e73] uppercase">Tipo</span>
               <span className="text-xs font-semibold text-[#6e6e73] uppercase w-8">Azioni</span>
             </div>
             {customSettings.map(s => (
-              <div key={s.id} className={`flex items-center gap-3 p-2 rounded-lg ${selected[s.id] ? 'bg-[#FF6B35]/5' : ''}`}>
-                <input type="checkbox" checked={!!selected[s.id]} onChange={() => toggleOne(s.id)} className="w-4 h-4 accent-[#FF6B35] cursor-pointer" />
+              <div key={s.id} className={`flex items-center gap-3 p-2 rounded-lg ${selected[s.id] ? 'bg-[#0071E3]/5' : ''}`}>
+                <input type="checkbox" checked={!!selected[s.id]} onChange={() => toggleOne(s.id)} className="w-4 h-4 accent-[#0071E3] cursor-pointer" />
                 <span className="text-sm font-mono font-semibold text-[#1d1d1f] w-40 truncate">{s.key}</span>
                 <span className="text-sm text-[#6e6e73] flex-1 truncate">{s.value}</span>
                 <div className="w-20">
@@ -272,9 +278,9 @@ function AddCustomSetting({ password, onDone, onCancel }) {
             <input value={value} onChange={e => setValue(e.target.value)} className="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-sm" /></label>
           <label className="block"><span className="text-xs font-medium text-[#6e6e73]">Etichetta</span>
             <input value={label} onChange={e => setLabel(e.target.value)} className="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-sm" /></label>
-          <label className="flex items-center gap-2"><input type="checkbox" checked={isMockup} onChange={e => setIsMockup(e.target.checked)} className="w-4 h-4 accent-[#FF6B35]" />
+          <label className="flex items-center gap-2"><input type="checkbox" checked={isMockup} onChange={e => setIsMockup(e.target.checked)} className="w-4 h-4 accent-[#0071E3]" />
             <span className="text-sm text-[#1d1d1f]">Segna come <strong>mockup</strong> (dato demo eliminabile da qualunque admin)</span></label>
-          <button onClick={submit} disabled={saving || !key} className="w-full px-4 py-2.5 bg-[#FF6B35] text-white text-sm font-semibold rounded-xl disabled:opacity-50 flex items-center justify-center gap-2">
+          <button onClick={submit} disabled={saving || !key} className="w-full px-4 py-2.5 bg-[#0071E3] text-white text-sm font-semibold rounded-xl disabled:opacity-50 flex items-center justify-center gap-2">
             {saving ? <Loader2 size={16} className="animate-spin" /> : null} Crea settaggio
           </button>
         </div>
@@ -283,7 +289,7 @@ function AddCustomSetting({ password, onDone, onCancel }) {
   );
 }
 
-function StatusCard({ label, ok, bad, okText, badText, neutral }) {
+function StatusCard({ label, ok = false, bad = false, okText = '', badText = '', neutral = '' }) {
   const isOk = ok === true;
   const isBad = bad === true || ok === false;
   return (

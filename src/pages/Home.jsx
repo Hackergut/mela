@@ -1,17 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { lazy, Suspense } from 'react';
 import PromoBanner from '@/components/PromoBanner';
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
-import InteractiveSpecsSection from '@/components/InteractiveSpecsSection';
-import CategoriesSection from '@/components/CategoriesSection';
-import FeaturesSection from '@/components/FeaturesSection';
-import PopularProducts from '@/components/PopularProducts';
-import CompareSection from '@/components/CompareSection';
-import TestimonialsSection from '@/components/TestimonialsSection';
-import AboutSection from '@/components/AboutSection';
-import BlogSection from '@/components/BlogSection';
-import NewsletterSection from '@/components/NewsletterSection';
-import FooterSection from '@/components/FooterSection';
+
+const CategoriesSection = lazy(() => import('@/components/CategoriesSection'));
+const FeaturesSection = lazy(() => import('@/components/FeaturesSection'));
+const PopularProducts = lazy(() => import('@/components/PopularProducts'));
+const NewsletterSection = lazy(() => import('@/components/NewsletterSection'));
+const FooterSection = lazy(() => import('@/components/FooterSection'));
+
+const SectionFallback = () => (
+  <div className="min-h-64 animate-pulse bg-[#f5f5f7]" aria-hidden="true" />
+);
 
 export default function Home() {
   return (
@@ -20,17 +20,16 @@ export default function Home() {
       <Navbar />
       <main>
         <HeroSection />
-        <InteractiveSpecsSection />
-        <CategoriesSection />
-        <FeaturesSection />
-        <PopularProducts />
-        <CompareSection />
-        <TestimonialsSection />
-        <AboutSection />
-        <BlogSection />
-        <NewsletterSection />
+        <Suspense fallback={<SectionFallback />}>
+          <CategoriesSection />
+          <PopularProducts />
+          <FeaturesSection />
+          <NewsletterSection />
+        </Suspense>
       </main>
-      <FooterSection />
+      <Suspense fallback={<SectionFallback />}>
+        <FooterSection />
+      </Suspense>
     </div>
   );
 }

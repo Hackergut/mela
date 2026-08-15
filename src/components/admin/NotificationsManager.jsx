@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Bell, Check, Trash2, Package, AlertTriangle, Tags, ShoppingCart, Info, Loader2 } from 'lucide-react';
 
@@ -7,16 +7,16 @@ export default function NotificationsManager({ password }) {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const res = await base44.functions.invoke('admin-cms', { password, operation: 'list', resource: 'notification' });
       setItems(res.data.items || []);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
-  };
+  }, [password]);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [load]);
 
   const markRead = async (id) => {
     await base44.functions.invoke('admin-cms', { password, operation: 'update', resource: 'notification', payload: { id, read: true } });
@@ -48,9 +48,9 @@ export default function NotificationsManager({ password }) {
     <div>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Bell size={18} className="text-[#FF6B35]" />
+          <Bell size={18} className="text-[#0071E3]" />
           <h2 className="text-lg font-bold text-[#1d1d1f]">Notifiche</h2>
-          {unreadCount > 0 && <span className="px-2 py-0.5 text-xs font-bold text-white bg-[#FF6B35] rounded-full">{unreadCount} non lette</span>}
+          {unreadCount > 0 && <span className="px-2 py-0.5 text-xs font-bold text-white bg-[#0071E3] rounded-full">{unreadCount} non lette</span>}
         </div>
         <button onClick={markAllRead} disabled={unreadCount === 0} className="px-3 py-1.5 text-sm font-semibold border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50">
           Segna tutte come lette
@@ -59,11 +59,11 @@ export default function NotificationsManager({ password }) {
 
       <div className="flex gap-1 mb-4 flex-wrap">
         {[['all','Tutte'],['unread','Non lette'],['order','Ordini'],['stock','Stock'],['payment','Pagamenti'],['system','Sistema']].map(([k,l]) => (
-          <button key={k} onClick={() => setFilter(k)} className={`px-3 py-1.5 text-xs font-semibold rounded-full transition-colors ${filter===k?'bg-[#FF6B35] text-white':'bg-white border border-gray-200 text-[#6e6e73] hover:bg-gray-50'}`}>{l}</button>
+          <button key={k} onClick={() => setFilter(k)} className={`px-3 py-1.5 text-xs font-semibold rounded-full transition-colors ${filter===k?'bg-[#0071E3] text-white':'bg-white border border-gray-200 text-[#6e6e73] hover:bg-gray-50'}`}>{l}</button>
         ))}
       </div>
 
-      {loading ? <div className="flex justify-center py-16"><Loader2 className="animate-spin text-[#FF6B35]" size={24} /></div> :
+      {loading ? <div className="flex justify-center py-16"><Loader2 className="animate-spin text-[#0071E3]" size={24} /></div> :
         filtered.length === 0 ? (
           <div className="text-center py-16">
             <Bell size={32} className="mx-auto text-gray-300 mb-3" />
@@ -74,7 +74,7 @@ export default function NotificationsManager({ password }) {
             {filtered.map(n => {
               const Icon = ICONS[n.type] || Info;
               return (
-                <div key={n.id} className={`bg-white rounded-xl p-4 flex items-start gap-3 border ${n.read ? 'border-gray-100' : 'border-[#FF6B35]/30 bg-[#FF6B35]/[0.02]'}`}>
+                <div key={n.id} className={`bg-white rounded-xl p-4 flex items-start gap-3 border ${n.read ? 'border-gray-100' : 'border-[#0071E3]/30 bg-[#0071E3]/[0.02]'}`}>
                   <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${COLORS[n.severity] || COLORS.info}`}>
                     <Icon size={16} />
                   </div>

@@ -1,6 +1,6 @@
-# Base44 Project
+# TechMania
 
-Use this repository to run and edit the app locally, then publish changes back through Base44.
+Storefront and administration console built with React, Vite and Base44. Use this repository to run and edit the app locally, then publish changes back through Base44.
 
 Any change pushed to the repo will also be reflected in the Base44 Builder.
 
@@ -44,6 +44,30 @@ npm run dev
 ```
 
 Open the local URL printed by Vite.
+
+## Quality Checks
+
+The same checks run for every pull request through `.github/workflows/ci.yml`:
+
+```bash
+npm ci
+npm test
+npm run lint
+npm run typecheck
+npm run build
+```
+
+## Runtime Secrets
+
+Configure backend secrets in Base44 rather than committing them to this repository:
+
+- `ADMIN_PASSWORD` and, optionally, `SUPER_ADMIN_PASSWORD` protect CMS operations.
+- `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` enable checkout and signed webhook processing.
+- `PUBLIC_APP_URL` is required for production checkout redirects (for example, `https://shop.example.com`).
+- `BASE44_APP_ID` is included in Stripe checkout metadata.
+- `SHOPIFY_SHOP_DOMAIN` and `SHOPIFY_ACCESS_TOKEN` are the preferred way to configure Shopify. The admin UI remains available as a compatibility fallback, but runtime secrets avoid persisting the access token as an entity setting.
+
+Do not expose backend secrets through `VITE_` variables: Vite embeds those variables into browser bundles.
 
 ## Use The Hosted Backend
 

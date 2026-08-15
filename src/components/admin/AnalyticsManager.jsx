@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
-import { TrendingUp, TrendingDown, ShoppingCart, Euro, Package, Truck, Award, Loader2, BarChart3 } from 'lucide-react';
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
+import { TrendingUp, TrendingDown, ShoppingCart, Euro, Package, Award, Loader2, BarChart3 } from 'lucide-react';
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 
-const PIE_COLORS = ['#FF6B35', '#1d1d1f', '#6e6e73', '#FFB347', '#4ECDC4', '#95A5A6'];
+const PIE_COLORS = ['#0071E3', '#1d1d1f', '#6e6e73', '#FFB347', '#4ECDC4', '#95A5A6'];
 
 export default function AnalyticsManager({ password }) {
   const [orders, setOrders] = useState([]);
@@ -24,7 +24,7 @@ export default function AnalyticsManager({ password }) {
       } catch (e) { console.error(e); }
       finally { setLoading(false); }
     })();
-  }, []);
+  }, [password]);
 
   const metrics = useMemo(() => {
     const now = new Date();
@@ -110,18 +110,18 @@ export default function AnalyticsManager({ password }) {
     return Object.values(map).sort((a, b) => b.revenue - a.revenue);
   }, [metrics, products]);
 
-  if (loading) return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#FF6B35]" size={28} /></div>;
+  if (loading) return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#0071E3]" size={28} /></div>;
 
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <BarChart3 size={18} className="text-[#FF6B35]" />
+          <BarChart3 size={18} className="text-[#0071E3]" />
           <h2 className="text-lg font-bold text-[#1d1d1f]">Analytics Vendite</h2>
         </div>
         <div className="flex gap-1 bg-white rounded-lg p-1">
           {[7, 30, 90].map(d => (
-            <button key={d} onClick={() => setRange(d)} className={`px-3 py-1 text-xs font-semibold rounded-md ${range === d ? 'bg-[#FF6B35] text-white' : 'text-[#6e6e73]'}`}>{d}g</button>
+            <button key={d} onClick={() => setRange(d)} className={`px-3 py-1 text-xs font-semibold rounded-md ${range === d ? 'bg-[#0071E3] text-white' : 'text-[#6e6e73]'}`}>{d}g</button>
           ))}
         </div>
       </div>
@@ -142,7 +142,7 @@ export default function AnalyticsManager({ password }) {
         </div>
         <div className="text-right">
           <p className="text-xs text-white/60">Margine %</p>
-          <p className="text-2xl font-bold text-[#FF6B35]">{metrics.revenue > 0 ? ((metrics.profit / metrics.revenue) * 100).toFixed(1) : 0}%</p>
+          <p className="text-2xl font-bold text-[#0071E3]">{metrics.revenue > 0 ? ((metrics.profit / metrics.revenue) * 100).toFixed(1) : 0}%</p>
         </div>
       </div>
 
@@ -153,15 +153,15 @@ export default function AnalyticsManager({ password }) {
           <AreaChart data={chartData}>
             <defs>
               <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#FF6B35" stopOpacity={0.3} />
-                <stop offset="100%" stopColor="#FF6B35" stopOpacity={0} />
+                <stop offset="0%" stopColor="#0071E3" stopOpacity={0.3} />
+                <stop offset="100%" stopColor="#0071E3" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
             <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#6e6e73' }} interval={Math.floor(range / 8)} />
             <YAxis tick={{ fontSize: 11, fill: '#6e6e73' }} />
             <Tooltip formatter={v => [`${Number(v).toFixed(2)} €`, 'Ricavi']} contentStyle={{ borderRadius: 12, border: '1px solid #eee', fontSize: 12 }} />
-            <Area type="monotone" dataKey="revenue" stroke="#FF6B35" strokeWidth={2} fill="url(#revGrad)" />
+            <Area type="monotone" dataKey="revenue" stroke="#0071E3" strokeWidth={2} fill="url(#revGrad)" />
           </AreaChart>
         </ResponsiveContainer>
       </div>
@@ -169,7 +169,7 @@ export default function AnalyticsManager({ password }) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Top products */}
         <div className="bg-white rounded-2xl p-5">
-          <h3 className="text-sm font-bold text-[#1d1d1f] mb-4 flex items-center gap-2"><Award size={15} className="text-[#FF6B35]" /> Best Seller</h3>
+          <h3 className="text-sm font-bold text-[#1d1d1f] mb-4 flex items-center gap-2"><Award size={15} className="text-[#0071E3]" /> Best Seller</h3>
           {topProducts.length === 0 ? <p className="text-sm text-[#6e6e73] py-8 text-center">Nessuna vendita nel periodo.</p> : (
             <div className="space-y-2">
               {topProducts.map((p, i) => (
@@ -211,7 +211,7 @@ export default function AnalyticsManager({ password }) {
                 <XAxis type="number" tick={{ fontSize: 11, fill: '#6e6e73' }} />
                 <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: '#6e6e73' }} width={80} />
                 <Tooltip formatter={v => [`${Number(v).toFixed(2)} €`, 'Ricavi']} contentStyle={{ borderRadius: 12, fontSize: 12 }} />
-                <Bar dataKey="revenue" fill="#FF6B35" radius={[0, 6, 6, 0]} />
+                <Bar dataKey="revenue" fill="#0071E3" radius={[0, 6, 6, 0]} />
               </BarChart>
             </ResponsiveContainer>
           )}
@@ -221,8 +221,8 @@ export default function AnalyticsManager({ password }) {
   );
 }
 
-function KpiCard({ icon: Icon, label, value, trend, color }) {
-  const colors = { emerald: 'text-emerald-600 bg-emerald-50', blue: 'text-blue-600 bg-blue-50', orange: 'text-[#FF6B35] bg-[#FFF0E8]', purple: 'text-purple-600 bg-purple-50' };
+function KpiCard({ icon: Icon, label, value, trend = null, color }) {
+  const colors = { emerald: 'text-emerald-600 bg-emerald-50', blue: 'text-blue-600 bg-blue-50', orange: 'text-[#0071E3] bg-[#FFF0E8]', purple: 'text-purple-600 bg-purple-50' };
   return (
     <div className="bg-white rounded-2xl p-4">
       <div className="flex items-center justify-between mb-2">

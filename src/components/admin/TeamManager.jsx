@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Loader2, UserPlus, Mail, Shield, User, X } from 'lucide-react';
 
-const INP = "w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-[#FF6B35] focus:outline-none";
+const INP = "w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-[#0071E3] focus:outline-none";
 
 export default function TeamManager({ password }) {
   const [users, setUsers] = useState([]);
@@ -12,15 +12,16 @@ export default function TeamManager({ password }) {
   const [inviting, setInviting] = useState(false);
   const [inviteOk, setInviteOk] = useState(null);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true); setError(null);
     try {
       const res = await base44.functions.invoke('admin-cms', { password, operation: 'list', resource: 'user' });
       setUsers(res.data.items || []);
     } catch (e) { setError(e.response?.data?.error || e.message); }
     finally { setLoading(false); }
-  };
-  useEffect(() => { load(); }, []);
+  }, [password]);
+
+  useEffect(() => { load(); }, [load]);
 
   const sendInvite = async (e) => {
     e.preventDefault();
@@ -38,19 +39,19 @@ export default function TeamManager({ password }) {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div className="lg:col-span-2">
         <p className="text-sm text-[#6e6e73] mb-4">{users.length} membri del team</p>
-        {loading ? <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#FF6B35]" size={28} /></div> :
+        {loading ? <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#0071E3]" size={28} /></div> :
           error ? <p className="text-sm text-red-600 bg-red-50 rounded-xl px-4 py-3">{error}</p> : (
             <div className="bg-white rounded-2xl overflow-hidden">
               {users.map((u, i) => (
                 <div key={u.id} className={`flex items-center gap-3 p-4 ${i !== users.length - 1 ? 'border-b border-gray-50' : ''}`}>
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${u.role === 'admin' ? 'bg-[#FF6B35]/10' : 'bg-gray-100'}`}>
-                    {u.role === 'admin' ? <Shield size={18} className="text-[#FF6B35]" /> : <User size={18} className="text-[#6e6e73]" />}
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${u.role === 'admin' ? 'bg-[#0071E3]/10' : 'bg-gray-100'}`}>
+                    {u.role === 'admin' ? <Shield size={18} className="text-[#0071E3]" /> : <User size={18} className="text-[#6e6e73]" />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-[#1d1d1f] truncate">{u.full_name || u.email}</p>
                     <p className="text-xs text-[#6e6e73] truncate">{u.email}</p>
                   </div>
-                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${u.role === 'admin' ? 'bg-[#FF6B35] text-white' : 'bg-gray-100 text-[#6e6e73]'}`}>
+                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${u.role === 'admin' ? 'bg-[#0071E3] text-white' : 'bg-gray-100 text-[#6e6e73]'}`}>
                     {u.role === 'admin' ? 'Admin' : 'Membro'}
                   </span>
                 </div>
@@ -62,7 +63,7 @@ export default function TeamManager({ password }) {
       <div>
         <div className="bg-white rounded-2xl p-5">
           <div className="flex items-center gap-2 mb-4">
-            <UserPlus size={18} className="text-[#FF6B35]" />
+            <UserPlus size={18} className="text-[#0071E3]" />
             <h3 className="text-sm font-bold text-[#1d1d1f]">Invita membro</h3>
           </div>
           <form onSubmit={sendInvite} className="space-y-3">
@@ -82,7 +83,7 @@ export default function TeamManager({ password }) {
             </label>
             {error && <p className="text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2 flex items-start gap-1"><X size={12} className="mt-0.5 flex-shrink-0" />{error}</p>}
             {inviteOk && <p className="text-xs text-green-700 bg-green-50 rounded-lg px-3 py-2">{inviteOk}</p>}
-            <button type="submit" disabled={inviting} className="w-full py-3 bg-[#FF6B35] text-white text-sm font-semibold rounded-xl flex items-center justify-center gap-2 disabled:opacity-50">
+            <button type="submit" disabled={inviting} className="w-full py-3 bg-[#0071E3] text-white text-sm font-semibold rounded-xl flex items-center justify-center gap-2 disabled:opacity-50">
               {inviting ? <Loader2 size={16} className="animate-spin" /> : <UserPlus size={16} />} Invita
             </button>
           </form>

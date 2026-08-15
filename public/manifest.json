@@ -1,0 +1,18 @@
+{
+  "name": "TechMania",
+  "short_name": "TechMania",
+  "description": "Store italiano di prodotti e accessori tecnologici.",
+  "lang": "it-IT",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f5f7",
+  "theme_color": "#1d1d1f",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

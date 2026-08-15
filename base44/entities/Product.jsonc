@@ -6,6 +6,23 @@
       "type": "string",
       "title": "Nome"
     },
+    "slug": {
+      "type": "string",
+      "title": "Slug pubblico"
+    },
+    "subtitle": {
+      "type": "string",
+      "title": "Sottotitolo"
+    },
+    "brand": {
+      "type": "string",
+      "default": "Apple",
+      "title": "Brand"
+    },
+    "family": {
+      "type": "string",
+      "title": "Famiglia prodotto"
+    },
     "sku": {
       "type": "string",
       "title": "SKU"
@@ -50,6 +67,33 @@
       "type": "string",
       "title": "Categoria"
     },
+    "category_id": {
+      "type": "string",
+      "title": "ID categoria"
+    },
+    "option_names": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "title": "Nomi opzioni variante"
+    },
+    "featured": {
+      "type": "boolean",
+      "default": false,
+      "title": "In evidenza"
+    },
+    "compare_group": {
+      "type": "string",
+      "title": "Gruppo confronto"
+    },
+    "specs": {
+      "type": "object",
+      "title": "Specifiche tecniche",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
     "image": {
       "type": "string",
       "title": "Immagine principale",
@@ -92,6 +136,25 @@
       "type": "boolean",
       "default": false,
       "title": "Mockup (dato demo)"
+    },
+    "shopify_product_id": {
+      "type": "string",
+      "title": "Shopify Product ID"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "base44",
+        "shopify",
+        "legacy"
+      ],
+      "default": "base44",
+      "title": "Origine"
+    },
+    "synced_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Ultima sincronizzazione"
     }
   },
   "required": [
@@ -101,7 +164,11 @@
     "image"
   ],
   "rls": {
-    "read": {},
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
     "create": {
       "user_condition": {
         "role": "admin"

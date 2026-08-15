@@ -22,6 +22,14 @@
       "type": "string",
       "title": "ID prodotto"
     },
+    "variant_id": {
+      "type": "string",
+      "title": "ID variante"
+    },
+    "sku": {
+      "type": "string",
+      "title": "SKU"
+    },
     "customer_name": {
       "type": "string",
       "title": "Cliente"

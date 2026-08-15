@@ -1,40 +1,35 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Image } from '@/components/ui/image';
 import { fadeUp, staggerContainer, staggerItem } from '@/lib/motion';
-import { useProducts } from '@/lib/useProducts';
-import { base44 } from '@/api/base44Client';
+import { useCatalog } from '@/lib/useProducts';
 
 export default function CategoriesSection() {
-  const { products } = useProducts();
-  const [cats, setCats] = useState([]);
-
-  useEffect(() => {
-    base44.entities.Category.list('sort_order', 50).then(setCats).catch(() => {});
-  }, []);
-
-  const categories = cats.map(c => ({
-    ...c,
-    count: `${products.filter(p => p.category === c.name).length} ${c.name === 'iPhone' ? 'modelli' : 'pezzi'}`,
-  })).filter(c => c.count[0] !== '0' || true);
+  const { categories: catalogCategories } = useCatalog();
+  const categories = catalogCategories
+    .filter(category => category.product_count > 0)
+    .map(category => ({ ...category, count: `${category.product_count} ${category.product_count === 1 ? 'prodotto' : 'prodotti'}` }));
 
   return (
     <section id="categories" className="py-20 px-6 lg:px-8 bg-[#f5f5f7]">
       <div className="max-w-7xl mx-auto">
         <motion.div {...fadeUp} className="text-center mb-12">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#FF6B35] mb-3">Esplora</p>
-          <h2 className="text-4xl md:text-5xl font-bold text-[#1d1d1f] tracking-tight">
-            Scopri le Nostre <span className="text-[#FF6B35]">Categorie</span>
+          <p className="text-sm font-semibold text-[#0066cc] mb-3">Esplora</p>
+          <h2 className="text-4xl md:text-6xl font-semibold leading-[1.02] text-[#1d1d1f] tracking-[-0.045em]">
+            Tutto al posto giusto.
           </h2>
-          <p className="mt-4 text-[#6e6e73] text-base max-w-md mx-auto">
-            Una selezione curata dei migliori prodotti tecnologici, organizzati per categoria.
+          <p className="mt-5 text-[#6e6e73] text-base leading-7 max-w-xl mx-auto">
+            Esplora le categorie e trova più velocemente la configurazione giusta.
           </p>
         </motion.div>
 
         <motion.div {...staggerContainer} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {categories.map((cat) => (
             <motion.div key={cat.id} {...staggerItem}>
-              <CategoryCard cat={cat} />
+              <Link to={`/catalogo?categoria=${encodeURIComponent(cat.slug || cat.name)}`} className="block h-full">
+                <CategoryCard cat={cat} />
+              </Link>
             </motion.div>
           ))}
         </motion.div>

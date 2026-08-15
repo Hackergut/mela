@@ -10,31 +10,49 @@ const STATUS_LABELS = { pending: 'In attesa', paid: 'Pagato', shipped: 'Spedito'
 const STATUS_BADGE = { pending: 'bg-amber-100 text-amber-700', paid: 'bg-green-100 text-green-700', shipped: 'bg-blue-100 text-blue-700', delivered: 'bg-emerald-100 text-emerald-700', cancelled: 'bg-red-100 text-red-700' };
 
 export default function AdminDashboard({ password }) {
-  const [data, setData] = useState({ orders: [], products: [], customers: [] });
+  const [data, setData] = useState({ orders: [], products: [], variants: [], customers: [] });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
       setLoading(true);
       try {
-        const [o, p, c] = await Promise.all([
+        const [o, catalog, c] = await Promise.all([
           base44.functions.invoke('admin-cms', { password, operation: 'list', resource: 'order' }),
-          base44.functions.invoke('admin-cms', { password, operation: 'list', resource: 'product' }),
+          base44.functions.invoke('admin-cms', { password, operation: 'list_catalog', resource: 'product' }),
           base44.functions.invoke('admin-cms', { password, operation: 'list', resource: 'customer' }),
         ]);
-        setData({ orders: o.data.items || [], products: p.data.items || [], customers: c.data.items || [] });
+        setData({
+          orders: o.data.items || [],
+          products: catalog.data.products || [],
+          variants: catalog.data.variants || [],
+          customers: c.data.items || [],
+        });
       } finally { setLoading(false); }
     })();
   }, [password]);
 
-  if (loading) return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#FF6B35]" size={28} /></div>;
+  if (loading) return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#0071E3]" size={28} /></div>;
 
-  const { orders, products, customers } = data;
+  const { orders, products, variants, customers } = data;
   const paidOrders = orders.filter(o => ['paid', 'shipped', 'delivered'].includes(o.status));
   const revenue = paidOrders.reduce((s, o) => s + (o.total_cents || 0), 0);
   const discountGiven = orders.reduce((s, o) => s + (o.discount_amount_cents || 0), 0);
-  const inventoryValue = products.reduce((s, p) => s + ((p.stock || 0) * (p.cost_cents || 0)), 0);
-  const lowStock = products.filter(p => (p.stock || 0) <= (p.low_stock_threshold ?? 5));
+  const productById = new Map(products.map(product => [String(product.id), product]));
+  const variantProductIds = new Set(variants.map(variant => String(variant.product_id)));
+  const inventoryRows = [
+    ...variants.filter(variant => variant.status === 'active').map(variant => ({
+      ...variant,
+      product_name: productById.get(String(variant.product_id))?.name || 'Prodotto',
+    })),
+    ...products.filter(product => !variantProductIds.has(String(product.id))).map(product => ({
+      ...product,
+      product_name: product.name,
+      title: 'Standard legacy',
+    })),
+  ];
+  const inventoryValue = inventoryRows.reduce((sum, item) => sum + ((Number(item.stock) || 0) * (Number(item.cost_cents) || 0)), 0);
+  const lowStock = inventoryRows.filter(item => (Number(item.stock) || 0) <= (item.low_stock_threshold ?? 5));
 
   const days = [...Array(30)].map((_, i) => {
     const d = new Date(); d.setDate(d.getDate() - (29 - i)); d.setHours(0, 0, 0, 0);
@@ -52,7 +70,7 @@ export default function AdminDashboard({ password }) {
     { label: 'Ricavi', value: fmtK(revenue), icon: Euro, color: 'text-green-600', bg: 'bg-green-50' },
     { label: 'Ordini', value: orders.length, icon: ShoppingBag, color: 'text-blue-600', bg: 'bg-blue-50' },
     { label: 'Clienti', value: customers.length, icon: Users, color: 'text-purple-600', bg: 'bg-purple-50' },
-    { label: 'Prodotti', value: products.length, icon: Package, color: 'text-[#FF6B35]', bg: 'bg-orange-50' },
+    { label: 'Prodotti', value: products.length, icon: Package, color: 'text-[#0071E3]', bg: 'bg-blue-50' },
     { label: 'Valore Stock', value: fmtK(inventoryValue), icon: TrendingUp, color: 'text-indigo-600', bg: 'bg-indigo-50' },
     { label: 'Stock Basso', value: lowStock.length, icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-50' },
   ];
@@ -91,15 +109,15 @@ export default function AdminDashboard({ password }) {
             <AreaChart data={days}>
               <defs>
                 <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#FF6B35" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#FF6B35" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#0071E3" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#0071E3" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
               <XAxis dataKey="label" tick={{ fontSize: 10 }} interval={4} />
               <YAxis tickFormatter={(v) => fmtK(v)} tick={{ fontSize: 10 }} width={48} />
               <Tooltip formatter={(v) => fmt(v)} labelStyle={{ fontSize: 12 }} contentStyle={{ borderRadius: 12, border: '1px solid #eee' }} />
-              <Area type="monotone" dataKey="revenue" stroke="#FF6B35" fill="url(#rev)" strokeWidth={2} />
+              <Area type="monotone" dataKey="revenue" stroke="#0071E3" fill="url(#rev)" strokeWidth={2} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -121,7 +139,7 @@ export default function AdminDashboard({ password }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="bg-white rounded-2xl p-5">
-          <h3 className="text-sm font-bold text-[#1d1d1f] mb-3 flex items-center gap-2"><Award size={15} className="text-[#FF6B35]" /> Prodotti più acquistati</h3>
+          <h3 className="text-sm font-bold text-[#1d1d1f] mb-3 flex items-center gap-2"><Award size={15} className="text-[#0071E3]" /> Prodotti più acquistati</h3>
           {topProducts.length === 0 ? <p className="text-sm text-[#6e6e73] py-6 text-center">Nessuna vendita.</p> : (
             <div className="space-y-1">
               {topProducts.map((p, i) => (
@@ -160,10 +178,10 @@ export default function AdminDashboard({ password }) {
           <h3 className="text-sm font-bold text-[#1d1d1f] mb-3">Avvisi stock basso</h3>
           {lowStock.length === 0 ? <p className="text-sm text-[#6e6e73]">Tutti i prodotti hanno stock sufficiente.</p> : (
             <div className="space-y-1">
-              {lowStock.slice(0, 6).map(p => (
-                <div key={p.id} className="flex items-center justify-between text-sm py-2 border-b border-gray-50 last:border-0">
-                  <span className="font-medium text-[#1d1d1f] truncate">{p.name}</span>
-                  <span className={`font-semibold ${(p.stock || 0) === 0 ? 'text-red-600' : 'text-orange-600'}`}>{p.stock || 0} pz</span>
+              {lowStock.slice(0, 6).map(item => (
+                <div key={`${item.product_id || item.id}:${item.id}`} className="flex items-center justify-between gap-3 border-b border-gray-50 py-2 text-sm last:border-0">
+                  <span className="min-w-0 truncate font-medium text-[#1d1d1f]">{item.product_name}<span className="font-normal text-[#6e6e73]"> · {item.title || 'Standard'}</span></span>
+                  <span className={`shrink-0 font-semibold ${(item.stock || 0) === 0 ? 'text-red-600' : 'text-amber-600'}`}>{item.stock || 0} pz</span>
                 </div>
               ))}
             </div>
@@ -173,7 +191,7 @@ export default function AdminDashboard({ password }) {
 
       {discountGiven > 0 && (
         <div className="bg-orange-50 rounded-2xl p-4 flex items-center gap-3">
-          <AlertTriangle size={20} className="text-[#FF6B35]" />
+          <AlertTriangle size={20} className="text-[#0071E3]" />
           <p className="text-sm text-[#1d1d1f]">Sconti applicati in totale: <span className="font-bold">{fmt(discountGiven)}</span></p>
         </div>
       )}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { RotateCcw, Plus, Trash2, Loader2, X } from 'lucide-react';
 import { useBulkSelect, BulkActionBar, RowCheckbox } from '@/lib/bulkSelect';
@@ -14,7 +14,7 @@ export default function ReturnsManager({ password }) {
   const [showForm, setShowForm] = useState(false);
   const [filter, setFilter] = useState('all');
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const [r, o] = await Promise.all([
@@ -25,25 +25,17 @@ export default function ReturnsManager({ password }) {
       setOrders(o.data.items || []);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
-  };
+  }, [password]);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [load]);
 
   const updateStatus = async (id, status) => {
-    await base44.functions.invoke('admin-cms', { password, operation: 'update', resource: 'return', payload: { id, status } });
-    setReturns(returns.map(r => r.id === id ? { ...r, status } : r));
-    // If completed, restock the product
     if (status === 'completed') {
-      const r = returns.find(x => x.id === id);
-      if (r?.product_id) {
-        try {
-          const prod = await base44.entities.Product.get(r.product_id);
-          if (prod && typeof prod.stock === 'number') {
-            await base44.functions.invoke('admin-cms', { password, operation: 'update', resource: 'product', payload: { id: r.product_id, stock: prod.stock + (r.quantity || 1) } });
-          }
-        } catch {}
-      }
+      await base44.functions.invoke('admin-cms', { password, operation: 'complete_return', resource: 'return', payload: { id } });
+    } else {
+      await base44.functions.invoke('admin-cms', { password, operation: 'update', resource: 'return', payload: { id, status } });
     }
+    setReturns(returns.map(item => item.id === id ? { ...item, status } : item));
   };
 
   const remove = async (id) => {
@@ -61,21 +53,21 @@ export default function ReturnsManager({ password }) {
     bulk.clear(); await load();
   };
 
-  if (loading) return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#FF6B35]" size={28} /></div>;
+  if (loading) return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#0071E3]" size={28} /></div>;
 
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <RotateCcw size={18} className="text-[#FF6B35]" />
+          <RotateCcw size={18} className="text-[#0071E3]" />
           <h2 className="text-lg font-bold text-[#1d1d1f]">Resi e Stornaggi</h2>
         </div>
-        <button onClick={() => setShowForm(true)} className="px-3 py-2 bg-[#FF6B35] text-white text-sm font-semibold rounded-xl flex items-center gap-2"><Plus size={16} /> Nuovo reso</button>
+        <button onClick={() => setShowForm(true)} className="px-3 py-2 bg-[#0071E3] text-white text-sm font-semibold rounded-xl flex items-center gap-2"><Plus size={16} /> Nuovo reso</button>
       </div>
 
       <div className="flex gap-1 mb-4 flex-wrap">
         {[['all','Tutti'],['requested','Richiesti'],['approved','Approvati'],['completed','Completati'],['rejected','Rifiutati']].map(([k,l]) => (
-          <button key={k} onClick={() => setFilter(k)} className={`px-3 py-1.5 text-xs font-semibold rounded-full ${filter===k?'bg-[#FF6B35] text-white':'bg-white border border-gray-200 text-[#6e6e73]'}`}>{l}</button>
+          <button key={k} onClick={() => setFilter(k)} className={`px-3 py-1.5 text-xs font-semibold rounded-full ${filter===k?'bg-[#0071E3] text-white':'bg-white border border-gray-200 text-[#6e6e73]'}`}>{l}</button>
         ))}
       </div>
 
@@ -84,7 +76,7 @@ export default function ReturnsManager({ password }) {
       {filtered.length === 0 ? <p className="text-center text-[#6e6e73] py-16 text-sm">Nessun reso.</p> : (
         <div className="space-y-2">
           {filtered.map(r => (
-            <div key={r.id} className={`bg-white rounded-xl p-4 ${bulk.selected[r.id] ? 'ring-2 ring-[#FF6B35]' : ''}`}>
+            <div key={r.id} className={`bg-white rounded-xl p-4 ${bulk.selected[r.id] ? 'ring-2 ring-[#0071E3]' : ''}`}>
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 flex items-start gap-3">
                   <div className="pt-0.5"><RowCheckbox checked={!!bulk.selected[r.id]} onChange={() => bulk.toggleOne(r.id)} /></div>
@@ -127,29 +119,34 @@ export default function ReturnsManager({ password }) {
 
 function ReturnForm({ password, orders, onClose, onCreated }) {
   const [orderId, setOrderId] = useState('');
+  const [lineIndex, setLineIndex] = useState(0);
   const [reason, setReason] = useState('other');
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
 
   const selectedOrder = orders.find(o => o.id === orderId);
+  const selectedItem = (selectedOrder?.items || [])[lineIndex];
 
   const submit = async () => {
-    if (!selectedOrder) return;
+    if (!selectedOrder || !selectedItem) return;
     setSaving(true);
     try {
-      const firstItem = (selectedOrder.items || [])[0] || {};
+      const returnQuantity = Math.min(Number(quantity), Number(selectedItem.qty) || 1);
       const res = await base44.functions.invoke('admin-cms', {
         password, operation: 'create', resource: 'return',
         payload: {
           order_number: selectedOrder.order_number,
           order_id: selectedOrder.id,
-          product_name: firstItem.name || '—',
+          product_name: selectedItem.name || '—',
+          product_id: selectedItem.product_id || '',
+          variant_id: selectedItem.variant_id || '',
+          sku: selectedItem.sku || '',
           customer_name: selectedOrder.customer_name || '',
           customer_email: selectedOrder.customer_email || '',
           reason,
-          quantity: Number(quantity),
-          refund_cents: (firstItem.price_cents || 0) * Number(quantity),
+          quantity: returnQuantity,
+          refund_cents: (selectedItem.price_cents || 0) * returnQuantity,
           status: 'requested',
           notes,
         },
@@ -169,11 +166,19 @@ function ReturnForm({ password, orders, onClose, onCreated }) {
         <div className="space-y-3">
           <label className="block">
             <span className="text-xs font-medium text-[#6e6e73]">Ordine di origine</span>
-            <select value={orderId} onChange={e => setOrderId(e.target.value)} className="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-sm">
+            <select value={orderId} onChange={e => { setOrderId(e.target.value); setLineIndex(0); setQuantity(1); }} className="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-sm">
               <option value="">Seleziona ordine…</option>
               {orders.map(o => <option key={o.id} value={o.id}>{o.order_number} — {o.customer_name || '—'}</option>)}
             </select>
           </label>
+          {selectedOrder && (
+            <label className="block">
+              <span className="text-xs font-medium text-[#6e6e73]">Articolo e variante</span>
+              <select value={lineIndex} onChange={e => { setLineIndex(Number(e.target.value)); setQuantity(1); }} className="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-sm">
+                {(selectedOrder.items || []).map((item, index) => <option key={`${item.product_id}:${item.variant_id}:${index}`} value={index}>{item.name}{item.sku ? ` · ${item.sku}` : ''}</option>)}
+              </select>
+            </label>
+          )}
           <label className="block">
             <span className="text-xs font-medium text-[#6e6e73]">Motivo</span>
             <select value={reason} onChange={e => setReason(e.target.value)} className="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-sm">
@@ -182,16 +187,16 @@ function ReturnForm({ password, orders, onClose, onCreated }) {
           </label>
           <label className="block">
             <span className="text-xs font-medium text-[#6e6e73]">Quantità</span>
-            <input type="number" min="1" value={quantity} onChange={e => setQuantity(e.target.value)} className="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-sm" />
+            <input type="number" min="1" max={selectedItem?.qty || 1} value={quantity} onChange={e => setQuantity(Math.min(selectedItem?.qty || 1, Math.max(1, Number.parseInt(e.currentTarget.value, 10) || 1)))} className="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-sm" />
           </label>
           <label className="block">
             <span className="text-xs font-medium text-[#6e6e73]">Note</span>
             <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} className="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-sm" />
           </label>
-          {selectedOrder && (selectedOrder.items || [])[0] && (
-            <p className="text-xs text-[#6e6e73] bg-[#f5f5f7] rounded-lg p-2">Rimborso stimato: {(((selectedOrder.items[0].price_cents || 0) * quantity) / 100).toFixed(2)} €</p>
+          {selectedItem && (
+            <p className="text-xs text-[#6e6e73] bg-[#f5f5f7] rounded-lg p-2">Rimborso stimato: {(((selectedItem.price_cents || 0) * quantity) / 100).toFixed(2)} €</p>
           )}
-          <button onClick={submit} disabled={!selectedOrder || saving} className="w-full px-4 py-2.5 bg-[#FF6B35] text-white text-sm font-semibold rounded-xl disabled:opacity-50 flex items-center justify-center gap-2">
+          <button onClick={submit} disabled={!selectedOrder || !selectedItem || saving} className="w-full px-4 py-2.5 bg-[#0071E3] text-white text-sm font-semibold rounded-xl disabled:opacity-50 flex items-center justify-center gap-2">
             {saving ? <Loader2 size={16} className="animate-spin" /> : null} Crea richiesta reso
           </button>
         </div>

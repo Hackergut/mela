@@ -1,22 +1,29 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Search, SlidersHorizontal, ArrowLeft, Loader2 } from 'lucide-react';
 import PromoBanner from '@/components/PromoBanner';
 import Navbar from '@/components/Navbar';
 import FooterSection from '@/components/FooterSection';
 import { Image } from '@/components/ui/image';
 import { fadeUp, staggerContainer, staggerItem } from '@/lib/motion';
-import { useProducts } from '@/lib/useProducts';
+import { useCatalog } from '@/lib/useProducts';
 import ProductActions from '@/components/ProductActions';
 
 export default function Catalogo() {
-  const { products, loading } = useProducts();
+  const { products, categories: catalogCategories, loading } = useCatalog();
+  const [params] = useSearchParams();
   const [activeFilter, setActiveFilter] = useState('Tutti');
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('default');
 
   const categories = useMemo(() => ['Tutti', ...new Set(products.map(p => p.category).filter(Boolean))], [products]);
+  useEffect(() => {
+    const requested = params.get('categoria');
+    if (!requested) return;
+    const match = catalogCategories.find(category => category.slug === requested || category.name === requested);
+    if (match) setActiveFilter(match.name);
+  }, [params, catalogCategories]);
 
   const filtered = useMemo(() => {
     let result = activeFilter === 'Tutti'
@@ -28,7 +35,7 @@ export default function Catalogo() {
       result = result.filter(p =>
         p.name.toLowerCase().includes(q) ||
         (p.description || '').toLowerCase().includes(q) ||
-        p.category.toLowerCase().includes(q)
+        (p.category || '').toLowerCase().includes(q)
       );
     }
 
@@ -48,16 +55,16 @@ export default function Catalogo() {
       <PromoBanner />
       <Navbar />
 
-      <section className="bg-white pt-12 pb-8 px-6 lg:px-8 border-b border-gray-100">
+      <section className="bg-white pt-12 pb-10 px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <Link to="/" className="inline-flex items-center gap-2 text-sm text-[#6e6e73] hover:text-[#FF6B35] transition-colors mb-4">
-            <ArrowLeft size={16} /> Torna alla Home
+          <Link to="/" className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm text-[#6e6e73] hover:bg-[#f5f5f7] hover:text-[#0066cc] transition-colors mb-5">
+            <ArrowLeft size={16} /> Home
           </Link>
           <motion.div {...fadeUp}>
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#FF6B35] mb-3">Catalogo Completo</p>
-            <h1 className="text-4xl md:text-5xl font-bold text-[#1d1d1f] tracking-tight">Tutti i Prodotti Apple</h1>
-            <p className="mt-3 text-[#6e6e73] max-w-lg">
-              Esplora l'intero catalogo di {products.length} prodotti. Usa i filtri e la ricerca per trovare quello perfetto per te.
+            <p className="text-sm font-semibold text-[#0066cc] mb-3">Catalogo</p>
+            <h1 className="text-5xl md:text-7xl font-semibold leading-[.98] text-[#1d1d1f] tracking-[-0.05em]">Trova quello giusto.</h1>
+            <p className="mt-5 text-[#6e6e73] leading-7 max-w-xl">
+              {products.length} prodotti, configurazioni reali e disponibilità aggiornata. Cerca, confronta e scegli.
             </p>
           </motion.div>
         </div>
@@ -73,7 +80,7 @@ export default function Catalogo() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Cerca prodotti..."
-                className="w-full pl-11 pr-4 py-3 bg-white rounded-full text-sm text-[#1d1d1f] border border-gray-200 focus:border-[#FF6B35] focus:outline-none transition-colors"
+                className="w-full pl-11 pr-4 py-3 bg-white rounded-full text-sm text-[#1d1d1f] border border-gray-200 focus:border-[#0071E3] focus:outline-none transition-colors"
               />
             </div>
             <div className="relative">
@@ -81,7 +88,7 @@ export default function Catalogo() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="pl-10 pr-8 py-3 bg-white rounded-full text-sm text-[#1d1d1f] border border-gray-200 focus:border-[#FF6B35] focus:outline-none appearance-none cursor-pointer transition-colors"
+                className="pl-10 pr-8 py-3 bg-white rounded-full text-sm text-[#1d1d1f] border border-gray-200 focus:border-[#0071E3] focus:outline-none appearance-none cursor-pointer transition-colors"
               >
                 <option value="default">Ordine predefinito</option>
                 <option value="price-asc">Prezzo crescente</option>
@@ -113,7 +120,7 @@ export default function Catalogo() {
       <section className="py-10 px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {loading ? (
-            <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#FF6B35]" size={28} /></div>
+            <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#0071E3]" size={28} /></div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-20">
               <Search size={48} className="mx-auto text-gray-300 mb-4" />
@@ -140,34 +147,34 @@ export default function Catalogo() {
 }
 
 function CatalogCard({ product }) {
+  const href = `/scheda-prodotto?id=${product.id}`;
   return (
-    <Link to={`/scheda-prodotto?id=${product.id}`}>
-      <motion.div
-        whileHover={{ y: -4 }}
-        transition={{ duration: 0.3, ease: 'easeOut' }}
-        className="group bg-white rounded-2xl overflow-hidden cursor-pointer h-full flex flex-col"
-      >
-        <div className="relative overflow-hidden" style={{ paddingBottom: '100%' }}>
-          <div className="absolute inset-0">
-            <Image src={product.image} alt={product.name} className="w-full h-full transition-transform duration-500 group-hover:scale-105" fittingType="fill" />
-          </div>
-          {product.badge && (
-            <div className="absolute top-3 left-3 px-2.5 py-1 bg-[#FF6B35] text-white text-xs font-semibold rounded-full">{product.badge}</div>
-          )}
-          <div className="absolute top-3 right-3 px-2.5 py-1 bg-black/60 backdrop-blur-sm text-white text-xs font-semibold rounded-full">{product.category}</div>
-          <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            <ProductActions product={product} />
-          </div>
+    <motion.article
+      whileHover={{ y: -4 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+      className="group flex h-full flex-col overflow-hidden rounded-[24px] bg-white"
+    >
+      <div className="relative aspect-square overflow-hidden bg-[#f5f5f7]">
+        <Link to={href} className="absolute inset-0 p-4" aria-label={`Vedi ${product.name}`}>
+          <Image src={product.image} alt={product.name} className="h-full w-full transition-transform duration-500 group-hover:scale-[1.025]" fittingType="fit" />
+        </Link>
+        {product.badge && <div className="pointer-events-none absolute left-3 top-3 rounded-full bg-[#0071E3] px-2.5 py-1 text-xs font-semibold text-white">{product.badge}</div>}
+        {product.category && <div className="pointer-events-none absolute right-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm">{product.category}</div>}
+        <div className="absolute bottom-3 right-3 z-10 opacity-100 transition-opacity duration-200 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
+          <ProductActions product={product} />
         </div>
-        <div className="p-3 md:p-4 flex flex-col flex-1">
-          <h3 className="text-sm font-semibold text-[#1d1d1f] leading-snug mb-2 line-clamp-2">{product.name}</h3>
-          <p className="text-xs text-[#6e6e73] leading-relaxed mb-3 line-clamp-2 flex-1">{product.description}</p>
-          <div className="flex items-center justify-between mt-auto">
-            <p className="text-sm font-bold text-[#1d1d1f]">{product.price}</p>
-            <span className="text-xs font-semibold text-[#FF6B35] group-hover:underline">Vedi dettagli →</span>
-          </div>
+      </div>
+      <div className="flex flex-1 flex-col p-3 md:p-4">
+        <p className={`mb-1 text-xs font-medium ${product.in_stock ? 'text-[#248a3d]' : 'text-[#d70015]'}`}>{product.in_stock ? 'Disponibile' : 'Esaurito'}</p>
+        <h3 className="mb-2 line-clamp-2 text-sm font-semibold leading-snug text-[#1d1d1f]">
+          <Link to={href} className="hover:text-[#0066cc]">{product.name}</Link>
+        </h3>
+        <p className="mb-3 line-clamp-2 flex-1 text-xs leading-relaxed text-[#6e6e73]">{product.description}</p>
+        <div className="mt-auto flex items-center justify-between gap-2">
+          <p className="text-sm font-semibold text-[#1d1d1f]">{product.price}</p>
+          <Link to={href} className="text-xs font-semibold text-[#0071E3] hover:underline">Dettagli →</Link>
         </div>
-      </motion.div>
-    </Link>
+      </div>
+    </motion.article>
   );
 }
