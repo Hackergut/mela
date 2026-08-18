@@ -14,6 +14,9 @@ _Data audit: 15 agosto 2026 · baseline: `50da0532fa6547e0901f73d914d11319a2a261
 > - **Setup Stripe verificabile**: `payment_status` identifica l'account collegato (`acct_…`, nome, paese, payout) e lo stato di `PUBLIC_APP_URL`; guida completa in `STRIPE_SETUP.md`.
 > - **UX e-commerce completata**: pagina di conferma ordine `/ordine` (con `success_url` Stripe basata su session id), tracciamento ordine pubblico `/traccia-ordine` con timeline, tracking corriere e lookup rate-limited, prodotti correlati e visti di recente sulla scheda prodotto, ricerca rapida in navbar, breadcrumb, link ordini nel footer/menu.
 > - **Test estesi** (priorità media #6): 16 test (timeline ordine, mascheramento email, link corrieri, correlati, formattazioni).
+> - **Pipeline immagini estese**: il componente `Image` serve ora anche gli URL `cdn.shopify.com` ridimensionati (`width`/`height`/`crop` + srcset DPR come per Wix Media); gli URL esterni senza API di trasformazione ricevono default sicuri (`object-fit` coerente con `fittingType`, `max-w-full`, lazy + decoding async) — elimina le immagini sproporzionate nei contenuti sincronizzati o caricati con URL arbitrari.
+> - **Admin panel mobile**: header e toolbar della console si impilano/a capo su schermi stretti, tab nav scorrevole a filo bordi, tabelle prodotti/ordini/clienti con larghezza minima e scroll orizzontale invece di colonne compresse, toolbar dei manager con `flex-wrap` ovunque.
+> - **Storefront mobile**: barra filtri catalogo allineata alla navbar sticky con padding ridotti su mobile; griglie già responsive verificate su tutte le pagine.
 
 ## Sintesi
 

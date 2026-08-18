@@ -2,6 +2,11 @@
 
 _Guida per collegare un **nuovo account Stripe** (già creato) al checkout del negozio._
 
+> **Dominio configurato (techmania.pro):** con i record DNS `A @ → 2.57.91.91` e
+> `CNAME www → techmania.pro`, imposta `PUBLIC_APP_URL=https://techmania.pro` e
+> registra su Stripe l'endpoint `https://techmania.pro/apps/<APP_ID>/functions/stripe-webhook`
+> (oppure l'equivalente su `www.techmania.pro`, coerente con il dominio scelto come canonico).
+
 ## Come funziona il flusso (già implementato)
 
 ```

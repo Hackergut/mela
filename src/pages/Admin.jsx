@@ -159,13 +159,13 @@ export default function Admin() {
     <div className="min-h-screen bg-[#f5f5f7]">
       <PromoBanner />
       <Navbar />
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-[#1d1d1f]">Gestione Store</h1>
-            <p className="text-sm text-[#6e6e73]">CMS e-commerce completo · analytics, ordini, inventario, CRM, sconti e team</p>
+      <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 sm:py-8">
+        <div className="flex flex-wrap items-start justify-between gap-3 mb-4 sm:mb-6">
+          <div className="min-w-0">
+            <h1 className="text-xl font-bold text-[#1d1d1f] sm:text-2xl">Gestione Store</h1>
+            <p className="hidden text-sm text-[#6e6e73] sm:block">CMS e-commerce completo · analytics, ordini, inventario, CRM, sconti e team</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex w-full items-center gap-2 sm:w-auto">
             <button onClick={() => setTab('notifiche')} className="relative p-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50" aria-label="Notifiche">
               <Bell size={18} className="text-[#1d1d1f]" />
               {unread > 0 && <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-[#0071E3] text-white text-[10px] font-bold rounded-full flex items-center justify-center">{unread}</span>}
@@ -183,7 +183,7 @@ export default function Admin() {
         {error && tab === 'products' && <p className="text-sm text-red-600 bg-red-50 rounded-xl px-4 py-3 mb-4">{error}</p>}
 
         {/* Tab nav */}
-        <div className="flex gap-1 mb-6 border-b border-gray-200 overflow-x-auto no-scrollbar">
+        <div className="-mx-4 flex gap-1 mb-6 overflow-x-auto border-b border-gray-200 px-4 no-scrollbar sm:mx-0 sm:px-0 [-webkit-overflow-scrolling:touch]">
           {TABS.map(t => (
             <button
               key={t.id}
@@ -214,8 +214,8 @@ export default function Admin() {
 
         {tab === 'products' && (
           <div>
-            <div className="flex items-center justify-between mb-4 gap-3">
-              <div className="flex items-center gap-2 flex-1">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+              <div className="flex min-w-full flex-wrap items-center gap-2 sm:min-w-0 sm:flex-1">
                 <div className="relative flex-1 max-w-xs">
                   <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Cerca prodotti…" className="w-full pl-9 pr-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#0071E3]" />
@@ -228,7 +228,7 @@ export default function Admin() {
                   </div>
                 )}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 sm:shrink-0">
                 <button onClick={normalizeCatalog} disabled={normalizing} className="px-3 py-2 bg-white border border-gray-200 text-[#1d1d1f] text-sm font-semibold rounded-full flex items-center gap-2 whitespace-nowrap hover:bg-gray-50 disabled:opacity-50" title="Normalizza prodotti legacy senza inventare varianti di capacità o colore">
                   {normalizing ? <Loader2 size={16} className="animate-spin" /> : <WandSparkles size={16} />} Migra catalogo
                 </button>
@@ -240,7 +240,7 @@ export default function Admin() {
             {loading ? <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#0071E3]" size={28} /></div> :
               filtered.length === 0 ? <p className="text-center text-[#6e6e73] py-20">Nessun prodotto.</p> : (
                 <div className="bg-white rounded-2xl overflow-x-auto">
-                  <table className="w-full">
+                  <table className="w-full min-w-[820px]">
                     <thead>
                       <tr className="border-b border-gray-100 text-left text-xs text-[#6e6e73] uppercase">
                         <th className="p-3 w-10"><input type="checkbox" checked={allSelected} onChange={toggleAll} className="w-4 h-4 accent-[#0071E3] cursor-pointer" /></th>

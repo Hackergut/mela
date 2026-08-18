@@ -53,7 +53,7 @@ export default function DiscountsManager({ password }) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-3">
           <p className="text-sm text-[#6e6e73]">{discounts.length} codici sconto</p>
           <BulkActionBar count={bulk.selectedIds.length} onBulkDelete={bulkDelete} onClear={bulk.clear} />

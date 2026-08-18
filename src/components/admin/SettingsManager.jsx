@@ -184,7 +184,7 @@ export default function SettingsManager({ password, isSuperAdmin }) {
 
       {/* Store settings — main CMS (super admin only) */}
       <div className={`bg-white rounded-2xl p-6 ${!isSuperAdmin ? 'opacity-90' : ''}`}>
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-2">
             <Store size={18} className="text-[#0071E3]" />
             <h2 className="text-lg font-bold text-[#1d1d1f]">Settaggi CMS Principali</h2>
@@ -218,7 +218,7 @@ export default function SettingsManager({ password, isSuperAdmin }) {
 
       {/* Custom & mockup settings */}
       <div className="bg-white rounded-2xl p-6">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <h2 className="text-lg font-bold text-[#1d1d1f]">Settaggi personalizzati & Mockup</h2>
           <button onClick={() => setShowAddCustom(true)} className="px-3 py-2 bg-[#0071E3] text-white text-sm font-semibold rounded-xl flex items-center gap-2"><Plus size={16} /> Aggiungi</button>
         </div>

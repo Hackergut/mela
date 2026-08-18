@@ -37,6 +37,23 @@ function parseWixMediaUrl(src) {
   }
 }
 
+/**
+ * Shopify CDN images support on-the-fly sizing via the `width`/`height` query
+ * params (plus `crop`), so catalog products synced from Shopify can be served
+ * at the rendered size instead of the uploaded one.
+ */
+function parseShopifyCdnUrl(src) {
+  try {
+    const url = new URL(src)
+    if (url.hostname !== "cdn.shopify.com") return null
+    if (/\.svg$/i.test(url.pathname)) return null
+    // Drop any existing sizing query so the transform can be rebuilt.
+    return `${url.origin}${url.pathname}`
+  } catch {
+    return null
+  }
+}
+
 const clampDim = (n) => Math.min(Math.max(Math.round(n), 1), MAX_DIMENSION)
 const clamp01 = (n) => Math.min(1, Math.max(0, n))
 
@@ -61,15 +78,27 @@ function buildTransformUrl({ baseUrl, filename }, { width, height, crop, focalPo
   return `${baseUrl}/v1/${crop ? "fill" : "fit"}/${params.join(",")}/${outputName}`
 }
 
-function buildSrcSet(parsed, options) {
+function buildSrcSet(build, options) {
   return DEVICE_PIXEL_RATIOS.map(
     (dpr) =>
-      `${buildTransformUrl(parsed, {
+      `${build({
         ...options,
         width: options.width * dpr,
         height: options.height ? options.height * dpr : undefined,
       })} ${dpr}x`
   ).join(", ")
+}
+
+/** Shopify CDN transform: width-only keeps the aspect ratio (fit), adding
+ *  height + crop=center matches the `fill` semantics. */
+function buildShopifyUrl(base, { width, height, crop }) {
+  const params = new URLSearchParams()
+  params.set("width", String(clampDim(width)))
+  if (crop && height) {
+    params.set("height", String(clampDim(height)))
+    params.set("crop", "center")
+  }
+  return `${base}?${params.toString()}`
 }
 
 /**
@@ -86,7 +115,10 @@ function buildSrcSet(parsed, options) {
  *   quality?: number,
  * }} ImageProps
  * @typedef {ImageProps & {
- *   parsed: { baseUrl: string, filename: string },
+ *   parsed: { key: string, build: (options: {
+ *     width: number, height?: number, crop?: boolean,
+ *     focalPoint?: { x: number, y: number }, quality?: number,
+ *   }) => string },
  *   focalPoint?: { x: number, y: number },
  *   aspectRatio?: string,
  * }} ResponsiveImageProps
@@ -126,7 +158,7 @@ const ResponsiveImageRender = (
     // Reset the blur-up when the underlying image changes.
     React.useEffect(() => {
       setLoaded(false)
-    }, [parsed.baseUrl])
+    }, [parsed.key])
 
     const crop = fittingType !== "fit"
     // `size` is null exactly once: the pre-measurement first render, which we
@@ -155,7 +187,7 @@ const ResponsiveImageRender = (
             placeholder would blur-preview a different region. */}
         {options && !loaded && (
           <img
-            src={buildTransformUrl(parsed, {
+            src={parsed.build({
               ...options,
               width: 20,
               height: options.height
@@ -176,8 +208,8 @@ const ResponsiveImageRender = (
         {options && (
           <img
             ref={imgRef}
-            src={buildTransformUrl(parsed, options)}
-            srcSet={buildSrcSet(parsed, options)}
+            src={parsed.build(options)}
+            srcSet={buildSrcSet(parsed.build, options)}
             loading="lazy"
             className={cn(
               "w-full h-full inset-0 absolute",
@@ -239,15 +271,47 @@ const ImageRender = (
     }
 
     // The fallback renders as a plain <img> so a broken upload can't cascade
-    // into a second (transformed) failing request.
-    const parsed = imgSrc === FALLBACK_IMAGE_URL ? null : parseWixMediaUrl(imgSrc)
+    // into a second (transformed) failing request. External images (any host
+    // without a transform API) also land here: they get sane defaults —
+    // never overflow the container (`max-w-full`), keep the caller's
+    // fitting semantics via object-fit when none was provided, and load
+    // lazily — so oversized uploads can neither blow up the layout nor its
+    // proportions.
+    const wixParsed = imgSrc === FALLBACK_IMAGE_URL ? null : parseWixMediaUrl(imgSrc)
+    const shopifyBase = !wixParsed && imgSrc !== FALLBACK_IMAGE_URL ? parseShopifyCdnUrl(imgSrc) : null
 
-    if (!parsed) {
+    if (!wixParsed && !shopifyBase) {
       const isErrorUrl = imgSrc === FALLBACK_IMAGE_URL
+      const hasExplicitObjectFit = /object-(contain|cover|fill|none|scale-down)/.test(
+        String(props.className || "")
+      )
+      const mergedClassName = cn(
+        "max-w-full",
+        !hasExplicitObjectFit && (fittingType === "fit" ? "object-contain" : "object-cover"),
+        props.className
+      )
       return (
-        <img ref={ref} src={imgSrc} {...imageProps} data-error-image={isErrorUrl || undefined} />
+        <img
+          ref={ref}
+          src={imgSrc}
+          loading="lazy"
+          decoding="async"
+          {...imageProps}
+          className={mergedClassName}
+          data-error-image={isErrorUrl || undefined}
+        />
       )
     }
+
+    const parsed = wixParsed
+      ? {
+          key: wixParsed.baseUrl,
+          build: (options) => buildTransformUrl(wixParsed, options),
+        }
+      : {
+          key: shopifyBase,
+          build: (options) => buildShopifyUrl(shopifyBase, options),
+        }
 
     const focalPoint =
       typeof focalPointX === "number" && typeof focalPointY === "number"
