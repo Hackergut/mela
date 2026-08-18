@@ -1,19 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
-import { base44 } from "@/api/base44Client";
+import { base44, convexConfigured } from "@/api/base44Client";
 import { hydrateProducts } from "@/lib/catalog";
+import { buildFallbackCatalog } from "@/lib/fallbackCatalog";
 
 export const CATALOG_QUERY_KEY = ["catalog", "public"];
 
-// Fetches the public catalogue through the legacy invoke() surface, which the
-// Convex adapter routes to the `catalog` action. This avoids a compile-time
-// dependency on convex/_generated (created only once a deployment is linked)
-// so the storefront works on Vercel as soon as VITE_CONVEX_URL is set.
-export async function fetchCatalog() {
-  const response = await base44.functions.invoke("catalog", {});
-  const rawProducts = response.data?.products;
-  const rawVariants = response.data?.variants;
-  const rawCategories = response.data?.categories;
-  const settings = response.data?.settings && typeof response.data.settings === "object" ? response.data.settings : {};
+const EMPTY = { products: [], variants: [], categories: [], settings: {} };
+
+// Shape a raw Convex/fallback payload (products, variants, categories, settings)
+// into the hydrated catalogue the storefront expects.
+function shapeCatalog(raw) {
+  const rawProducts = raw?.products;
+  const rawVariants = raw?.variants;
+  const rawCategories = raw?.categories;
+  const settings = raw?.settings && typeof raw.settings === "object" ? raw.settings : {};
   const products = hydrateProducts(
     Array.isArray(rawProducts) ? rawProducts : [],
     Array.isArray(rawVariants) ? rawVariants : [],
@@ -33,6 +33,28 @@ export async function fetchCatalog() {
   return { products, variants: Array.isArray(rawVariants) ? rawVariants : [], categories, settings };
 }
 
+// Query the live Convex catalogue. On any error (not configured, network,
+// empty deployment) it falls back to the built-in demo catalogue so the
+// storefront is never empty (e.g. a Vercel deploy without VITE_CONVEX_URL).
+export async function fetchCatalog() {
+  if (!convexConfigured) {
+    return shapeCatalog(buildFallbackCatalog());
+  }
+  try {
+    const response = await base44.functions.invoke("catalog", {});
+    const raw = response.data;
+    // If the deployment exists but has no products yet (seed not run), use the
+    // fallback so the site still renders until the team seeds Convex.
+    if (!raw || !Array.isArray(raw.products) || raw.products.length === 0) {
+      return shapeCatalog(buildFallbackCatalog());
+    }
+    return shapeCatalog(raw);
+  } catch (error) {
+    console.warn("Catalogo Convex non disponibile, uso catalogo integrato:", error?.message);
+    return shapeCatalog(buildFallbackCatalog());
+  }
+}
+
 export function useCatalog() {
   const query = useQuery({
     queryKey: CATALOG_QUERY_KEY,
@@ -41,16 +63,17 @@ export function useCatalog() {
     gcTime: 30 * 60 * 1000,
     retry: 1,
   });
+  const data = query.data || EMPTY;
   return {
-    products: query.data?.products ?? [],
-    variants: query.data?.variants ?? [],
-    categories: query.data?.categories ?? [],
-    settings: query.data?.settings ?? {},
+    products: data.products ?? [],
+    variants: data.variants ?? [],
+    categories: data.categories ?? [],
+    settings: data.settings ?? {},
     loading: query.isPending,
     refreshing: query.isFetching && !query.isPending,
     error: query.error,
     reload: query.refetch,
-    configured: true,
+    configured: convexConfigured,
     ready: query.isSuccess,
   };
 }
