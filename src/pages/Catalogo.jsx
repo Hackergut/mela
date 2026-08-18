@@ -25,6 +25,13 @@ export default function Catalogo() {
     if (match) setActiveFilter(match.name);
   }, [params, catalogCategories]);
 
+  // Quick search from the navbar lands here with ?q=: keep the field in sync
+  // when the query parameter changes (including back/forward navigation).
+  useEffect(() => {
+    const query = params.get('q') || '';
+    setSearch(prev => (prev === query ? prev : query));
+  }, [params]);
+
   const filtered = useMemo(() => {
     let result = activeFilter === 'Tutti'
       ? [...products]

@@ -185,6 +185,10 @@ export default async function(req) {
     });
 
     try {
+      // The confirmation page receives the checkout session id: high-entropy
+      // value that lets the public order_lookup reveal only that order.
+      const successUrl = new URL('/ordine', storefrontOrigin);
+      successUrl.searchParams.set('session_id', '{CHECKOUT_SESSION_ID}');
       const returnUrl = new URL(orderItems.length === 1 ? "/scheda-prodotto" : "/carrello", storefrontOrigin);
       if (orderItems.length === 1) returnUrl.searchParams.set("id", orderItems[0].product_id);
       const summary = orderItems.length === 1
@@ -204,7 +208,7 @@ export default async function(req) {
             },
           },
         }],
-        success_url: `${returnUrl.toString()}${returnUrl.search ? '&' : '?'}payment=success`,
+        success_url: successUrl.toString(),
         cancel_url: `${returnUrl.toString()}${returnUrl.search ? '&' : '?'}payment=cancelled`,
         billing_address_collection: "auto",
         shipping_address_collection: { allowed_countries: shipping.countries },

@@ -7,6 +7,7 @@ const LINKS = [
   { label: 'Catalogo', to: '/catalogo' },
   { label: 'Preferiti', to: '/preferiti' },
   { label: 'Carrello', to: '/carrello' },
+  { label: 'Traccia ordine', to: '/traccia-ordine' },
   { label: 'Account', to: '/login' },
 ];
 

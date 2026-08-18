@@ -15,6 +15,8 @@ const Catalogo = lazy(() => import('@/pages/Catalogo'));
 const SchedaProdotto = lazy(() => import('@/pages/SchedaProdotto'));
 const Carrello = lazy(() => import('@/pages/Carrello'));
 const Preferiti = lazy(() => import('@/pages/Preferiti'));
+const Ordine = lazy(() => import('@/pages/Ordine'));
+const TracciaOrdine = lazy(() => import('@/pages/TracciaOrdine'));
 const Login = lazy(() => import('@/pages/Login'));
 const Register = lazy(() => import('@/pages/Register'));
 const ForgotPassword = lazy(() => import('@/pages/ForgotPassword'));
@@ -41,6 +43,8 @@ const StorefrontRoutes = () => {
         <Route path="/scheda-prodotto" element={<SchedaProdotto />} />
         <Route path="/carrello" element={<Carrello />} />
         <Route path="/preferiti" element={<Preferiti />} />
+        <Route path="/ordine" element={<Ordine />} />
+        <Route path="/traccia-ordine" element={<TracciaOrdine />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />

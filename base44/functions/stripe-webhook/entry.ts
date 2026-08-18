@@ -2,14 +2,47 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.41';
 import { secrets } from "base44:runtime";
 import Stripe from "npm:stripe@16.0.0";
 
-async function runSideEffect(label, operation) {
+// The WebhookEvent ledger persists which Stripe events have been processed.
+// Sequential duplicate deliveries are rejected before any mutation; the
+// remaining perfectly-simultaneous window is documented in AUDIT_REPORT.md
+// (a platform-level unique constraint would close it completely). Ledger
+// failures never block payment processing: they degrade to the previous
+// order-status guard, which stays in place.
+function ledgerFor(base44) {
   try {
-    await operation();
+    return base44.asServiceRole.entities.WebhookEvent;
+  } catch {
+    return null;
+  }
+}
+
+async function isEventKnown(ledger, eventId) {
+  if (!ledger) return false;
+  try {
+    const seen = await ledger.filter({ event_id: eventId });
+    return Array.isArray(seen) && seen.length > 0;
   } catch (error) {
-    // The paid order remains the source of truth and can be reconciled by an
-    // administrator; a secondary CRM/notification failure must not make
-    // Stripe retry and apply stock or counters twice.
-    console.error(`stripe-webhook ${label} failed:`, error);
+    console.error("stripe-webhook: ledger read failed (dedupe skipped):", error);
+    return false;
+  }
+}
+
+async function recordEvent(ledger, entry) {
+  if (!ledger) return;
+  try {
+    await ledger.create({
+      event_id: entry.event_id,
+      event_type: entry.event_type,
+      session_id: entry.session_id || '',
+      order_id: entry.order_id || '',
+      status: entry.status,
+      effects_pending: Boolean(entry.effects_pending),
+      effects_errors: String(entry.effects_errors || '').slice(0, 2000),
+      ...(entry.reconciled_at ? { reconciled_at: entry.reconciled_at } : {}),
+      processed_at: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("stripe-webhook: ledger write failed:", error);
   }
 }
 
@@ -27,7 +60,21 @@ export default async function(req) {
     const rawBody = await req.text();
     const event = await stripe.webhooks.constructEventAsync(rawBody, signature, webhookSecret);
 
+    const base44 = createClientFromRequest(req);
+    const ledger = ledgerFor(base44);
+
+    if (await isEventKnown(ledger, event.id)) {
+      console.log("stripe-webhook: duplicate signed event skipped by ledger", event.id);
+      return Response.json({ received: true, duplicate: true });
+    }
+
     if (event.type !== "checkout.session.completed" && event.type !== "checkout.session.expired") {
+      await recordEvent(ledger, {
+        event_id: event.id,
+        event_type: event.type,
+        session_id: String(event.data?.object?.id || ''),
+        status: "ignored",
+      });
       return Response.json({ received: true });
     }
 
@@ -35,13 +82,25 @@ export default async function(req) {
     const orderId = session.metadata?.order_id;
     if (!orderId) {
       console.warn(`stripe-webhook: ${event.type} without order_id`, session.id);
+      await recordEvent(ledger, {
+        event_id: event.id,
+        event_type: event.type,
+        session_id: String(session.id || ''),
+        status: "ignored",
+      });
       return Response.json({ received: true });
     }
 
-    const base44 = createClientFromRequest(req);
     const order = await base44.asServiceRole.entities.Order.get(orderId).catch(() => null);
     if (!order) {
       console.error("stripe-webhook: order not found", orderId);
+      await recordEvent(ledger, {
+        event_id: event.id,
+        event_type: event.type,
+        session_id: String(session.id || ''),
+        order_id: orderId,
+        status: "ignored",
+      });
       return Response.json({ received: true });
     }
 
@@ -52,11 +111,25 @@ export default async function(req) {
           stripe_event_id: event.id,
         });
       }
+      await recordEvent(ledger, {
+        event_id: event.id,
+        event_type: event.type,
+        session_id: String(session.id || ''),
+        order_id: orderId,
+        status: "processed",
+      });
       return Response.json({ received: true });
     }
 
     if (session.payment_status !== "paid") {
       console.warn("stripe-webhook: completed checkout is not paid", session.id, session.payment_status);
+      await recordEvent(ledger, {
+        event_id: event.id,
+        event_type: event.type,
+        session_id: String(session.id || ''),
+        order_id: orderId,
+        status: "ignored",
+      });
       return Response.json({ received: true });
     }
 
@@ -65,6 +138,13 @@ export default async function(req) {
     // usage, stock decrements and notifications on sequential deliveries.
     if (order.status === "paid") {
       console.log("stripe-webhook: duplicate completed event ignored", event.id, orderId);
+      await recordEvent(ledger, {
+        event_id: event.id,
+        event_type: event.type,
+        session_id: String(session.id || ''),
+        order_id: orderId,
+        status: "duplicate",
+      });
       return Response.json({ received: true, duplicate: true });
     }
 
@@ -81,6 +161,13 @@ export default async function(req) {
         orderId,
       });
       // A validly signed but mismatched event must never mutate inventory.
+      await recordEvent(ledger, {
+        event_id: event.id,
+        event_type: event.type,
+        session_id: String(session.id || ''),
+        order_id: orderId,
+        status: "mismatch",
+      });
       return Response.json({ received: true });
     }
 
@@ -91,7 +178,8 @@ export default async function(req) {
     const shippingAddress = shippingDetails?.address;
 
     // Commit the idempotency guard before secondary effects. If updating the
-    // order fails Stripe gets a 400 and retries without any partial mutation.
+    // order fails Stripe gets a 400 and retries without any partial mutation
+    // and without any ledger entry, so the retry processes the event fully.
     await base44.asServiceRole.entities.Order.update(orderId, {
       status: "paid",
       customer_email: email,
@@ -109,6 +197,19 @@ export default async function(req) {
       stripe_event_id: event.id,
       paid_at: new Date().toISOString(),
     });
+
+    // Secondary effects are best-effort but tracked: failures are recorded in
+    // the ledger as `effects_pending` so an administrator can reconcile them
+    // (admin-cms operation `reconcile_order`) without Stripe retries.
+    const failedEffects = [];
+    const runSideEffect = async (label, operation) => {
+      try {
+        await operation();
+      } catch (error) {
+        console.error(`stripe-webhook ${label} failed:`, error);
+        failedEffects.push(`${label}: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    };
 
     await runSideEffect("customer sync", async () => {
       if (!email) return;
@@ -203,7 +304,17 @@ export default async function(req) {
       });
     });
 
-    console.log("Payment completed:", { eventId: event.id, sessionId: session.id, orderId });
+    await recordEvent(ledger, {
+      event_id: event.id,
+      event_type: event.type,
+      session_id: String(session.id || ''),
+      order_id: orderId,
+      status: "processed",
+      effects_pending: failedEffects.length > 0,
+      effects_errors: failedEffects.join(' | '),
+    });
+
+    console.log("Payment completed:", { eventId: event.id, sessionId: session.id, orderId, failedEffects: failedEffects.length });
     return Response.json({ received: true });
   } catch (error) {
     console.error("stripe-webhook error:", error);

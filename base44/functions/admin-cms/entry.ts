@@ -238,6 +238,7 @@ export default async function(req) {
       setting: base44.asServiceRole.entities.Setting,
       receipt: base44.asServiceRole.entities.Receipt,
       return: base44.asServiceRole.entities.Return,
+      webhook_event: base44.asServiceRole.entities.WebhookEvent,
     };
     const res = resource || 'product';
     const db = dbMap[res];
@@ -247,6 +248,7 @@ export default async function(req) {
       product: '-sort_order', product_variant: 'sort_order', category: 'sort_order', asset: '-created_date',
       order: '-created_date', discount: '-created_date', customer: '-created_date', user: '-created_date',
       notification: '-created_date', setting: 'key', receipt: '-created_date', return: '-created_date',
+      webhook_event: '-created_date',
     };
 
     const normalizeDiscountData = async (input, currentId = '') => {
@@ -709,6 +711,65 @@ export default async function(req) {
           currency: 'eur',
           account,
         });
+      }
+      case 'reconcile_order': {
+        // Reconciliation for paid orders whose webhook side effects failed
+        // (ledger `effects_pending`). Recomputable aggregates are recalculated
+        // from the orders table, which makes the operation idempotent; stock
+        // is intentionally not touched because the initial stock is unknown.
+        const orderId = String(payload?.id || '').trim();
+        if (!orderId) return Response.json({ error: 'ID ordine mancante' }, { status: 400 });
+        const order = await dbMap.order.get(orderId).catch(() => null);
+        if (!order) return Response.json({ error: 'Ordine non trovato' }, { status: 404 });
+        if (order.status !== 'paid') {
+          return Response.json({ error: 'La riconciliazione è disponibile solo per ordini pagati' }, { status: 409 });
+        }
+        const paidOrders = (await dbMap.order.list('-created_date', MAX_BULK_ITEMS))
+          .filter(candidate => candidate.status === 'paid' || candidate.status === 'shipped' || candidate.status === 'delivered');
+        const report = { customer_synced: false, discount_synced: false, ledger_cleared: 0, stock_check_required: false };
+
+        const email = String(order.customer_email || '').trim().toLowerCase();
+        if (email) {
+          const mine = paidOrders.filter(candidate => String(candidate.customer_email || '').trim().toLowerCase() === email);
+          const totalSpent = mine.reduce((sum, candidate) => sum + Math.max(0, integer(candidate.total_cents)), 0);
+          const existing = await dbMap.customer.filter({ email });
+          if (existing[0]) {
+            await dbMap.customer.update(existing[0].id, {
+              orders_count: mine.length,
+              total_spent: totalSpent,
+              name: existing[0].name || order.customer_name || email.split('@')[0],
+            });
+          } else {
+            await dbMap.customer.create({
+              name: order.customer_name || email.split('@')[0],
+              email,
+              orders_count: mine.length,
+              total_spent: totalSpent,
+            });
+          }
+          report.customer_synced = true;
+        }
+
+        const code = String(order.discount_code || '').trim().toUpperCase();
+        if (code) {
+          const usedBy = paidOrders.filter(candidate => String(candidate.discount_code || '').trim().toUpperCase() === code);
+          const discounts = await dbMap.discount.filter({ code });
+          if (discounts[0]) {
+            await dbMap.discount.update(discounts[0].id, { usage_count: usedBy.length });
+            report.discount_synced = true;
+          }
+        }
+
+        const ledger = dbMap.webhook_event;
+        const events = await ledger.filter({ order_id: orderId }).catch(() => []);
+        for (const item of events) {
+          if (!item.effects_pending) continue;
+          report.stock_check_required = report.stock_check_required || /stock/i.test(String(item.effects_errors || ''));
+          await ledger.update(item.id, { effects_pending: false, reconciled_at: new Date().toISOString() }).catch(() => {});
+          report.ledger_cleared++;
+        }
+
+        return Response.json({ report });
       }
       default:
         return Response.json({ error: 'Operazione non valida' }, { status: 400 });

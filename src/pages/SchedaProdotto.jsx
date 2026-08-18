@@ -5,10 +5,12 @@ import { ArrowLeft, Check, Heart, Loader2, ShieldCheck, ShoppingBag, X } from 'l
 import PromoBanner from '@/components/PromoBanner';
 import Navbar from '@/components/Navbar';
 import FooterSection from '@/components/FooterSection';
+import ProductCard from '@/components/ProductCard';
 import { Image } from '@/components/ui/image';
 import { base44 } from '@/api/base44Client';
 import { useCatalog } from '@/lib/useProducts';
 import { formatPriceCents, variantOptionGroups } from '@/lib/catalog';
+import { relatedProducts } from '@/lib/orders';
 import { useStore } from '@/lib/StoreContext';
 
 const optionLabel = (variant) => Object.values(variant?.option_values || {}).filter(Boolean).join(' · ');
@@ -18,7 +20,7 @@ export default function SchedaProdotto() {
   const id = params.get('id');
   const payment = params.get('payment');
   const { products, loading } = useCatalog();
-  const { addToCart, toggleWishlist, isInWishlist } = useStore();
+  const { addToCart, toggleWishlist, isInWishlist, recordProductView, recentlyViewedIds } = useStore();
   const [selectedVariantId, setSelectedVariantId] = useState('');
   const [selectedImage, setSelectedImage] = useState('');
   const [buying, setBuying] = useState(false);
@@ -40,6 +42,7 @@ export default function SchedaProdotto() {
     const initial = product.default_variant || activeVariants[0];
     setSelectedVariantId(String(initial?.id || ''));
     setSelectedImage(initial?.image || product.image || '');
+    recordProductView(product);
   }, [product?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -114,6 +117,11 @@ export default function SchedaProdotto() {
   const inWishlist = isInWishlist(product.id);
   const stock = Number(selectedVariant?.stock || 0);
   const price = formatPriceCents(selectedVariant?.price_cents ?? product.price_cents);
+  const related = relatedProducts(products, product, { limit: 4 });
+  const recent = recentlyViewedIds
+    .map(recentId => products.find(item => String(item.id) === String(recentId)))
+    .filter(item => item && String(item.id) !== String(product.id))
+    .slice(0, 4);
 
   return (
     <div className="min-h-screen bg-white text-[#1d1d1f]">
@@ -133,6 +141,20 @@ export default function SchedaProdotto() {
 
       <main>
         <div className="mx-auto max-w-7xl px-5 pb-24 pt-6 sm:px-8 lg:px-10">
+          <nav aria-label="Percorso di navigazione" className="mb-5 flex flex-wrap items-center gap-1.5 text-xs text-[#6e6e73]">
+            <Link to="/" className="rounded px-1 py-0.5 hover:text-[#1d1d1f]">Home</Link>
+            <span aria-hidden="true">/</span>
+            <Link to="/catalogo" className="rounded px-1 py-0.5 hover:text-[#1d1d1f]">Catalogo</Link>
+            {product.category && (
+              <>
+                <span aria-hidden="true">/</span>
+                <Link to={`/catalogo?categoria=${encodeURIComponent(product.category)}`} className="rounded px-1 py-0.5 hover:text-[#1d1d1f]">{product.category}</Link>
+              </>
+            )}
+            <span aria-hidden="true">/</span>
+            <span aria-current="page" className="px-1 py-0.5 font-medium text-[#1d1d1f]">{product.name}</span>
+          </nav>
+
           <Link to="/catalogo" className="mb-6 inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm text-[#6e6e73] transition-colors hover:bg-[#f5f5f7] hover:text-[#1d1d1f]">
             <ArrowLeft size={16} /> Catalogo
           </Link>
@@ -234,6 +256,25 @@ export default function SchedaProdotto() {
               )}
             </section>
           </div>
+
+          {related.length > 0 && (
+            <section aria-labelledby="related-products" className="mt-16 border-t border-[#d2d2d7] pt-10">
+              <h2 id="related-products" className="text-2xl font-semibold tracking-tight sm:text-3xl">Potrebbero interessarti.</h2>
+              <p className="mt-2 text-sm text-[#6e6e73]">Altri prodotti{product.category ? ` di ${product.category}` : ''} selezionati per te.</p>
+              <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
+                {related.map(item => <ProductCard key={item.id} product={item} />)}
+              </div>
+            </section>
+          )}
+
+          {recent.length > 0 && (
+            <section aria-labelledby="recent-products" className="mt-14 border-t border-[#d2d2d7] pt-10">
+              <h2 id="recent-products" className="text-2xl font-semibold tracking-tight sm:text-3xl">Visti di recente.</h2>
+              <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
+                {recent.map(item => <ProductCard key={item.id} product={item} />)}
+              </div>
+            </section>
+          )}
         </div>
       </main>
       <FooterSection />

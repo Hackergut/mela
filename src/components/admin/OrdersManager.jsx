@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
-import { ChevronDown, Loader2, MapPin, Package, Search } from 'lucide-react';
+import { ChevronDown, Loader2, MapPin, Package, RefreshCw, Search } from 'lucide-react';
 import { useBulkSelect, BulkActionBar, SelectAllCheckbox, RowCheckbox } from '@/lib/bulkSelect';
 
 const fmt = (c) => '€' + ((c || 0) / 100).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -14,6 +14,8 @@ export default function OrdersManager({ password }) {
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [expandedId, setExpandedId] = useState('');
+  const [reconciling, setReconciling] = useState('');
+  const [reconcileMsg, setReconcileMsg] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -24,6 +26,29 @@ export default function OrdersManager({ password }) {
   }, [password]);
 
   useEffect(() => { load(); }, [load]);
+
+  const reconcile = async (order) => {
+    setReconciling(order.id);
+    setReconcileMsg(null);
+    try {
+      const res = await base44.functions.invoke('admin-cms', { password, operation: 'reconcile_order', payload: { id: order.id } });
+      const report = res.data?.report || {};
+      const parts = [];
+      if (report.customer_synced) parts.push('cliente allineato');
+      if (report.discount_synced) parts.push('sconto allineato');
+      if (report.ledger_cleared) parts.push(`${report.ledger_cleared} eventi riconciliati`);
+      setReconcileMsg({
+        ok: true,
+        text: report.stock_check_required
+          ? `Riconciliato (${parts.join(', ')}) — attenzione: era fallito il decremento stock, verifica manualmente l'inventario.`
+          : `Riconciliato: ${parts.join(', ') || 'nessuna azione necessaria'}.`,
+      });
+    } catch (error) {
+      setReconcileMsg({ ok: false, text: error?.response?.data?.error || error.message || 'Riconciliazione non riuscita' });
+    } finally {
+      setReconciling('');
+    }
+  };
 
   const updateStatus = async (id, status) => {
     await base44.functions.invoke('admin-cms', { password, operation: 'update', resource: 'order', payload: { id, status } });
@@ -58,6 +83,12 @@ export default function OrdersManager({ password }) {
       <div className="mb-3">
         <BulkActionBar count={bulk.selectedIds.length} onBulkDelete={bulkDelete} onClear={bulk.clear} />
       </div>
+
+      {reconcileMsg && (
+        <p role="status" className={`mb-3 rounded-xl px-4 py-3 text-sm ${reconcileMsg.ok ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'}`}>
+          {reconcileMsg.text}
+        </p>
+      )}
 
       {loading ? <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#0071E3]" size={28} /></div> :
         filtered.length === 0 ? <p className="text-center text-[#6e6e73] py-20">Nessun ordine.</p> : (
@@ -143,6 +174,21 @@ export default function OrdersManager({ password }) {
                                   <div className="flex justify-between"><dt className="text-[#6e6e73]">Spedizione</dt><dd>{fmt(o.shipping_cents)}</dd></div>
                                   <div className="flex justify-between border-t border-gray-200 pt-2 font-semibold"><dt>Totale</dt><dd>{fmt(o.total_cents)}</dd></div>
                                 </dl>
+                                {['paid', 'shipped', 'delivered'].includes(o.status) && (
+                                  <div className="rounded-xl bg-white p-4">
+                                    <button
+                                      onClick={() => reconcile(o)}
+                                      disabled={reconciling === o.id}
+                                      className="inline-flex items-center gap-2 rounded-full bg-[#f5f5f7] px-4 py-2 text-xs font-semibold text-[#1d1d1f] transition hover:bg-[#e8e8ed] disabled:opacity-50"
+                                    >
+                                      <RefreshCw size={13} className={reconciling === o.id ? 'animate-spin' : ''} />
+                                      {reconciling === o.id ? 'Riconciliazione…' : 'Riconcilia effetti (cliente/sconto)'}
+                                    </button>
+                                    <p className="mt-2 text-[11px] leading-relaxed text-[#86868b]">
+                                      Ricalcola totali cliente e utilizzi sconto dagli ordini pagati; chiude gli eventi webhook in sospeso.
+                                    </p>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </td>
