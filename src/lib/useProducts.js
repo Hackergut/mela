@@ -1,7 +1,6 @@
 // @ts-nocheck
-import { useQuery as useConvexQuery } from "convex/react";
 import { useQuery } from "@tanstack/react-query";
-import { base44, convexConfigured, api } from "@/api/base44Client";
+import { base44 } from "@/api/base44Client";
 import { hydrateProducts } from "@/lib/catalog";
 import { buildFallbackCatalog } from "@/lib/fallbackCatalog";
 
@@ -32,76 +31,42 @@ function shapeCatalog(raw) {
   return { products, variants: Array.isArray(rawVariants) ? rawVariants : [], categories, settings };
 }
 
-async function fetchCatalogViaAction() {
-  const response = await base44.functions.invoke("catalog", {});
-  return shapeCatalog(response.data);
+// Catalogue loader. Calls the Convex `catalog` action through the adapter.
+// Any failure (unconfigured URL, empty deployment, network error) falls back to
+// the built-in demo catalogue, so the storefront never shows an error page.
+export async function fetchCatalog() {
+  try {
+    const response = await base44.functions.invoke("catalog", {});
+    const data = response?.data;
+    if (data && Array.isArray(data.products) && data.products.length > 0) {
+      return shapeCatalog(data);
+    }
+  } catch (e) {
+    console.warn("Catalogo Convex non disponibile, uso catalogo integrato:", e?.message);
+  }
+  return shapeCatalog(buildFallbackCatalog());
 }
 
-/**
- * Catalogue hook. With a configured Convex deployment it uses the native
- * reactive `catalog` query (instant admin→storefront updates). When Convex is
- * not configured it falls back to the built-in demo catalogue so the storefront
- * is never empty on a fresh Vercel deploy.
- */
 export function useCatalog() {
-  // Native reactive Convex query (preferred).
-  const convexData = useConvexQuery(api.catalog, {});
-
-  // TanStack query used only when Convex is unconfigured.
-  const fallback = useQuery({
+  const query = useQuery({
     queryKey: CATALOG_QUERY_KEY,
-    queryFn: async () => {
-      // Try the action once; if it fails/unconfigured, use the built-in catalog.
-      if (!convexConfigured) return shapeCatalog(buildFallbackCatalog());
-      try {
-        const data = await fetchCatalogViaAction();
-        if (data.products?.length) return data;
-        return shapeCatalog(buildFallbackCatalog());
-      } catch (e) {
-        console.warn("Catalogo Convex non disponibile, uso catalogo integrato:", e?.message);
-        return shapeCatalog(buildFallbackCatalog());
-      }
-    },
-    enabled: !convexConfigured,
+    queryFn: fetchCatalog,
     staleTime: 2 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
     retry: 1,
   });
-
-  if (convexConfigured) {
-    // Reactive path. If the deployment has no products yet (no seed), fall back
-    // to the demo catalogue so the site still renders.
-    if (convexData && Array.isArray(convexData.products) && convexData.products.length > 0) {
-      const shaped = shapeCatalog(convexData);
-      return {
-        ...shaped,
-        loading: false,
-        refreshing: false,
-        error: null,
-        reload: async () => shaped,
-        configured: true,
-        ready: true,
-      };
-    }
-    if (convexData === undefined) {
-      return { ...EMPTY, loading: true, refreshing: false, error: null, reload: async () => {}, configured: true, ready: false };
-    }
-    // Convex reachable but empty → demo fallback.
-    const fb = shapeCatalog(buildFallbackCatalog());
-    return { ...fb, loading: false, refreshing: false, error: null, reload: async () => fb, configured: true, ready: true, source: "fallback" };
-  }
-
+  const data = query.data || EMPTY;
   return {
-    products: fallback.data?.products ?? [],
-    variants: fallback.data?.variants ?? [],
-    categories: fallback.data?.categories ?? [],
-    settings: fallback.data?.settings ?? {},
-    loading: fallback.isPending,
-    refreshing: fallback.isFetching && !fallback.isPending,
-    error: fallback.error,
-    reload: fallback.refetch,
-    configured: false,
-    ready: fallback.isSuccess,
+    products: data.products ?? [],
+    variants: data.variants ?? [],
+    categories: data.categories ?? [],
+    settings: data.settings ?? {},
+    loading: query.isPending,
+    refreshing: query.isFetching && !query.isPending,
+    error: query.error,
+    reload: query.refetch,
+    configured: true,
+    ready: query.isSuccess,
   };
 }
 
