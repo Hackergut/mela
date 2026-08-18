@@ -16,6 +16,14 @@ const MAIN_SETTING_KEYS = [
 ];
 const SECRET_SETTING_KEYS = ['shopify_access_token'];
 
+// Settings created/managed by the Integration Hub are never listed, created or
+// modified through the generic CMS settings editor: the Integrazioni panel
+// owns them so secret masking, the connect/disconnect lifecycle and the public
+// exposure stay consistent.
+function isIntegrationKey(key) {
+  return typeof key === 'string' && key.startsWith('integration_');
+}
+
 function slugify(value) {
   return String(value || '')
     .normalize('NFD')
@@ -322,7 +330,7 @@ export default async function(req) {
     switch (operation) {
       case 'list': {
         let items = await db.list(sortMap[res] || '-created_date', MAX_BULK_ITEMS);
-        if (res === 'setting') items = items.filter(item => !SECRET_SETTING_KEYS.includes(item.key));
+        if (res === 'setting') items = items.filter(item => !SECRET_SETTING_KEYS.includes(item.key) && !isIntegrationKey(item.key));
         return Response.json({ items, role: isSuperAdmin ? 'super_admin' : 'admin', canManageSettings });
       }
       case 'list_catalog': {
@@ -499,6 +507,9 @@ export default async function(req) {
       }
       case 'create': {
         let data = { ...(payload || {}) };
+        if (res === 'setting' && isIntegrationKey(data.key)) {
+          return Response.json({ error: 'I settaggi delle integrazioni si gestiscono dal pannello Integrazioni.' }, { status: 403 });
+        }
         if (res === 'setting' && (MAIN_SETTING_KEYS.includes(data.key) || SECRET_SETTING_KEYS.includes(data.key)) && !canManageSettings) {
           return Response.json({ error: 'Solo il super admin può creare questo settaggio' }, { status: 403 });
         }
@@ -531,10 +542,18 @@ export default async function(req) {
       case 'update': {
         let { id, ...data } = payload || {};
         if (!id) return Response.json({ error: 'ID mancante' }, { status: 400 });
-        if (res === 'setting' && !canManageSettings) {
+        if (res === 'setting') {
           const target = await db.get(id).catch(() => null);
-          if ((target && (MAIN_SETTING_KEYS.includes(target.key) || SECRET_SETTING_KEYS.includes(target.key))) || MAIN_SETTING_KEYS.includes(data.key) || SECRET_SETTING_KEYS.includes(data.key)) {
-            return Response.json({ error: 'Solo il super admin può modificare questo settaggio' }, { status: 403 });
+          if (target && isIntegrationKey(target.key)) {
+            return Response.json({ error: 'I settaggi delle integrazioni si gestiscono dal pannello Integrazioni.' }, { status: 403 });
+          }
+          if (isIntegrationKey(data.key)) {
+            return Response.json({ error: 'I settaggi delle integrazioni si gestiscono dal pannello Integrazioni.' }, { status: 403 });
+          }
+          if (!canManageSettings) {
+            if ((target && (MAIN_SETTING_KEYS.includes(target.key) || SECRET_SETTING_KEYS.includes(target.key))) || MAIN_SETTING_KEYS.includes(data.key) || SECRET_SETTING_KEYS.includes(data.key)) {
+              return Response.json({ error: 'Solo il super admin può modificare questo settaggio' }, { status: 403 });
+            }
           }
         }
         if (res === 'discount') {
@@ -592,6 +611,9 @@ export default async function(req) {
         if (res === 'setting') {
           const items = await db.list('-created_date', MAX_BULK_ITEMS);
           const target = items.find(setting => setting.id === id);
+          if (target && isIntegrationKey(target.key)) {
+            return Response.json({ error: 'I settaggi delle integrazioni si gestiscono dal pannello Integrazioni.' }, { status: 403 });
+          }
           if (target && (MAIN_SETTING_KEYS.includes(target.key) || SECRET_SETTING_KEYS.includes(target.key)) && !canManageSettings) {
             return Response.json({ error: 'Solo il super admin può modificare i settaggi CMS principali' }, { status: 403 });
           }
@@ -617,6 +639,8 @@ export default async function(req) {
         if (ids.length === 0 || ids.length > MAX_BULK_ITEMS) return Response.json({ error: 'Numero di ID non valido' }, { status: 400 });
         if (res === 'setting') {
           const items = await db.list('-created_date', MAX_BULK_ITEMS);
+          const integrationItem = items.find(setting => ids.includes(setting.id) && isIntegrationKey(setting.key));
+          if (integrationItem) return Response.json({ error: 'I settaggi delle integrazioni si gestiscono dal pannello Integrazioni.' }, { status: 403 });
           const blocked = items.find(setting => ids.includes(setting.id) && (MAIN_SETTING_KEYS.includes(setting.key) || SECRET_SETTING_KEYS.includes(setting.key)) && !canManageSettings);
           if (blocked) return Response.json({ error: 'Solo il super admin può eliminare i settaggi CMS principali' }, { status: 403 });
         }
@@ -649,6 +673,9 @@ export default async function(req) {
       case 'upsert_setting': {
         const { key, value, label } = payload || {};
         if (!key) return Response.json({ error: 'Key mancante' }, { status: 400 });
+        if (isIntegrationKey(key)) {
+          return Response.json({ error: 'I settaggi delle integrazioni si gestiscono dal pannello Integrazioni.' }, { status: 403 });
+        }
         if ((MAIN_SETTING_KEYS.includes(key) || SECRET_SETTING_KEYS.includes(key)) && !canManageSettings) {
           return Response.json({ error: 'Solo il super admin può modificare i settaggi CMS principali' }, { status: 403 });
         }

@@ -67,6 +67,13 @@ Configure backend secrets in Base44 rather than committing them to this reposito
 - `BASE44_APP_ID` is included in Stripe checkout metadata.
 - `SHOPIFY_SHOP_DOMAIN` and `SHOPIFY_ACCESS_TOKEN` are the preferred way to configure Shopify. The admin UI remains available as a compatibility fallback, but runtime secrets avoid persisting the access token as an entity setting.
 
+## Integrazioni (Hub stile Shopify)
+
+Il pannello admin ha un tab **Integrazioni** da cui il team collega servizi
+esterni (Stripe, corrieri, GA4/Meta/TikTok, WhatsApp, CRM, Zapier/Make, ecc.)
+senza scrivere codice. Per aggiungere un nuovo servizio basta una voce nel
+registro `base44/shared/integrations.ts`. Vedi **[INTEGRATIONS.md](./INTEGRATIONS.md)**.
+
 Do not expose backend secrets through `VITE_` variables: Vite embeds those variables into browser bundles.
 
 ## Use The Hosted Backend

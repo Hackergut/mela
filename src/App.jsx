@@ -8,6 +8,7 @@ import { StoreProvider } from '@/lib/StoreContext';
 import ScrollToTop from '@/components/ScrollToTop';
 import AppErrorBoundary from '@/lib/AppErrorBoundary';
 import SupportChatButton from '@/components/SupportChatButton';
+import IntegrationBoot from '@/components/IntegrationBoot';
 
 // Each route is downloaded only when visited. In particular, the sizeable
 // admin dashboard (charts and PDF tooling) never enters the storefront bundle.
@@ -74,6 +75,7 @@ export default function App() {
       <AuthProvider>
         <QueryClientProvider client={queryClientInstance}>
           <Router>
+            <IntegrationBoot />
             <ScrollToTop />
             <StoreProvider>
               <StorefrontRoutes />

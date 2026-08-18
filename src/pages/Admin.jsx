@@ -19,12 +19,13 @@ const ProductForm = lazy(() => import('@/components/admin/ProductForm'));
 const CategoryManager = lazy(() => import('@/components/admin/CategoryManager'));
 const AssetLibrary = lazy(() => import('@/components/admin/AssetLibrary'));
 const ShopifyManager = lazy(() => import('@/components/admin/ShopifyManager'));
+const IntegrationsManager = lazy(() => import('@/components/admin/IntegrationsManager'));
 import PromoBanner from '@/components/PromoBanner';
 import Navbar from '@/components/Navbar';
 import { Image } from '@/components/ui/image';
 import { formatPriceCents } from '@/lib/catalog';
 import { CATALOG_QUERY_KEY } from '@/lib/useProducts';
-import { Plus, Pencil, Trash2, LogOut, Loader2, Package, FolderOpen, Images, LayoutDashboard, ShoppingCart, Boxes, Tags, Users, Search, Bell, Settings as SettingsIcon, BarChart3, Truck, RotateCcw, Receipt as ReceiptIcon, ShoppingBag, WandSparkles } from 'lucide-react';
+import { Plus, Pencil, Trash2, LogOut, Loader2, Package, FolderOpen, Images, LayoutDashboard, ShoppingCart, Boxes, Tags, Users, Search, Bell, Settings as SettingsIcon, BarChart3, Truck, RotateCcw, Receipt as ReceiptIcon, ShoppingBag, WandSparkles, Plug } from 'lucide-react';
 
 const PW_KEY = 'tm_admin_pw';
 const ROLE_KEY = 'tm_admin_role';
@@ -152,6 +153,7 @@ export default function Admin() {
     { id: 'team', label: 'Team', icon: Users },
     { id: 'notifiche', label: 'Notifiche', icon: Bell },
     { id: 'impostazioni', label: 'Impostazioni', icon: SettingsIcon },
+    { id: 'integrazioni', label: 'Integrazioni', icon: Plug },
     { id: 'shopify', label: 'Shopify', icon: ShoppingBag },
   ];
 
@@ -210,6 +212,7 @@ export default function Admin() {
         {tab === 'team' && <TeamManager password={password} />}
         {tab === 'notifiche' && <NotificationsManager password={password} />}
         {tab === 'impostazioni' && <SettingsManager password={password} isSuperAdmin={isSuperAdmin} />}
+        {tab === 'integrazioni' && <IntegrationsManager password={password} isSuperAdmin={isSuperAdmin} />}
         {tab === 'shopify' && <ShopifyManager password={password} />}
 
         {tab === 'products' && (

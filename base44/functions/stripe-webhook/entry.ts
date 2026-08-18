@@ -27,6 +27,60 @@ async function isEventKnown(ledger, eventId) {
   }
 }
 
+// Automation webhooks configured via the Integrazioni panel. When an order is
+// paid, a best-effort JSON POST is sent to every enabled integration
+// (Zapier/Make/n8n/custom). Failures never block payment processing.
+const AUTOMATION_INTEGRATIONS = ['zapier', 'make', 'n8n', 'custom_webhook'];
+async function dispatchAutomationWebhooks(base44, order, customer) {
+  try {
+    const all = await base44.asServiceRole.entities.Setting.list('key', 1000);
+    const byKey = new Map(all.map((s) => [s.key, s.value]));
+    const get = (id, field) => byKey.get(`integration_${id}_${field}`) || '';
+
+    const payload = {
+      event: 'order.paid',
+      timestamp: new Date().toISOString(),
+      order: {
+        id: String(order.id || ''),
+        number: String(order.order_number || ''),
+        total_cents: Number(order.total_cents || 0),
+        currency: 'EUR',
+        subtotal_cents: Number(order.subtotal_cents || 0),
+        discount_cents: Number(order.discount_amount_cents || 0),
+        items: (Array.isArray(order.items) ? order.items : []).map((item) => ({
+          name: String(item.name || ''),
+          qty: Number(item.qty || 1),
+          price_cents: Number(item.price_cents || 0),
+          sku: String(item.sku || ''),
+        })),
+      },
+      customer: {
+        email: String(customer?.email || order.customer_email || ''),
+        name: String(customer?.name || order.customer_name || ''),
+        phone: String(order.shipping_phone || ''),
+      },
+    };
+
+    await Promise.all(AUTOMATION_INTEGRATIONS.map(async (id) => {
+      const url = String(get(id, 'webhook_url') || '').trim();
+      if (!url) return;
+      const enabled = String(get(id, 'event_order_paid') || 'true').toLowerCase() !== 'false';
+      if (!enabled) return;
+      const secret = String(get(id, 'secret') || '').trim();
+      const headers = { 'Content-Type': 'application/json', 'User-Agent': 'TechMania-IntegrationHub/1.0' };
+      if (secret) headers['X-TM-Signature'] = secret.slice(0, 64);
+      try {
+        const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(payload) });
+        if (!res.ok) console.warn(`automation webhook ${id} responded ${res.status}`);
+      } catch (error) {
+        console.error(`automation webhook ${id} failed:`, error);
+      }
+    }));
+  } catch (error) {
+    console.error('automation webhook dispatch failed:', error);
+  }
+}
+
 async function recordEvent(ledger, entry) {
   if (!ledger) return;
   try {
@@ -302,6 +356,10 @@ export default async function(req) {
         link: "orders",
         ref_id: orderId,
       });
+    });
+
+    await runSideEffect("automation webhooks", async () => {
+      await dispatchAutomationWebhooks(base44, order, { email, name });
     });
 
     await recordEvent(ledger, {
