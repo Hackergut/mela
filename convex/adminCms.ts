@@ -128,8 +128,8 @@ const normalizeCategory = (input) => {
   };
 };
 
-const jsonResp = (data, status = 200) =>
-  new Response(JSON.stringify(data), { status, headers: { "Content-Type": "application/json" } });
+const jsonResp = (data, status = 200) => ({ __ok: true, status, ...data });
+const jsonFail = (error, status = 400) => ({ __ok: false, status, error });
 
 export default action({
   args: {
@@ -140,12 +140,12 @@ export default action({
   },
   handler: async (ctx, args) => {
     const auth = authenticateAdmin(ctx, { password: args.password, clientKey: args.password.slice(0, 8) });
-    if (auth.error) return new Response(JSON.stringify(auth.error), { status: auth.error.status, headers: { "Content-Type": "application/json" } });
+    if (auth.error) return { __ok: false, ...auth.error };
     const { canManageSettings, role } = auth;
     const { operation, payload } = args;
     const res = args.resource || "product";
     const table = TABLE_MAP[res];
-    if (!table) return jsonResp({ error: "Risorsa non valida" }, 400);
+    if (!table) return jsonFail("Risorsa non valida");
 
     try {
       switch (operation) {
@@ -161,15 +161,15 @@ export default action({
         case "save_product": {
           const submitted = payload?.product || {};
           const rawVariants = Array.isArray(payload?.variants) ? payload.variants : [];
-          if (!String(submitted.name || "").trim()) return jsonResp({ error: "Nome prodotto obbligatorio" }, 400);
-          if (!String(submitted.category_id || "").trim()) return jsonResp({ error: "Seleziona una categoria valida" }, 400);
-          if (!String(submitted.image || "").trim()) return jsonResp({ error: "Immagine principale obbligatoria" }, 400);
+          if (!String(submitted.name || "").trim()) return jsonFail("Nome prodotto obbligatorio", 400);
+          if (!String(submitted.category_id || "").trim()) return jsonFail("Seleziona una categoria valida", 400);
+          if (!String(submitted.image || "").trim()) return jsonFail("Immagine principale obbligatoria", 400);
           const category = await ctx.runQuery(internal._crud.categoryById, { id: String(submitted.category_id) });
-          if (!category) return jsonResp({ error: "La categoria selezionata non esiste" }, 400);
+          if (!category) return jsonFail("La categoria selezionata non esiste", 400);
           const rawProduct = { ...submitted, category_id: String(category.id), category: category.name };
-          if (rawVariants.length === 0 || rawVariants.length > 100) return jsonResp({ error: "Ogni prodotto deve avere da 1 a 100 varianti." }, 400);
+          if (rawVariants.length === 0 || rawVariants.length > 100) return jsonFail("Ogni prodotto deve avere da 1 a 100 varianti.", 400);
           const variants = rawVariants.map((v, i) => sanitizeVariant(v, rawProduct, i));
-          if (new Set(variants.map((v) => v.sku)).size !== variants.length) return jsonResp({ error: "SKU varianti non univoci" }, 400);
+          if (new Set(variants.map((v) => v.sku)).size !== variants.length) return jsonFail("SKU varianti non univoci", 400);
           if (!variants.some((v) => v.is_default)) variants[0].is_default = true;
           let seen = false;
           variants.forEach((v) => { if (v.is_default && !seen) seen = true; else if (v.is_default) v.is_default = false; });
@@ -235,21 +235,21 @@ export default action({
         }
         case "complete_return": {
           const returnId = String(payload?.id || "").trim();
-          if (!returnId) return jsonResp({ error: "ID reso mancante" }, 400);
+          if (!returnId) return jsonFail("ID reso mancante", 400);
           const item = await ctx.runQuery(internal._crud.getById, { table: "returns", id: returnId });
-          if (!item) return jsonResp({ error: "Reso non trovato" }, 404);
+          if (!item) return jsonFail("Reso non trovato", 404);
           if (item.status === "completed") return jsonResp({ item, duplicate: true });
-          if (item.status !== "approved") return jsonResp({ error: "Il reso deve essere approvato" }, 409);
+          if (item.status !== "approved") return jsonFail("Il reso deve essere approvato", 409);
           const productId = String(item.product_id || "");
-          if (!productId) return jsonResp({ error: "Reso senza prodotto" }, 409);
+          if (!productId) return jsonFail("Reso senza prodotto", 409);
           const qty = Math.max(1, integer(item.quantity, 1));
           const product = await ctx.runQuery(internal._crud.productById, { id: productId });
-          if (!product) return jsonResp({ error: "Prodotto non trovato" }, 404);
+          if (!product) return jsonFail("Prodotto non trovato", 404);
           const now = nowIso();
           const variantId = String(item.variant_id || "");
           if (variantId) {
             const v = await ctx.runQuery(internal._crud.variantById, { id: variantId });
-            if (!v || String(v.product_id) !== productId) return jsonResp({ error: "Variante non valida" }, 409);
+            if (!v || String(v.product_id) !== productId) return jsonFail("Variante non valida", 409);
             await ctx.runMutation(internal._crud.updateOne, { table: "product_variants", id: variantId, data: { stock: Math.max(0, integer(v.stock)) + qty, updated_date: now } });
             const sib = await ctx.runQuery(internal._crud.variantsByProduct, { productId });
             const stock = sib.filter((s) => s.status === "active").reduce((sum, s) => sum + Math.max(0, integer(s.stock)), 0);
@@ -262,8 +262,8 @@ export default action({
         }
         case "create": {
           let data = { ...(payload || {}) };
-          if (res === "setting" && isIntegrationKey(data.key)) return jsonResp({ error: "I settaggi delle integrazioni si gestiscono dal pannello Integrazioni." }, 403);
-          if (res === "setting" && (MAIN_SETTING_KEYS.includes(data.key) || SECRET_SETTING_KEYS.includes(data.key)) && !canManageSettings) return jsonResp({ error: "Solo il super admin può creare questo settaggio" }, 403);
+          if (res === "setting" && isIntegrationKey(data.key)) return jsonFail("I settaggi delle integrazioni si gestiscono dal pannello Integrazioni.", 403);
+          if (res === "setting" && (MAIN_SETTING_KEYS.includes(data.key) || SECRET_SETTING_KEYS.includes(data.key)) && !canManageSettings) return jsonFail("Solo il super admin può creare questo settaggio", 403);
           if (res === "discount") data = normalizeDiscount(data);
           if (res === "category") data = normalizeCategory(data);
           if (res === "notification" && !data.severity) data.severity = "info";
@@ -276,23 +276,23 @@ export default action({
         }
         case "update": {
           const { id, ...data } = payload || {};
-          if (!id) return jsonResp({ error: "ID mancante" }, 400);
+          if (!id) return jsonFail("ID mancante", 400);
           if (res === "setting") {
             const target = await ctx.runQuery(internal._crud.getById, { table, id });
-            if (target && isIntegrationKey(target.key)) return jsonResp({ error: "I settaggi delle integrazioni si gestiscono dal pannello Integrazioni." }, 403);
-            if (isIntegrationKey(data.key)) return jsonResp({ error: "I settaggi delle integrazioni si gestiscono dal pannello Integrazioni." }, 403);
+            if (target && isIntegrationKey(target.key)) return jsonFail("I settaggi delle integrazioni si gestiscono dal pannello Integrazioni.", 403);
+            if (isIntegrationKey(data.key)) return jsonFail("I settaggi delle integrazioni si gestiscono dal pannello Integrazioni.", 403);
             if (!canManageSettings) {
-              if ((target && (MAIN_SETTING_KEYS.includes(target.key) || SECRET_SETTING_KEYS.includes(target.key))) || MAIN_SETTING_KEYS.includes(data.key) || SECRET_SETTING_KEYS.includes(data.key)) return jsonResp({ error: "Solo il super admin può modificare questo settaggio" }, 403);
+              if ((target && (MAIN_SETTING_KEYS.includes(target.key) || SECRET_SETTING_KEYS.includes(target.key))) || MAIN_SETTING_KEYS.includes(data.key) || SECRET_SETTING_KEYS.includes(data.key)) return jsonFail("Solo il super admin può modificare questo settaggio", 403);
             }
           }
           if (res === "discount") {
             const current = await ctx.runQuery(internal._crud.getById, { table, id });
-            if (!current) return jsonResp({ error: "Codice non trovato" }, 404);
+            if (!current) return jsonFail("Codice non trovato", 404);
             Object.assign(data, normalizeDiscount({ ...current, ...data }));
           }
           if (res === "category") {
             const current = await ctx.runQuery(internal._crud.getById, { table, id });
-            if (!current) return jsonResp({ error: "Categoria non trovata" }, 404);
+            if (!current) return jsonFail("Categoria non trovata", 404);
             Object.assign(data, normalizeCategory({ ...current, ...data }));
           }
           const now = nowIso();
@@ -310,23 +310,23 @@ export default action({
         }
         case "bulk_update": {
           const items = Array.isArray(payload?.items) ? payload.items : [];
-          if (!items.length || items.length > MAX_BULK || items.some((i) => !i?.id)) return jsonResp({ error: "Elenco non valido" }, 400);
+          if (!items.length || items.length > MAX_BULK || items.some((i) => !i?.id)) return jsonFail("Elenco non valido", 400);
           await ctx.runMutation(internal._crud.bulkUpdate, { table, docs: items });
           return jsonResp({ ok: true, updated: items.length });
         }
         case "delete": {
           const { id } = payload || {};
-          if (!id) return jsonResp({ error: "ID mancante" }, 400);
+          if (!id) return jsonFail("ID mancante", 400);
           if (res === "setting") {
             const items = await ctx.runQuery(internal._crud.listAll, { table });
             const target = items.find((s) => s.id === id);
-            if (target && isIntegrationKey(target.key)) return jsonResp({ error: "Gestito dal pannello Integrazioni." }, 403);
-            if (target && (MAIN_SETTING_KEYS.includes(target.key) || SECRET_SETTING_KEYS.includes(target.key)) && !canManageSettings) return jsonResp({ error: "Solo super admin" }, 403);
+            if (target && isIntegrationKey(target.key)) return jsonFail("Gestito dal pannello Integrazioni.", 403);
+            if (target && (MAIN_SETTING_KEYS.includes(target.key) || SECRET_SETTING_KEYS.includes(target.key)) && !canManageSettings) return jsonFail("Solo super admin", 403);
           }
           if (res === "category") {
             const assigned = await ctx.runQuery(internal._crud.productsByCategory, { id });
             const children = await ctx.runQuery(internal._crud.categoriesByParent, { id });
-            if (assigned.length || children.length) return jsonResp({ error: "Riassegna prima prodotti e sottocategorie." }, 409);
+            if (assigned.length || children.length) return jsonFail("Riassegna prima prodotti e sottocategorie.", 409);
           }
           if (res === "product") {
             const children = await ctx.runQuery(internal._crud.variantsByProduct, { productId: id });
@@ -337,11 +337,11 @@ export default action({
         }
         case "bulk_delete": {
           const ids = Array.isArray(payload?.ids) ? payload.ids : [];
-          if (!ids.length || ids.length > MAX_BULK) return jsonResp({ error: "Numero ID non valido" }, 400);
+          if (!ids.length || ids.length > MAX_BULK) return jsonFail("Numero ID non valido", 400);
           if (res === "setting") {
             const items = await ctx.runQuery(internal._crud.listAll, { table });
-            if (items.find((s) => ids.includes(s.id) && isIntegrationKey(s.key))) return jsonResp({ error: "Gestito dal pannello Integrazioni." }, 403);
-            if (items.find((s) => ids.includes(s.id) && (MAIN_SETTING_KEYS.includes(s.key) || SECRET_SETTING_KEYS.includes(s.key)) && !canManageSettings)) return jsonResp({ error: "Solo super admin" }, 403);
+            if (items.find((s) => ids.includes(s.id) && isIntegrationKey(s.key))) return jsonFail("Gestito dal pannello Integrazioni.", 403);
+            if (items.find((s) => ids.includes(s.id) && (MAIN_SETTING_KEYS.includes(s.key) || SECRET_SETTING_KEYS.includes(s.key)) && !canManageSettings)) return jsonFail("Solo super admin", 403);
           }
           if (res === "category") {
             const deps = await Promise.all(ids.map(async (cid) => {
@@ -349,7 +349,7 @@ export default action({
               const ch = await ctx.runQuery(internal._crud.categoriesByParent, { id: cid });
               return p.length > 0 || ch.some((c) => !ids.includes(c.id));
             }));
-            if (deps.some(Boolean)) return jsonResp({ error: "Riassegna prima prodotti e sottocategorie." }, 409);
+            if (deps.some(Boolean)) return jsonFail("Riassegna prima prodotti e sottocategorie.", 409);
           }
           if (res === "product") {
             const allV = await ctx.runQuery(internal._crud.allVariants, {});
@@ -361,15 +361,15 @@ export default action({
         }
         case "invite_user": {
           const { email, role: r } = payload || {};
-          if (!email) return jsonResp({ error: "Email mancante" }, 400);
+          if (!email) return jsonFail("Email mancante", 400);
           await ctx.runMutation(internal._crud.createOne, { table: "users", data: { email, role: r || "user", created_date: nowIso() } });
           return jsonResp({ ok: true });
         }
         case "upsert_setting": {
           const { key, value, label } = payload || {};
-          if (!key) return jsonResp({ error: "Key mancante" }, 400);
-          if (isIntegrationKey(key)) return jsonResp({ error: "Gestito dal pannello Integrazioni." }, 403);
-          if ((MAIN_SETTING_KEYS.includes(key) || SECRET_SETTING_KEYS.includes(key)) && !canManageSettings) return jsonResp({ error: "Solo super admin" }, 403);
+          if (!key) return jsonFail("Key mancante", 400);
+          if (isIntegrationKey(key)) return jsonFail("Gestito dal pannello Integrazioni.", 403);
+          if ((MAIN_SETTING_KEYS.includes(key) || SECRET_SETTING_KEYS.includes(key)) && !canManageSettings) return jsonFail("Solo super admin", 403);
           await upsertSetting(ctx, key, value, label);
           const existing = await findSetting(ctx, key);
           return jsonResp({ item: shape(existing, "settings") });
@@ -406,10 +406,10 @@ export default action({
         }
         case "reconcile_order": {
           const orderId = String(payload?.id || "").trim();
-          if (!orderId) return jsonResp({ error: "ID ordine mancante" }, 400);
+          if (!orderId) return jsonFail("ID ordine mancante", 400);
           const order = await ctx.runQuery(internal._crud.orderById, { id: orderId });
-          if (!order) return jsonResp({ error: "Ordine non trovato" }, 404);
-          if (order.status !== "paid") return jsonResp({ error: "Solo ordini pagati" }, 409);
+          if (!order) return jsonFail("Ordine non trovato", 404);
+          if (order.status !== "paid") return jsonFail("Solo ordini pagati", 409);
           const paidOrders = (await ctx.runQuery(internal._crud.listAll, { table: "orders" })).filter((o) => ["paid", "shipped", "delivered"].includes(o.status));
           const report = { customer_synced: false, discount_synced: false, ledger_cleared: 0, stock_check_required: false };
           const email = String(order.customer_email || "").trim().toLowerCase();
@@ -439,18 +439,18 @@ export default action({
         case "list_more": {
           const limit = Math.min(Math.max(integer(payload?.limit, 50), 1), 250);
           const before = String(payload?.before || "").trim();
-          if (before && Number.isNaN(new Date(before).getTime())) return jsonResp({ error: "Cursore non valido" }, 400);
+          if (before && Number.isNaN(new Date(before).getTime())) return jsonFail("Cursore non valido", 400);
           let items = await ctx.runQuery(internal._crud.listAll, { table, sort: "-created_date" });
           if (before) items = items.filter((i) => new Date(i.created_date).getTime() < new Date(before).getTime());
           items = items.slice(0, limit);
           return jsonResp({ items, nextBefore: items.length === limit ? String(items[items.length - 1]?.created_date || "") : null });
         }
         default:
-          return jsonResp({ error: "Operazione non valida" }, 400);
+          return jsonFail("Operazione non valida", 400);
       }
     } catch (error) {
       console.error("admin-cms error:", error);
-      return jsonResp({ error: error instanceof Error ? error.message : "Errore interno del CMS" }, 500);
+      return jsonFail(error instanceof Error ? error.message : "Errore interno del CMS", 500);
     }
   },
 });

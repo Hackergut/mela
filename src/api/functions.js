@@ -16,27 +16,28 @@ const httpClient = convexConfigured
   ? new ConvexHttpClient(import.meta.env.VITE_CONVEX_URL)
   : null;
 
-// Legacy function name → Convex UDF path. All backend files export a default
-// function, which Convex names "<file>:default" (e.g. "adminCms:default").
-// The _generated api stubs mirror that.
-const ACTIONS = {
-  catalog: "catalog:default",
-  "admin-cms": "adminCms:default",
-  "create-checkout-session": "createCheckout:default",
-  "shopify-sync": "shopifySync:default",
-  "integration-hub": "integrationHub:default",
-  "order-lookup": "orderLookup:default",
+// Legacy function name → { type, udf path }.
+// `catalog` is a public Convex QUERY (not an action); everything else is an
+// action. Calling a query through httpClient.action() produces a server error.
+const FUNCTIONS = {
+  catalog: { type: "query", path: "catalog:default" },
+  "admin-cms": { type: "action", path: "adminCms:default" },
+  "create-checkout-session": { type: "action", path: "createCheckout:default" },
+  "shopify-sync": { type: "action", path: "shopifySync:default" },
+  "integration-hub": { type: "action", path: "integrationHub:default" },
+  "order-lookup": { type: "action", path: "orderLookup:default" },
 };
 
 function refFor(functionName) {
-  const path = ACTIONS[functionName];
-  if (!path) {
+  const entry = FUNCTIONS[functionName];
+  if (!entry) {
     throw Object.assign(new Error(`Funzione "${functionName}" non trovata su Convex`), { status: 404 });
   }
+  const moduleName = entry.path.split(":")[0];
   // Prefer the generated function reference when available (typed), otherwise
   // fall back to the path string accepted by ConvexHttpClient.
-  const moduleName = path.split(":")[0];
-  return api?.[moduleName]?.default || path;
+  const generated = api?.[moduleName]?.default;
+  return { ...entry, ref: generated || entry.path };
 }
 
 /**
@@ -50,10 +51,12 @@ export async function invoke(functionName, args = {}) {
       { status: 503 },
     );
   }
-  const ref = refFor(functionName);
+  const { ref, type } = refFor(functionName);
   let result;
   try {
-    result = await httpClient.action(ref, args);
+    result = type === "query"
+      ? await httpClient.query(ref, args)
+      : await httpClient.action(ref, args);
   } catch (error) {
     const data = error?.data || { error: error?.message || "Richiesta non riuscita" };
     throw Object.assign(new Error(data.error || error?.message || "Richiesta non riuscita"), {
@@ -61,7 +64,18 @@ export async function invoke(functionName, args = {}) {
       response: { data },
     });
   }
-  // Some actions return a serialized Response (webhook/order lookups).
+  // New-style action result: { __ok, status, ...data }
+  if (result && typeof result === "object" && "__ok" in result) {
+    const { __ok, status, ...data } = result;
+    if (!__ok) {
+      throw Object.assign(new Error(data.error || "Richiesta non riuscita"), {
+        status: status || 400,
+        response: { data },
+      });
+    }
+    return { data, status: status || 200 };
+  }
+  // Some actions may still return a serialized Response (legacy http shapes).
   if (result && typeof result === "object" && "body" in result && "status" in result && typeof result.body === "string") {
     let data = {};
     try { data = JSON.parse(result.body); } catch { data = result.body; }

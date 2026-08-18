@@ -31,7 +31,8 @@ const parseOrigin = (raw, localOnly = false) => {
   return null;
 };
 
-const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { "Content-Type": "application/json" } });
+const json = (data, status = 200) => ({ __ok: true, status, ...data });
+const jfail = (error, status = 400) => ({ __ok: false, status, error });
 
 export default action({
   args: {
@@ -52,26 +53,26 @@ export default action({
   handler: async (ctx, args) => {
     try {
       const requestOrigin = parseOrigin(process.env.PUBLIC_APP_URL);
-      if (!requestOrigin) return json({ error: "Checkout non configurato" }, 503);
+      if (!requestOrigin) return jfail("Checkout non configurato", 503);
 
       const stripeKey = process.env.STRIPE_SECRET_KEY;
-      if (!stripeKey) return json({ error: "Checkout non configurato" }, 503);
+      if (!stripeKey) return jfail("Checkout non configurato", 503);
 
       // Normalise lines.
       const rawLines = Array.isArray(args.items) && args.items.length
         ? args.items
         : [{ productId: args.productId, variantId: args.variantId, quantity: args.quantity || 1 }];
-      if (!rawLines.length || rawLines.length > MAX_LINES) return json({ error: "Parametri non validi" }, 400);
+      if (!rawLines.length || rawLines.length > MAX_LINES) return jfail("Parametri non validi", 400);
 
       const merged = new Map();
       for (const l of rawLines) {
         const productId = String(l?.productId || "").trim();
         const variantId = String(l?.variantId || "").trim();
         const qty = Number(l?.quantity || 1);
-        if (!productId || productId.length > 128 || variantId.length > 128 || !Number.isSafeInteger(qty) || qty < 1) return json({ error: "Parametri non validi" }, 400);
+        if (!productId || productId.length > 128 || variantId.length > 128 || !Number.isSafeInteger(qty) || qty < 1) return jfail("Parametri non validi", 400);
         const key = `${productId}::${variantId || "default"}`;
         const next = (merged.get(key)?.quantity || 0) + qty;
-        if (next > MAX_QTY) return json({ error: "Parametri non validi" }, 400);
+        if (next > MAX_QTY) return jfail("Parametri non validi", 400);
         merged.set(key, { productId, variantId, quantity: next });
       }
       const lines = [...merged.values()];
@@ -126,17 +127,17 @@ export default action({
       let mainUnit = 0;
       for (const requested of lines) {
         const r = await resolveLine(requested);
-        if (r.error) return json({ error: r.error }, r.status);
+        if (r.error) return jfail(r.error, r.status);
         orderItems.push(r.line);
         mainUnit = r.unit;
       }
       if (accessories.length) {
-        if (lines.length !== 1) return json({ error: "Il bundle è disponibile solo con un prodotto principale" }, 400);
+        if (lines.length !== 1) return jfail("Il bundle è disponibile solo con un prodotto principale", 400);
         for (const acc of accessories) {
           if (acc.productId === lines[0].productId) continue;
           const r = await resolveLine(acc, true);
-          if (r.error) return json({ error: r.error }, r.status);
-          if (r.unit > mainUnit) return json({ error: `${r.product.name} non è eleggibile come accessorio del bundle` }, 400);
+          if (r.error) return jfail(r.error, r.status);
+          if (r.unit > mainUnit) return jfail(`${r.product.name} non è eleggibile come accessorio del bundle`, 400);
           const discounted = bundlePercent > 0 ? Math.max(MIN, Math.round(r.unit * (100 - bundlePercent) / 100)) : r.unit;
           bundleDiscount += r.unit - discounted;
           orderItems.push({ ...r.line, price_cents: discounted });
@@ -149,16 +150,16 @@ export default action({
       let appliedCode = "";
       const code = String(args.discountCode || "").trim().toUpperCase();
       if (code) {
-        if (code.length > 64) return json({ error: "Codice non valido" }, 400);
+        if (code.length > 64) return jfail("Codice non valido", 400);
         const all = await ctx.runQuery(internal._crud.discountsByCode, { code });
         const discount = all[0];
         const value = Number(discount?.value);
-        if (!discount || !discount.active || !Number.isFinite(value) || value <= 0) return json({ error: "Codice sconto non valido o inattivo" }, 400);
-        if (discount.expires_at && new Date(discount.expires_at).getTime() <= Date.now()) return json({ error: "Codice scaduto" }, 400);
-        if (discount.max_uses != null && (discount.usage_count || 0) >= discount.max_uses) return json({ error: "Codice esaurito" }, 400);
+        if (!discount || !discount.active || !Number.isFinite(value) || value <= 0) return jfail("Codice sconto non valido o inattivo", 400);
+        if (discount.expires_at && new Date(discount.expires_at).getTime() <= Date.now()) return jfail("Codice scaduto", 400);
+        if (discount.max_uses != null && (discount.usage_count || 0) >= discount.max_uses) return jfail("Codice esaurito", 400);
         discountCents = discount.type === "percent" && value <= 100 ? Math.round(subtotal * value / 100)
           : discount.type === "fixed" ? Math.round(value) : 0;
-        if (!discountCents) return json({ error: "Codice non valido" }, 400);
+        if (!discountCents) return jfail("Codice non valido", 400);
         discountCents = Math.min(discountCents, subtotal - MIN);
         appliedCode = code;
       }
@@ -199,11 +200,11 @@ export default action({
       } catch (error) {
         await ctx.runMutation(internal._crud.updateOne, { table: "orders", id: orderId, data: { status: "cancelled", updated_date: new Date().toISOString() } }).catch(() => {});
         console.error("checkout stripe error:", error);
-        return json({ error: "Impossibile avviare il checkout" }, 500);
+        return jfail("Impossibile avviare il checkout", 500);
       }
     } catch (error) {
       console.error("create-checkout error:", error);
-      return json({ error: "Impossibile avviare il checkout" }, 500);
+      return jfail("Impossibile avviare il checkout", 500);
     }
   },
 });

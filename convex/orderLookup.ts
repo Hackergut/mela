@@ -65,7 +65,7 @@ export default action({
       const all = await ctx.runQuery(internal._crud.listAll, { table: "orders" });
       order = all.find((o) => String(o.order_number) === orderNumber && String(o.customer_email || "").trim().toLowerCase() === email) || null;
     }
-    if (!order) return new Response(JSON.stringify({ error: "Ordine non trovato. Controlla il numero ordine e l’email usata al checkout." }), { status: 404, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
-    return new Response(JSON.stringify({ order: publicOrder(order) }), { headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
+    if (!order) return { __ok: false, status: 404, error: "Ordine non trovato. Controlla il numero ordine e l’email usata al checkout." };
+    return { __ok: true, order: publicOrder(order) };
   },
 });

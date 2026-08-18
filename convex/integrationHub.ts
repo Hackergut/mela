@@ -83,7 +83,8 @@ export default action({
     values: v.optional(v.record(v.string(), v.any())),
   },
   handler: async (ctx, args) => {
-    const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { "Content-Type": "application/json" } });
+    const json = (data, status = 200) => ({ __ok: true, status, ...data });
+const jfail = (error, status = 400) => ({ __ok: false, status, error });
 
     if (args.operation === "public_config") {
       const all = await ctx.runQuery(internal._crud.listAll, { table: "settings" });
@@ -103,13 +104,13 @@ export default action({
     }
 
     const auth = authenticateAdmin(ctx, { password: args.password || "", clientKey: (args.password || "").slice(0, 8) });
-    if (auth.error) return new Response(JSON.stringify(auth.error), { status: auth.error.status, headers: { "Content-Type": "application/json" } });
+    if (auth.error) return { __ok: false, ...auth.error };
     const { canManageSettings } = auth;
 
     if (args.operation === "catalog") return json(buildCatalog());
 
     const def = INTEGRATIONS.find((d) => d.id === args.integration_id);
-    if (!def) return json({ error: "Integrazione non trovata" }, 404);
+    if (!def) return jfail("Integrazione non trovata", 404);
 
     if (args.operation === "get" || args.operation === "status") {
       const { values, filled } = await loadValues(ctx, def);
@@ -117,7 +118,7 @@ export default action({
     }
 
     if (args.operation === "save") {
-      if (def.requiresSuperAdmin && !canManageSettings) return json({ error: "Solo il super admin può configurare questa integrazione" }, 403);
+      if (def.requiresSuperAdmin && !canManageSettings) return jfail("Solo il super admin può configurare questa integrazione", 403);
       const incoming = args.values && typeof args.values === "object" ? args.values : {};
       const all = await ctx.runQuery(internal._crud.listAll, { table: "settings" });
       const clean = {};
@@ -133,9 +134,9 @@ export default action({
             clean[f.key] = inv === undefined || inv === null ? (f.type === "switch" ? "false" : "") : cleanField(f, inv);
           }
         }
-      } catch (e) { return json({ error: e.message }, 400); }
+      } catch (e) { return jfail(e.message, 400); }
       for (const f of def.fields) {
-        if (f.required) { const v = clean[f.key]; if (v === "" || v == null || v === false) return json({ error: `Il campo "${f.label}" è obbligatorio` }, 400); }
+        if (f.required) { const v = clean[f.key]; if (v === "" || v == null || v === false) return jfail(`Il campo "${f.label}" è obbligatorio`, 400); }
       }
       const now = new Date().toISOString();
       for (const f of def.fields) {
@@ -151,7 +152,7 @@ export default action({
     }
 
     if (args.operation === "disconnect") {
-      if (def.requiresSuperAdmin && !canManageSettings) return json({ error: "Solo il super admin" }, 403);
+      if (def.requiresSuperAdmin && !canManageSettings) return jfail("Solo il super admin", 403);
       const all = await ctx.runQuery(internal._crud.listAll, { table: "settings" });
       const keys = def.fields.map((f) => settingKey(def.id, f.key));
       const targets = all.filter((s) => keys.includes(s.key));
@@ -173,6 +174,6 @@ export default action({
       return json({ result: { ok: true, message: "Configurazione valida" } });
     }
 
-    return json({ error: "Operazione non valida" }, 400);
+    return jfail("Operazione non valida", 400);
   },
 });

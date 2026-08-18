@@ -137,7 +137,8 @@ async function syncCustomers(ctx, domain, token) {
   return { fetched: fetched.length, created: toCreate.length, updated: toUpdate.length, checkpoint: newest, incremental: !!since };
 }
 
-const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { "Content-Type": "application/json" } });
+const json = (data, status = 200) => ({ __ok: true, status, ...data });
+const jfail = (error, status = 400) => ({ __ok: false, status, error });
 
 export default action({
   args: {
@@ -147,7 +148,7 @@ export default action({
   },
   handler: async (ctx, args) => {
     const auth = authenticateAdmin(ctx, { password: args.password, clientKey: args.password.slice(0, 8) });
-    if (auth.error) return new Response(JSON.stringify(auth.error), { status: auth.error.status, headers: { "Content-Type": "application/json" } });
+    if (auth.error) return { __ok: false, ...auth.error };
     const payload = args.payload || {};
     try {
       switch (args.operation) {
@@ -158,39 +159,39 @@ export default action({
         case "save_creds": {
           const domain = normalizeDomain(payload.shop_domain);
           const token = String(payload.access_token || "").trim();
-          if (!domain || !token || token.length > 512) return json({ error: "Dominio o token non validi" }, 400);
+          if (!domain || !token || token.length > 512) return jfail("Dominio o token non validi", 400);
           await setSetting(ctx, "shopify_shop_domain", domain, "Shopify Dominio");
           await setSetting(ctx, "shopify_access_token", token, "Shopify Token");
           return json({ ok: true });
         }
         case "test": {
           const { domain, token } = await resolve(ctx, payload);
-          if (!domain || !token) return json({ error: "Credenziali non configurate" }, 400);
+          if (!domain || !token) return jfail("Credenziali non configurate", 400);
           const data = await graphql(domain, token, "query { shop { name domain countryCode } }");
           return json({ shop: { name: data.shop?.name, domain: data.shop?.domain, country: data.shop?.countryCode } });
         }
         case "sync_orders": {
           const { domain, token } = await resolve(ctx, payload);
-          if (!domain || !token) return json({ error: "Credenziali non configurate" }, 400);
+          if (!domain || !token) return jfail("Credenziali non configurate", 400);
           return json(await syncOrders(ctx, domain, token));
         }
         case "sync_customers": {
           const { domain, token } = await resolve(ctx, payload);
-          if (!domain || !token) return json({ error: "Credenziali non configurate" }, 400);
+          if (!domain || !token) return jfail("Credenziali non configurate", 400);
           return json(await syncCustomers(ctx, domain, token));
         }
         case "sync_all": {
           const { domain, token } = await resolve(ctx, payload);
-          if (!domain || !token) return json({ error: "Credenziali non configurate" }, 400);
+          if (!domain || !token) return jfail("Credenziali non configurate", 400);
           const orders = await syncOrders(ctx, domain, token);
           const customers = await syncCustomers(ctx, domain, token);
           return json({ orders, customers });
         }
-        default: return json({ error: "Operazione non valida" }, 400);
+        default: return jfail("Operazione non valida", 400);
       }
     } catch (e) {
       console.error("shopify error:", e);
-      return json({ error: e.message || "Operazione Shopify non riuscita" }, 500);
+      return jfail(e.message || "Operazione Shopify non riuscita", 500);
     }
   },
 });
