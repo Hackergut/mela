@@ -32,7 +32,7 @@ export default function HeroSection() {
           eyebrow="Nuovo"
           title={hero.flagship?.name || 'iPhone 17 Pro'}
           subtitle={hero.flagship?.subtitle || 'Progettato per essere leggendario.'}
-          image={img(hero.flagship)}
+          image="/brand/hero-flagship.svg"
           href={hero.flagship ? `/scheda-prodotto?id=${hero.flagship.id}` : '/catalogo'}
           imageY={imageY}
           reduceMotion={reduceMotion}
@@ -44,7 +44,7 @@ export default function HeroSection() {
               eyebrow="Performance"
               title={hero.secondary.name.replace(/^Apple /, '')}
               subtitle="Potenza Apple silicon."
-              image={img(hero.secondary)}
+              image="/brand/hero-wearable.svg"
               href={`/scheda-prodotto?id=${hero.secondary.id}`}
               reduceMotion={reduceMotion}
               compact
