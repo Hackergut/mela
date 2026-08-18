@@ -220,12 +220,16 @@ export function maskSecretValue(value) {
   return `${HIDDEN_SECRET}${v.slice(-4)}`;
 }
 
-export async function getByKey(ctx, tableName, key) {
-  const doc = await ctx.db
-    .query(tableName)
-    .withIndex(key === "key" ? "by_key" : key === "code" ? "by_code" : "by_key", (q) => q.eq(key, key))
-    .first();
-  return doc;
+export async function getByKey(ctx, tableName, keyName, keyValue) {
+  if (tableName === "settings" && keyName === "key") {
+    return ctx.db.query("settings").withIndex("by_key", (q) => q.eq("key", keyValue)).first();
+  }
+  if (tableName === "discounts" && keyName === "code") {
+    return ctx.db.query("discounts").withIndex("by_code", (q) => q.eq("code", keyValue)).first();
+  }
+  // Generic fallback: collect and match (small tables only).
+  const docs = await ctx.db.query(tableName).collect();
+  return docs.find((d) => String(d[keyName] ?? "") === String(keyValue));
 }
 
 export async function findSetting(ctx, key) {

@@ -1,14 +1,13 @@
+// @ts-nocheck
+import { useQuery as useConvexQuery } from "convex/react";
 import { useQuery } from "@tanstack/react-query";
-import { base44, convexConfigured } from "@/api/base44Client";
+import { base44, convexConfigured, api } from "@/api/base44Client";
 import { hydrateProducts } from "@/lib/catalog";
 import { buildFallbackCatalog } from "@/lib/fallbackCatalog";
 
 export const CATALOG_QUERY_KEY = ["catalog", "public"];
-
 const EMPTY = { products: [], variants: [], categories: [], settings: {} };
 
-// Shape a raw Convex/fallback payload (products, variants, categories, settings)
-// into the hydrated catalogue the storefront expects.
 function shapeCatalog(raw) {
   const rawProducts = raw?.products;
   const rawVariants = raw?.variants;
@@ -33,48 +32,76 @@ function shapeCatalog(raw) {
   return { products, variants: Array.isArray(rawVariants) ? rawVariants : [], categories, settings };
 }
 
-// Query the live Convex catalogue. On any error (not configured, network,
-// empty deployment) it falls back to the built-in demo catalogue so the
-// storefront is never empty (e.g. a Vercel deploy without VITE_CONVEX_URL).
-export async function fetchCatalog() {
-  if (!convexConfigured) {
-    return shapeCatalog(buildFallbackCatalog());
-  }
-  try {
-    const response = await base44.functions.invoke("catalog", {});
-    const raw = response.data;
-    // If the deployment exists but has no products yet (seed not run), use the
-    // fallback so the site still renders until the team seeds Convex.
-    if (!raw || !Array.isArray(raw.products) || raw.products.length === 0) {
-      return shapeCatalog(buildFallbackCatalog());
-    }
-    return shapeCatalog(raw);
-  } catch (error) {
-    console.warn("Catalogo Convex non disponibile, uso catalogo integrato:", error?.message);
-    return shapeCatalog(buildFallbackCatalog());
-  }
+async function fetchCatalogViaAction() {
+  const response = await base44.functions.invoke("catalog", {});
+  return shapeCatalog(response.data);
 }
 
+/**
+ * Catalogue hook. With a configured Convex deployment it uses the native
+ * reactive `catalog` query (instant admin→storefront updates). When Convex is
+ * not configured it falls back to the built-in demo catalogue so the storefront
+ * is never empty on a fresh Vercel deploy.
+ */
 export function useCatalog() {
-  const query = useQuery({
+  // Native reactive Convex query (preferred).
+  const convexData = useConvexQuery(api.catalog, {});
+
+  // TanStack query used only when Convex is unconfigured.
+  const fallback = useQuery({
     queryKey: CATALOG_QUERY_KEY,
-    queryFn: fetchCatalog,
+    queryFn: async () => {
+      // Try the action once; if it fails/unconfigured, use the built-in catalog.
+      if (!convexConfigured) return shapeCatalog(buildFallbackCatalog());
+      try {
+        const data = await fetchCatalogViaAction();
+        if (data.products?.length) return data;
+        return shapeCatalog(buildFallbackCatalog());
+      } catch (e) {
+        console.warn("Catalogo Convex non disponibile, uso catalogo integrato:", e?.message);
+        return shapeCatalog(buildFallbackCatalog());
+      }
+    },
+    enabled: !convexConfigured,
     staleTime: 2 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
     retry: 1,
   });
-  const data = query.data || EMPTY;
+
+  if (convexConfigured) {
+    // Reactive path. If the deployment has no products yet (no seed), fall back
+    // to the demo catalogue so the site still renders.
+    if (convexData && Array.isArray(convexData.products) && convexData.products.length > 0) {
+      const shaped = shapeCatalog(convexData);
+      return {
+        ...shaped,
+        loading: false,
+        refreshing: false,
+        error: null,
+        reload: async () => shaped,
+        configured: true,
+        ready: true,
+      };
+    }
+    if (convexData === undefined) {
+      return { ...EMPTY, loading: true, refreshing: false, error: null, reload: async () => {}, configured: true, ready: false };
+    }
+    // Convex reachable but empty → demo fallback.
+    const fb = shapeCatalog(buildFallbackCatalog());
+    return { ...fb, loading: false, refreshing: false, error: null, reload: async () => fb, configured: true, ready: true, source: "fallback" };
+  }
+
   return {
-    products: data.products ?? [],
-    variants: data.variants ?? [],
-    categories: data.categories ?? [],
-    settings: data.settings ?? {},
-    loading: query.isPending,
-    refreshing: query.isFetching && !query.isPending,
-    error: query.error,
-    reload: query.refetch,
-    configured: convexConfigured,
-    ready: query.isSuccess,
+    products: fallback.data?.products ?? [],
+    variants: fallback.data?.variants ?? [],
+    categories: fallback.data?.categories ?? [],
+    settings: fallback.data?.settings ?? {},
+    loading: fallback.isPending,
+    refreshing: fallback.isFetching && !fallback.isPending,
+    error: fallback.error,
+    reload: fallback.refetch,
+    configured: false,
+    ready: fallback.isSuccess,
   };
 }
 

@@ -5,8 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:all": "convex dev",
     "build": "vite build",
+    "prebuild": "convex codegen || true",
     "convex:dev": "convex dev",
+    "convex:codegen": "convex codegen",
     "convex:deploy": "convex deploy",
     "convex:seed": "convex run seed:default",
     "lint": "eslint . --quiet",
