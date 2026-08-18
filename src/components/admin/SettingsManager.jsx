@@ -12,6 +12,7 @@ const STORE_KEYS = [
   { key: 'free_shipping_threshold', label: 'Soglia spedizione gratuita (€)', value: '99' },
   { key: 'shipping_flat_rate', label: 'Tariffa spedizione standard (€)', value: '0' },
   { key: 'shipping_countries', label: 'Paesi di consegna (codici ISO separati da virgola)', value: 'IT' },
+  { key: 'bundle_discount_percent', label: 'Sconto bundle accessori (% sul totale accessori, max 15)', value: '5' },
 ];
 const MAIN_KEYS = STORE_KEYS.map(s => s.key);
 

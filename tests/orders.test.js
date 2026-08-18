@@ -2,10 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   buildOrderTimeline,
+  bundleDiscountPercent,
+  bundleTotals,
   carrierTrackingUrl,
   maskEmail,
   orderItemLabel,
   relatedProducts,
+  selectBundleAccessories,
 } from '../src/lib/orders.js';
 import { formatPriceCents } from '../src/lib/catalog.js';
 
@@ -71,4 +74,42 @@ test('order totals are formatted as italian currency from integer cents', () => 
   // group four-digit numbers (minimumGroupingDigits: 2).
   assert.equal(formatPriceCents(129900), '1299,00\u00a0€');
   assert.equal(formatPriceCents(0), '0,00\u00a0€');
+});
+
+test('bundle discount percent is clamped to a safe range', () => {
+  assert.equal(bundleDiscountPercent({ bundle_discount_percent: 5 }), 5);
+  assert.equal(bundleDiscountPercent({ bundle_discount_percent: '8' }), 8);
+  assert.equal(bundleDiscountPercent({ bundle_discount_percent: 90 }), 15);
+  assert.equal(bundleDiscountPercent({ bundle_discount_percent: -3 }), 0);
+  assert.equal(bundleDiscountPercent({}), 0);
+  assert.equal(bundleDiscountPercent(null), 0);
+});
+
+test('bundle accessories are cheaper in-stock products from the same category first', () => {
+  const current = { id: '1', category: 'iPhone', family: 'iPhone 17', price_cents: 120000 };
+  const products = [
+    { id: '2', name: 'Cover', category: 'iPhone', family: 'Accessori', in_stock: true, price_cents: 4900 },
+    { id: '3', name: 'Mac', category: 'Mac', family: 'MacBook', in_stock: true, price_cents: 150000 },
+    { id: '4', name: 'Cuffie', category: 'iPhone', family: 'Accessori', in_stock: true, price_cents: 24900 },
+    { id: '5', name: 'Esaurita', category: 'iPhone', in_stock: false, price_cents: 2900 },
+    { id: '1', name: 'Stesso', in_stock: true, price_cents: 100 },
+  ];
+  // id 3 costs more than the main product and is excluded; id 5 is out of stock.
+  assert.deepEqual(selectBundleAccessories(products, current).map(p => p.id), ['4', '2']);
+  assert.deepEqual(selectBundleAccessories(products, null), []);
+});
+
+test('bundle totals discount accessories only, never the main product', () => {
+  const totals = bundleTotals({
+    mainCents: 100000,
+    accessories: [{ price_cents: 4900 }, { price_cents: 24900 }],
+    percent: 10,
+  });
+  assert.equal(totals.accessoryCents, 29800);
+  assert.equal(totals.accessoryDiscountCents, 2980);
+  assert.equal(totals.totalCents, 100000 + 29800 - 2980);
+  assert.equal(totals.savingsCents, 2980);
+  assert.equal(bundleTotals({ mainCents: 500, accessories: [], percent: 10 }).totalCents, 500);
+  // Percent above the safety cap is clamped server-side too.
+  assert.equal(bundleTotals({ mainCents: 0, accessories: [{ price_cents: 1000 }], percent: 50 }).savingsCents, 150);
 });

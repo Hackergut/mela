@@ -94,6 +94,10 @@
       "type": "number",
       "title": "Totale (cent)"
     },
+    "bundle_discount_cents": {
+      "type": "number",
+      "title": "Sconto bundle accessori (cent)"
+    },
     "status": {
       "type": "string",
       "enum": [

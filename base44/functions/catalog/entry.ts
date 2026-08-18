@@ -9,6 +9,7 @@ const PUBLIC_SETTING_KEYS = new Set([
   'store_currency',
   'free_shipping_threshold',
   'shipping_flat_rate',
+  'bundle_discount_percent',
 ]);
 
 function eurosToCents(value) {
@@ -73,6 +74,7 @@ function publicOrder(order) {
     discount_amount_cents: Math.max(0, Number(order.discount_amount_cents) || 0),
     discount_code: order.discount_code ? String(order.discount_code) : null,
     shipping_cents: Math.max(0, Number(order.shipping_cents) || 0),
+    bundle_discount_cents: Math.max(0, Number(order.bundle_discount_cents) || 0),
     total_cents: Math.max(0, Number(order.total_cents) || 0),
     shipping_name: String(order.shipping_name || ''),
     shipping_address: order.shipping_address && typeof order.shipping_address === 'object' ? order.shipping_address : {},
@@ -96,6 +98,9 @@ function publicSettings(records) {
     currency: String(values.store_currency || 'EUR').toUpperCase(),
     free_shipping_threshold_cents: eurosToCents(values.free_shipping_threshold),
     shipping_flat_rate_cents: eurosToCents(values.shipping_flat_rate),
+    // Display hint for the bundle UI: the real discount is applied and
+    // clamped again server-side at checkout.
+    bundle_discount_percent: Math.min(15, Math.max(0, Math.trunc(Number(values.bundle_discount_percent) || 0))),
   };
 }
 

@@ -129,6 +129,9 @@ export default function OrderDetail({ order }) {
                 <div className="flex justify-between"><dt className="text-[#6e6e73]">Sconto {order.discount_code ? `(${order.discount_code})` : ''}</dt><dd className="text-[#248a3d]">−{formatPriceCents(order.discount_amount_cents)}</dd></div>
               )}
               <div className="flex justify-between"><dt className="text-[#6e6e73]">Spedizione</dt><dd className="text-[#1d1d1f]">{order.shipping_cents > 0 ? formatPriceCents(order.shipping_cents) : 'Gratuita'}</dd></div>
+              {order.bundle_discount_cents > 0 && (
+                <div className="flex justify-between"><dt className="text-[#6e6e73]">Sconto bundle accessori</dt><dd className="text-[#248a3d]">−{formatPriceCents(order.bundle_discount_cents)}</dd></div>
+              )}
               <div className="mt-2 flex justify-between border-t border-[#d2d2d7] pt-3 text-base font-semibold"><dt className="text-[#1d1d1f]">Totale</dt><dd className="text-[#1d1d1f]">{formatPriceCents(order.total_cents)}</dd></div>
             </dl>
           </section>

@@ -5,6 +5,7 @@ import Stripe from "npm:stripe@16.0.0";
 const MINIMUM_CHARGE_CENTS = 50;
 const MAX_CART_LINES = 25;
 const MAX_LINE_QUANTITY = 10;
+const MAX_BUNDLE_ACCESSORIES = 3;
 const MAX_SETTINGS = 100;
 const STRIPE_SHIPPING_COUNTRIES = new Set([
   'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FI', 'FR',
@@ -24,11 +25,15 @@ async function shippingConfig(base44) {
     .split(',')
     .map(country => country.trim().toUpperCase())
     .filter(country => STRIPE_SHIPPING_COUNTRIES.has(country));
+  // Bundle accessory discount: clamped server-side, the browser value is
+  // only a display hint.
+  const bundlePercent = Math.min(15, Math.max(0, Math.trunc(Number(values.bundle_discount_percent) || 0)));
   return {
     flatRateCents: eurosToCents(values.shipping_flat_rate),
     freeThresholdCents: eurosToCents(values.free_shipping_threshold),
     countries: countries.length ? [...new Set(countries)] : ['IT'],
     storeName: String(values.store_name || 'Store').trim().slice(0, 80) || 'Store',
+    bundlePercent,
   };
 }
 
@@ -71,6 +76,21 @@ function normalizeRequestLines(body) {
     merged.set(key, { productId, variantId, quantity: nextQuantity });
   }
   return [...merged.values()];
+}
+
+// Bundle accessories: up to 3 distinct extra products that join the single
+// main product at a server-configured discount. Quantity is forced to 1.
+function normalizeBundleAccessories(value) {
+  if (!Array.isArray(value)) return [];
+  const accessories = [];
+  const seen = new Set();
+  for (const raw of value.slice(0, MAX_BUNDLE_ACCESSORIES)) {
+    const productId = String(raw?.productId || raw?.product_id || '').trim();
+    if (!productId || productId.length > 128 || seen.has(productId)) continue;
+    seen.add(productId);
+    accessories.push({ productId, variantId: String(raw?.variantId || raw?.variant_id || '').trim() });
+  }
+  return accessories;
 }
 
 export default async function(req) {
@@ -139,8 +159,68 @@ export default async function(req) {
       });
     }
 
-    const subtotalCents = orderItems.reduce((sum, item) => sum + item.price_cents * item.qty, 0);
     const shipping = await shippingConfig(base44);
+
+    // Bundle: accessories join the single main product at the configured
+    // discount. Everything is re-read and validated server-side — the client
+    // only sends product ids, never prices or discount amounts.
+    const bundleAccessories = normalizeBundleAccessories(body.bundle_accessories);
+    let bundleDiscountCents = 0;
+    if (bundleAccessories.length) {
+      if (requestedLines.length !== 1) {
+        return Response.json({ error: 'Il bundle è disponibile solo con un prodotto principale' }, { status: 400 });
+      }
+      const mainProductId = String(requestedLines[0].productId);
+      const mainUnitCents = orderItems[0].price_cents;
+      for (const accessory of bundleAccessories) {
+        if (accessory.productId === mainProductId) continue;
+        const product = await base44.asServiceRole.entities.Product.get(accessory.productId).catch(() => null);
+        if (!product) return Response.json({ error: 'Un accessorio del bundle non è più disponibile' }, { status: 404 });
+        if (product.status && product.status !== 'active') {
+          return Response.json({ error: `${product.name} non è disponibile nel bundle` }, { status: 409 });
+        }
+        const variants = await base44.asServiceRole.entities.ProductVariant.filter({ product_id: product.id }, 'sort_order', 100);
+        let variant = null;
+        if (variants.length) {
+          variant = accessory.variantId
+            ? variants.find(item => String(item.id) === accessory.variantId)
+            : variants.find(item => item.is_default && item.status === 'active') || variants.find(item => item.status === 'active');
+          if (!variant || variant.status !== 'active') {
+            return Response.json({ error: `Seleziona una variante disponibile per ${product.name}` }, { status: 409 });
+          }
+          if (Number(variant.stock) < 1) {
+            return Response.json({ error: `Stock insufficiente per ${product.name}` }, { status: 409 });
+          }
+        } else if (typeof product.stock === 'number' && product.stock < 1) {
+          return Response.json({ error: `Stock insufficiente per ${product.name}` }, { status: 409 });
+        }
+        const originalCents = Number(variant?.price_cents ?? product.price_cents);
+        if (!Number.isSafeInteger(originalCents) || originalCents < MINIMUM_CHARGE_CENTS || originalCents > mainUnitCents) {
+          return Response.json({ error: `${product.name} non è eleggibile come accessorio del bundle` }, { status: 400 });
+        }
+        const discountedCents = shipping.bundlePercent > 0
+          ? Math.max(MINIMUM_CHARGE_CENTS, Math.round(originalCents * (100 - shipping.bundlePercent) / 100))
+          : originalCents;
+        bundleDiscountCents += originalCents - discountedCents;
+        const optionValues = variant?.option_values && typeof variant.option_values === 'object' ? variant.option_values : {};
+        const optionLabel = Object.values(optionValues).filter(Boolean).join(' · ');
+        orderItems.push({
+          product_id: String(product.id),
+          variant_id: variant ? String(variant.id) : '',
+          name: `${product.name}${optionLabel ? ` — ${optionLabel}` : ''}`,
+          sku: String(variant?.sku || product.sku || ''),
+          option_values: optionValues,
+          image: variant?.image || product.image || '',
+          price_cents: discountedCents,
+          original_price_cents: originalCents,
+          bundle_accessory: true,
+          qty: 1,
+        });
+      }
+      orderItems[0].bundle_main = true;
+    }
+
+    const subtotalCents = orderItems.reduce((sum, item) => sum + item.price_cents * item.qty, 0);
     const shippingCents = shipping.flatRateCents > 0
       && (shipping.freeThresholdCents <= 0 || subtotalCents < shipping.freeThresholdCents)
       ? shipping.flatRateCents
@@ -182,6 +262,7 @@ export default async function(req) {
       status: "pending",
       discount_code: appliedCode || null,
       stripe_session_id: "",
+      ...(bundleDiscountCents > 0 ? { bundle_discount_cents: bundleDiscountCents } : {}),
     });
 
     try {

@@ -12,6 +12,7 @@ const MAIN_SETTING_KEYS = [
   'free_shipping_threshold',
   'shipping_flat_rate',
   'shipping_countries',
+  'bundle_discount_percent',
 ];
 const SECRET_SETTING_KEYS = ['shopify_access_token'];
 

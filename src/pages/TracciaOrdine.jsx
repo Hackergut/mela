@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Loader2, PackageSearch, Search } from 'lucide-react';
 import PromoBanner from '@/components/PromoBanner';
 import Navbar from '@/components/Navbar';
 import FooterSection from '@/components/FooterSection';
 import OrderDetail from '@/components/OrderDetail';
 import { base44 } from '@/api/base44Client';
+import { SUPPORT_EMAIL, whatsappLink } from '@/lib/contact';
 
 export default function TracciaOrdine() {
   const [orderNumber, setOrderNumber] = useState('');
@@ -97,7 +97,7 @@ export default function TracciaOrdine() {
             <div className="rounded-[32px] border border-dashed border-[#d2d2d7] px-6 py-16 text-center">
               <PackageSearch size={40} strokeWidth={1.4} className="mx-auto text-[#86868b]" aria-hidden="true" />
               <p className="mt-4 text-sm text-[#6e6e73]">Il riepilogo e lo stato della spedizione appariranno qui.</p>
-              <p className="mt-2 text-xs text-[#86868b]">Hai bisogno d'aiuto? Scrivici dal <Link to="/#newsletter" className="text-[#0066cc] hover:underline">modulo di supporto</Link>.</p>
+              <p className="mt-2 text-xs text-[#86868b]">Hai bisogno d'aiuto? Scrivici su <a href={whatsappLink()} target="_blank" rel="noopener noreferrer" className="font-semibold text-[#25D366] hover:underline">WhatsApp</a> o a <a href={`mailto:${SUPPORT_EMAIL}`} className="text-[#0066cc] hover:underline">{SUPPORT_EMAIL}</a>.</p>
             </div>
           )
         )}

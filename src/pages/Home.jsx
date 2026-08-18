@@ -8,10 +8,13 @@ import ValueMarquee from '@/components/ValueMarquee';
 // eager bundle while everything else streams in as the user scrolls.
 const CategoriesSection = lazy(() => import('@/components/CategoriesSection'));
 const PopularProducts = lazy(() => import('@/components/PopularProducts'));
+const OffersSection = lazy(() => import('@/components/OffersSection'));
 const SpotlightSection = lazy(() => import('@/components/SpotlightSection'));
+const HowItWorksSection = lazy(() => import('@/components/HowItWorksSection'));
 const StatsSection = lazy(() => import('@/components/StatsSection'));
 const FeaturesSection = lazy(() => import('@/components/FeaturesSection'));
 const TestimonialsSection = lazy(() => import('@/components/TestimonialsSection'));
+const FAQSection = lazy(() => import('@/components/FAQSection'));
 const NewsletterSection = lazy(() => import('@/components/NewsletterSection'));
 const FooterSection = lazy(() => import('@/components/FooterSection'));
 
@@ -30,10 +33,13 @@ export default function Home() {
         <Suspense fallback={<SectionFallback />}>
           <CategoriesSection />
           <PopularProducts />
+          <OffersSection />
           <SpotlightSection />
+          <HowItWorksSection />
           <StatsSection />
           <FeaturesSection />
           <TestimonialsSection />
+          <FAQSection />
           <NewsletterSection />
         </Suspense>
       </main>

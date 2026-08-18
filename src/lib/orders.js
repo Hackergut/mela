@@ -138,3 +138,63 @@ export function formatOrderDate(value) {
     minute: '2-digit',
   }).format(date);
 }
+
+// --- Bundle (prodotto + accessori con sconto) -------------------------------
+
+/** Clamp the configured bundle discount to a safe 0–15% integer. */
+export function bundleDiscountPercent(settings) {
+  const value = Number(settings?.bundle_discount_percent);
+  if (!Number.isFinite(value)) return 0;
+  return Math.min(15, Math.max(0, Math.trunc(value)));
+}
+
+/**
+ * Accessories that can join the main product in a bundle: different, cheaper
+ * (or equal) in-stock products from the catalog, preferring the same category
+ * and family so the suggestion stays coherent.
+ * @param {any[]} products
+ * @param {any} current
+ * @param {{ limit?: number, maxMainCents?: number }} [options]
+ */
+export function selectBundleAccessories(products, current, { limit = 3, maxMainCents } = {}) {
+  if (!current || !Array.isArray(products)) return [];
+  const id = String(current.id);
+  const mainCents = Math.max(0, Number(maxMainCents ?? current.price_cents) || 0);
+  const category = String(current.category || '').trim().toLowerCase();
+  const family = String(current.family || '').trim().toLowerCase();
+
+  return products
+    .filter((product) => {
+      if (String(product.id) === id) return false;
+      if (!product.in_stock) return false;
+      const cents = Number(product.price_cents) || 0;
+      return cents >= 50 && (mainCents === 0 || cents <= mainCents);
+    })
+    .map((product) => {
+      let score = 0;
+      if (category && String(product.category || '').trim().toLowerCase() === category) score += 4;
+      if (family && String(product.family || '').trim().toLowerCase() === family) score += 2;
+      score += Math.min(2, Math.round(Number(product.price_cents) / 20000));
+      return { product, score };
+    })
+    .sort((a, b) => b.score - a.score || b.product.price_cents - a.product.price_cents)
+    .slice(0, limit)
+    .map((entry) => entry.product);
+}
+
+/** Bundle math: the discount applies to the accessories only, never the main product. */
+export function bundleTotals({ mainCents, accessories = [], percent = 0 }) {
+  const main = Math.max(0, Math.trunc(Number(mainCents) || 0));
+  const accessoryCents = accessories.reduce(
+    (sum, accessory) => sum + Math.max(0, Math.trunc(Number(accessory?.price_cents) || 0)),
+    0,
+  );
+  const discount = Math.round(accessoryCents * (Math.min(15, Math.max(0, Number(percent) || 0)) / 100));
+  return {
+    mainCents: main,
+    accessoryCents,
+    accessoryDiscountCents: discount,
+    totalCents: main + accessoryCents - discount,
+    savingsCents: discount,
+  };
+}
