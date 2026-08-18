@@ -4,7 +4,7 @@ import { ConvexReactClient } from "convex/react";
 //   https://your-name-123.convex.cloud
 // It is set:
 //   - locally in .env.local  (after `npx convex dev`)
-//   - on Vercel as an environment variable
+//   - on Vercel as a public environment variable
 // When absent the app runs in "offline/demo" mode using the built-in
 // fallback catalogue; set the variable to enable the live Convex backend.
 const convexUrl = import.meta.env.VITE_CONVEX_URL || "";
