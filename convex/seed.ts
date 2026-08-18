@@ -9,7 +9,7 @@
 //   npx convex run seed:default
 
 import { mutation } from "./_generated/server";
-import { PRODUCT_CATALOG } from "../src/lib/productCatalog.js";
+import { PRODUCT_CATALOG } from "./shared/productCatalog.js";
 import { v } from "convex/values";
 
 const slugify = (s) => String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
