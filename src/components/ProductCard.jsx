@@ -15,7 +15,7 @@ export default function ProductCard({ product }) {
       className="group flex h-full flex-col rounded-[22px] bg-white"
     >
       <div className="relative aspect-square overflow-hidden rounded-[22px] bg-[#f5f5f7]">
-        <Link to={href} className="absolute inset-0 block p-6" aria-label={`Scopri ${product.name}`}>
+        <Link to={href} className="absolute inset-0 block p-4 sm:p-6" aria-label={`Scopri ${product.name}`}>
           <Image
             src={product.image}
             alt={product.name}

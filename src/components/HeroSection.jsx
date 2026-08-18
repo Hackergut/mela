@@ -97,7 +97,7 @@ function Tile({ dark = false, eyebrow, title, subtitle, image, href, imageY, red
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-      className={`group relative overflow-hidden rounded-[28px] ${bg} ${compact ? 'min-h-[520px]' : 'min-h-[620px]'}`}
+      className={`group relative overflow-hidden rounded-[28px] ${bg} ${compact ? 'min-h-[460px] sm:min-h-[520px]' : 'min-h-[560px] sm:min-h-[640px]'}`}
     >
       <div className="relative z-10 flex flex-col items-center px-6 pt-12 text-center sm:pt-16">
         <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#0071e3]">{eyebrow}</p>
