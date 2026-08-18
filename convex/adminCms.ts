@@ -136,7 +136,7 @@ export default action({
     password: v.string(),
     operation: v.string(),
     resource: v.optional(v.string()),
-    payload: v.optional(v.any()),
+    payload: v.optional(v.record(v.string(), v.any())),
   },
   handler: async (ctx, args) => {
     const auth = authenticateAdmin(ctx, { password: args.password, clientKey: args.password.slice(0, 8) });

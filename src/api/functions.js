@@ -1,94 +1,71 @@
 // @ts-nocheck
-// Convex function invoker. Routes the legacy `base44.functions.invoke(name, args)`
-// calls used throughout the app to Convex actions.
-//
-// To avoid a hard dependency on `convex/_generated` (which is only created once
-// a deployment is linked), requests go directly to Convex's public sync HTTP
-// endpoint: POST <convex-url>/api/query | /api/actions with
-// { path: "moduleName:exportName", args }.
-//
-// The map below keeps the legacy function names ("admin-cms", "catalog", …)
-// and maps them to the Convex module/action they belong to.
+// Convex function invoker used by the compatibility adapter
+// (base44Client.js). It routes the legacy `base44.functions.invoke(name, args)`
+// calls to real Convex actions. When the generated `convex/_generated/api`
+// module is available (it is committed as stubs and replaced by `npx convex
+// dev`/`convex deploy`), those references are used directly so the client
+// validates argument/return types.
 
-import { convexConfigured } from "./convexClient";
+import { convex, convexConfigured } from "./convexClient";
+import { ConvexHttpClient } from "convex/browser";
+import { api } from "../../convex/_generated/api";
 
-const CONVEX_URL = import.meta.env.VITE_CONVEX_URL || "";
+// One-off HTTP client for imperative action calls outside React (admin
+// screens, event handlers, effects).
+const httpClient = convexConfigured
+  ? new ConvexHttpClient(import.meta.env.VITE_CONVEX_URL)
+  : null;
 
-// Legacy function name → Convex path (file: export).
-const PATHS = {
-  catalog: { kind: "query", path: "catalog:default" },
-  "admin-cms": { kind: "action", path: "adminCms:default" },
-  "create-checkout-session": { kind: "action", path: "createCheckout:default" },
-  "shopify-sync": { kind: "action", path: "shopifySync:default" },
-  "integration-hub": { kind: "action", path: "integrationHub:default" },
-  "order-lookup": { kind: "action", path: "orderLookup:default" },
+// Legacy function name → Convex action reference (api.<module>.<export>).
+const ACTIONS = {
+  catalog: () => api.catalog,
+  "admin-cms": () => api.adminCms,
+  "create-checkout-session": () => api.createCheckout,
+  "shopify-sync": () => api.shopifySync,
+  "integration-hub": () => api.integrationHub,
+  "order-lookup": () => api.orderLookup,
 };
 
-function detectKind(pathValue) {
-  // Queries live in convex/catalog.ts; everything else is an action.
-  if (pathValue.startsWith("catalog:")) return "query";
-  return "action";
+function refFor(functionName) {
+  const factory = ACTIONS[functionName];
+  if (!factory) {
+    throw Object.assign(new Error(`Funzione "${functionName}" non trovata su Convex`), { status: 404 });
+  }
+  return factory();
 }
 
 /**
- * Invoke a Convex backend action/query.
- * Resolves to { data, status } exactly like the old Base44 SDK.
+ * Invoke a Convex action. Resolves to { data, status } just like the old
+ * Base44 SDK. Actions that return a serialized Response are unwrapped.
  */
 export async function invoke(functionName, args = {}) {
-  if (!convexConfigured) {
+  if (!convexConfigured || !httpClient) {
     throw Object.assign(
       new Error("Convex non è configurato. Imposta VITE_CONVEX_URL."),
       { status: 503 },
     );
   }
-  const mapping = PATHS[functionName];
-  if (!mapping) {
-    throw Object.assign(new Error(`Funzione "${functionName}" non trovata su Convex`), { status: 404 });
-  }
-  const kind = mapping.kind || detectKind(mapping.path);
-  const endpoint = `${CONVEX_URL.replace(/\/$/, "")}/api/${kind}`;
-
+  const ref = refFor(functionName);
   let result;
-  let status = 200;
   try {
-    const res = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ path: mapping.path, args, format: "json" }),
-    });
-    status = res.status;
-    const text = await res.text();
-    try {
-      result = text ? JSON.parse(text) : null;
-    } catch {
-      result = text;
-    }
-    if (!res.ok) {
-      const message = result?.message || (typeof result === "string" ? result : `Richiesta non riuscita (${res.status})`);
-      throw Object.assign(new Error(message), {
-        status: res.status,
-        response: { data: { error: message, ...(result && typeof result === "object" ? result : {}) } },
-      });
-    }
+    result = await httpClient.action(ref, args);
   } catch (error) {
-    if (error.response) throw error;
-    throw Object.assign(new Error(error.message || "Errore di rete verso Convex"), {
-      status: 502,
-      response: { data: { error: error.message || "Errore di rete" } },
+    const data = error?.data || { error: error?.message || "Richiesta non riuscita" };
+    throw Object.assign(new Error(data.error || error?.message || "Richiesta non riuscita"), {
+      status: error?.code === "ConvexError" ? 400 : 500,
+      response: { data },
     });
   }
-
   // Some actions return a serialized Response (webhook/order lookups).
   if (result && typeof result === "object" && "body" in result && "status" in result && typeof result.body === "string") {
     let data = {};
     try { data = JSON.parse(result.body); } catch { data = result.body; }
     return { data, status: result.status };
   }
-  // Action returned { error, status } without throwing — mimic legacy error shape.
   if (result && typeof result === "object" && "error" in result && !("ok" in result)) {
     throw Object.assign(new Error(result.error), { response: { data: result }, status: result.status || 400 });
   }
-  return { data: result, status };
+  return { data: result };
 }
 
-export { convexConfigured };
+export { convex, convexConfigured, api };

@@ -80,7 +80,7 @@ export default action({
     password: v.optional(v.string()),
     operation: v.string(),
     integration_id: v.optional(v.string()),
-    values: v.optional(v.any()),
+    values: v.optional(v.record(v.string(), v.any())),
   },
   handler: async (ctx, args) => {
     const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { "Content-Type": "application/json" } });
