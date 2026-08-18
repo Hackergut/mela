@@ -1,129 +1,153 @@
-import React, { useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { useCatalog } from '@/lib/useProducts';
 
-// Apple-style hero: light canvas, large centered typography, one product on a
-// soft radial glow, generous whitespace and two quiet CTAs.
+// Apple.com-style homepage: a stack of large promo "tiles". Each tile has a
+// deliberate background, one product, headline and two quiet links.
 export default function HeroSection() {
   const { products } = useCatalog();
   const reduceMotion = useReducedMotion();
   const sectionRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start start', 'end start'] });
-  const imageY = useTransform(scrollYProgress, [0, 1], ['0%', reduceMotion ? '0%' : '12%']);
-  const copyOpacity = useTransform(scrollYProgress, [0, 0.7], [1, reduceMotion ? 1 : 0]);
+  const imageY = useTransform(scrollYProgress, [0, 1], ['0%', '10%']);
 
-  const product =
-    products.find((item) => item.featured && /iPhone 17 Pro/i.test(item.name)) ||
-    products.find((item) => item.featured) ||
-    products[0];
-  const title = product?.name || 'TechMania';
-  const subtitle = product?.subtitle || 'La tecnologia che ami, al prezzo giusto.';
-  const image = product?.default_variant?.image || product?.image;
+  const hero = useMemo(() => {
+    const find = (re) => products.find((p) => re.test(p.name));
+    const flagship = find(/iPhone 17 Pro/i) || products[0];
+    const secondary = find(/MacBook|Mac (mini|Studio|Pro)|iPad Pro/i);
+    const tertiary = find(/Apple Watch|AirPods/i);
+    return { flagship, secondary, tertiary };
+  }, [products]);
 
-  const entrance = (delay = 0) => ({
-    initial: { opacity: 0, y: 22 },
-    animate: { opacity: 1, y: 0 },
-    transition: { type: 'spring', bounce: 0, duration: 0.7, delay },
-  });
+  const img = (p) => p?.default_variant?.image || p?.image;
 
   return (
-    <section ref={sectionRef} className="relative overflow-hidden bg-[#f5f5f7] px-5 pt-20 pb-0 sm:px-8 sm:pt-28">
-      {/* Soft canvas: top vignette + product glow */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-x-0 top-0 h-72 bg-gradient-to-b from-white to-transparent" />
-        <div className="absolute left-1/2 top-[58%] h-[420px] w-[820px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#0071e3]/10 blur-[120px] sm:h-[520px] sm:w-[1100px]" />
+    <section ref={sectionRef} className="bg-[#f5f5f7] px-3 pt-3 sm:px-5">
+      <div className="mx-auto max-w-[1100px]">
+        <Tile
+          dark
+          eyebrow="Nuovo"
+          title={hero.flagship?.name || 'iPhone 17 Pro'}
+          subtitle={hero.flagship?.subtitle || 'Progettato per essere leggendario.'}
+          image="/brand/hero-flagship.svg"
+          href={hero.flagship ? `/scheda-prodotto?id=${hero.flagship.id}` : '/catalogo'}
+          imageY={imageY}
+          reduceMotion={reduceMotion}
+        />
+
+        <div className="mt-3 grid gap-3 md:grid-cols-2">
+          {hero.secondary && (
+            <Tile
+              eyebrow="Performance"
+              title={hero.secondary.name.replace(/^Apple /, '')}
+              subtitle="Potenza Apple silicon."
+              image="/brand/hero-wearable.svg"
+              href={`/scheda-prodotto?id=${hero.secondary.id}`}
+              reduceMotion={reduceMotion}
+              compact
+            />
+          )}
+          {hero.tertiary && (
+            <Tile
+              dark
+              eyebrow="Wearable"
+              title={hero.tertiary.name.replace(/^Apple /, '')}
+              subtitle="Tecnologia da polso."
+              image={img(hero.tertiary)}
+              href={`/scheda-prodotto?id=${hero.tertiary.id}`}
+              reduceMotion={reduceMotion}
+              compact
+            />
+          )}
+        </div>
       </div>
 
-      <div className="relative mx-auto max-w-6xl text-center">
-        <motion.p
-          {...entrance(0)}
-          className="text-sm font-semibold uppercase tracking-[0.08em] text-[#0071e3]"
-        >
-          Nuovo
-        </motion.p>
-
-        <motion.h1
-          {...entrance(0.05)}
-          style={{ opacity: copyOpacity }}
-          className="mx-auto mt-3 max-w-5xl text-[44px] font-semibold leading-[1.02] tracking-[-0.045em] text-[#1d1d1f] sm:text-6xl lg:text-[80px]"
-        >
-          {title}
-        </motion.h1>
-
-        <motion.p
-          {...entrance(0.1)}
-          className="mx-auto mt-5 max-w-2xl text-xl font-medium tracking-[-0.01em] text-[#6e6e73] sm:text-2xl"
-        >
-          {subtitle}
-        </motion.p>
-
-        <motion.div
-          {...entrance(0.16)}
-          className="mt-8 flex flex-wrap items-center justify-center gap-4"
-        >
-          {product && (
-            <Link
-              to={`/scheda-prodotto?id=${product.id}`}
-              className="inline-flex min-h-11 items-center rounded-full bg-[#0071e3] px-7 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#0077ed]"
-            >
-              Acquista
-            </Link>
-          )}
-          <Link
-            to="/catalogo"
-            className="inline-flex min-h-11 items-center gap-1 rounded-full px-2 py-3 text-sm font-semibold text-[#0071e3] transition-colors hover:underline"
-          >
-            Scopri di più
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M5 3l5 5-5 5" />
-            </svg>
-          </Link>
-        </motion.div>
-
-        <motion.div
-          {...entrance(0.2)}
-          style={{ y: imageY }}
-          className="relative mx-auto mt-10 w-full max-w-5xl"
-        >
-          {image ? (
-            <motion.div
-              className="relative mx-auto aspect-[16/9] w-full"
-              animate={reduceMotion ? undefined : { y: [0, -12, 0] }}
-              transition={reduceMotion ? undefined : { duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-            >
-              <Image
-                src={image}
-                alt={product?.name || 'Prodotto in evidenza'}
-                fittingType="fit"
-                quality={92}
-                loading="eager"
-                fetchPriority="high"
-                className="h-full w-full drop-shadow-[0_40px_60px_rgba(0,0,0,0.12)]"
-              />
-            </motion.div>
-          ) : (
-            <div className="aspect-[16/9]" />
-          )}
-        </motion.div>
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="pointer-events-none flex justify-center pb-2"
-        aria-hidden="true"
-      >
+      <div className="pointer-events-none flex justify-center py-6" aria-hidden="true">
         <motion.div
           animate={reduceMotion ? undefined : { y: [0, 6, 0] }}
           transition={reduceMotion ? undefined : { duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
         >
           <ChevronDown size={22} className="text-[#86868b]" />
         </motion.div>
-      </motion.div>
+      </div>
     </section>
+  );
+}
+
+/**
+ * @param {object} props
+ * @param {boolean} [props.dark]
+ * @param {string} props.eyebrow
+ * @param {string} props.title
+ * @param {string} [props.subtitle]
+ * @param {string} [props.image]
+ * @param {string} props.href
+ * @param {any} [props.imageY]
+ * @param {boolean} [props.reduceMotion]
+ * @param {boolean} [props.compact]
+ */
+function Tile({ dark = false, eyebrow, title, subtitle, image, href, imageY, reduceMotion, compact = false }) {
+  const bg = dark ? 'bg-[#1d1d1f] text-white' : 'bg-white text-[#1d1d1f]';
+  const subColor = dark ? 'text-[#a1a1a6]' : 'text-[#6e6e73]';
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      className={`group relative overflow-hidden rounded-[28px] ${bg} ${compact ? 'min-h-[460px] sm:min-h-[520px]' : 'min-h-[560px] sm:min-h-[640px]'}`}
+    >
+      <div className="relative z-10 flex flex-col items-center px-6 pt-12 text-center sm:pt-16">
+        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#0071e3]">{eyebrow}</p>
+        <h2
+          className={`mt-3 max-w-3xl font-semibold leading-[1.05] tracking-[-0.03em] ${
+            compact ? 'text-3xl sm:text-4xl' : 'text-4xl sm:text-5xl lg:text-6xl'
+          }`}
+        >
+          {title}
+        </h2>
+        {subtitle && <p className={`mt-3 max-w-md text-base sm:text-lg ${subColor}`}>{subtitle}</p>}
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-5 text-sm font-medium">
+          <Link
+            to={href}
+            className="rounded-full bg-[#0071e3] px-6 py-2.5 text-white transition-colors hover:bg-[#0077ed]"
+          >
+            Acquista
+          </Link>
+          <Link to={href} className="inline-flex items-center gap-1 text-[#2997ff] hover:underline">
+            Scopri di più
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M5 3l5 5-5 5" />
+            </svg>
+          </Link>
+        </div>
+      </div>
+
+      {image && (
+        <motion.div
+          style={imageY ? { y: imageY } : undefined}
+          className={`pointer-events-none absolute inset-x-0 flex justify-center ${compact ? 'bottom-[-4%] h-[62%]' : 'bottom-[-2%] h-[60%]'}`}
+        >
+          <motion.div
+            animate={reduceMotion ? undefined : { y: [0, -10, 0] }}
+            transition={reduceMotion ? undefined : { duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+            className="relative h-full w-[88%] max-w-3xl"
+          >
+            <Image
+              src={image}
+              alt={title}
+              fittingType="fit"
+              quality={92}
+              loading="eager"
+              fetchPriority="high"
+              className="h-full w-full"
+            />
+          </motion.div>
+          {dark && <div aria-hidden="true" className="pointer-events-none absolute bottom-0 left-1/2 h-24 w-[60%] -translate-x-1/2 rounded-full bg-[#0071e3]/25 blur-3xl" />}
+        </motion.div>
+      )}
+    </motion.div>
   );
 }

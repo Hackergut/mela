@@ -44,8 +44,8 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-black/[0.06] bg-white/75 backdrop-blur-2xl supports-[backdrop-filter]:bg-white/65">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-5 sm:px-8">
-        <Link to="/" onClick={() => setMenuOpen(false)} className="flex min-h-10 items-center text-[17px] font-semibold tracking-[-0.025em] text-[#1d1d1f]" aria-label={`${storeName}, home`}>
-          {storeName}
+        <Link to="/" onClick={() => setMenuOpen(false)} className="flex min-h-10 items-center" aria-label={`${storeName}, home`}>
+          <img src="/brand/logo.svg" alt={storeName} className="h-7 w-auto sm:h-8" width="120" height="44" />
         </Link>
 
         <nav className="hidden items-center lg:flex" aria-label="Navigazione principale">
