@@ -8,17 +8,20 @@ export default function AdminLogin({ onLogin }) {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [errorKind, setErrorKind] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!password) return;
-    setLoading(true); setError(null);
+    setLoading(true); setError(null); setErrorKind(null);
     try {
       const res = await base44.functions.invoke('admin-cms', { password, operation: 'list', resource: 'product' });
       const role = res.data?.role || 'admin';
       onLogin(password, res.data.items || [], role);
     } catch (err) {
-      setError(err.response?.data?.error || 'Password non valida');
+      const status = err.response?.status;
+      setErrorKind(status === 503 ? 'not_configured' : status === 429 ? 'locked' : 'invalid');
+      setError(err.response?.data?.error || err.message || 'Password non valida');
     } finally { setLoading(false); }
   };
 
@@ -41,7 +44,29 @@ export default function AdminLogin({ onLogin }) {
             className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#0071E3] focus:outline-none text-sm mb-3"
             autoFocus
           />
-          {error && <p className="text-sm text-red-600 mb-3 text-center">{error}</p>}
+          {error && (
+            <div
+              role="alert"
+              className={
+                'text-sm mb-3 text-center rounded-xl px-3 py-2 ' +
+                (errorKind === 'not_configured'
+                  ? 'bg-amber-50 text-amber-800'
+                  : errorKind === 'locked'
+                    ? 'bg-orange-50 text-orange-800'
+                    : 'text-red-600')
+              }
+            >
+              <p>{error}</p>
+              {errorKind === 'not_configured' && (
+                <p className="mt-2 text-left text-[12px] leading-relaxed text-amber-700">
+                  1. Apri il progetto in Base44 e vai in <strong>Impostazioni → Secrets</strong> (oppure esegui
+                  <code className="mx-1 rounded bg-amber-100 px-1 py-0.5">base44 secrets set ADMIN_PASSWORD=…</code>).<br />
+                  2. Imposta <strong>ADMIN_PASSWORD</strong> (accesso operativo) ed eventualmente <strong>SUPER_ADMIN_PASSWORD</strong> (settaggi CMS).<br />
+                  3. Le funzioni vengono ridistribuite automaticamente: riprova l’accesso.
+                </p>
+              )}
+            </div>
+          )}
           <button
             type="submit"
             disabled={loading || !password}

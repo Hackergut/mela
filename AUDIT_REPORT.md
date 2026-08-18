@@ -2,6 +2,15 @@
 
 _Data audit: 15 agosto 2026 · baseline: `50da0532fa6547e0901f73d914d11319a2a2618e`_
 
+> ## Aggiornamento — 18 agosto 2026
+>
+> Interventi successivi all'audit, verificati con lint/typecheck/test/build:
+>
+> - **React Router 6 → 7.18.2**: risolte entrambe le vulnerabilità moderate segnalate da `npm audit` (CVE-2025-68470 bypass e injection in hydration). `npm audit` ora riporta **0 vulnerabilità**. I flag `future` v6 sono stati rimossi (default in v7).
+> - **CI effettivamente presente**: la pipeline `.github/workflows/ci.yml` citata nel report non era stata inclusa nel repository; ora è committata (npm ci + lint + typecheck + test + build su ogni push/PR).
+> - **Rate limiting sul login admin** (mitigazione interim della priorità alta #1): 5 tentativi falliti per IP → lockout 10 minuti con `Retry-After`, sia su `admin-cms` sia su `shopify-sync` (che condivide le stesse password). Confronto password a tempo costante.
+> - **Diagnosi accesso admin**: se i secret `ADMIN_PASSWORD`/`SUPER_ADMIN_PASSWORD` non sono impostati, il server risponde ora 503 con istruzioni esplicite invece del generico 401 «Password non valida»; la schermata di login mostra la procedura di configurazione. Guida completa in `ADMIN_ACCESS.md`.
+
 ## Sintesi
 
 Il progetto è una SPA e-commerce React 18/Vite 6 con backend serverless Base44, entità JSONC, checkout Stripe e sincronizzazione Shopify. L'intervento ha privilegiato modifiche compatibili: nessun cambio di framework o di modello dati distruttivo, mantenimento di React Router 6 e delle API Base44 esistenti.

@@ -98,18 +98,82 @@ function mapShopifyCustomer(c) {
   };
 }
 
+// Best-effort, in-memory rate limiting mirrored in admin-cms: both functions
+// accept the same shared password, so each must throttle failed attempts.
+const AUTH_MAX_FAILURES = 5;
+const AUTH_LOCKOUT_MS = 10 * 60 * 1000;
+/** @type {Map<string, { count: number, lockedUntil: number, firstFailure: number }>} */
+const authFailures = new Map();
+
+function getClientKey(req) {
+  const forwarded = String(req.headers?.get?.('x-forwarded-for') || '');
+  const ip = forwarded.split(',')[0].trim() || String(req.headers?.get?.('cf-connecting-ip') || '').trim();
+  return ip || 'unknown';
+}
+
+function timingSafeEquals(actual, expected) {
+  const encoder = new TextEncoder();
+  const a = encoder.encode(String(actual ?? ''));
+  const b = encoder.encode(String(expected ?? ''));
+  let diff = a.length ^ b.length;
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    diff |= (a[i] || 0) ^ (b[i] || 0);
+  }
+  return diff === 0;
+}
+
+function checkAuthRateLimit(key) {
+  const now = Date.now();
+  const entry = authFailures.get(key);
+  if (!entry) return { allowed: true };
+  if (entry.lockedUntil > now) {
+    return { allowed: false, retryAfterSec: Math.ceil((entry.lockedUntil - now) / 1000) };
+  }
+  if (now - entry.firstFailure > AUTH_LOCKOUT_MS) authFailures.delete(key);
+  return { allowed: true };
+}
+
+function recordAuthFailure(key) {
+  const now = Date.now();
+  const entry = authFailures.get(key);
+  if (!entry || now - entry.firstFailure > AUTH_LOCKOUT_MS) {
+    authFailures.set(key, { count: 1, lockedUntil: 0, firstFailure: now });
+    return;
+  }
+  entry.count += 1;
+  if (entry.count >= AUTH_MAX_FAILURES) entry.lockedUntil = now + AUTH_LOCKOUT_MS;
+}
+
 export default async function(req) {
   try {
     const body = await req.json();
     const { password, operation, payload } = body;
 
+    const clientKey = getClientKey(req);
+    const rateLimit = checkAuthRateLimit(clientKey);
+    if (!rateLimit.allowed) {
+      const minutes = Math.max(1, Math.ceil(rateLimit.retryAfterSec / 60));
+      return Response.json(
+        { error: `Troppi tentativi falliti. Riprova tra ${minutes} minuti.` },
+        { status: 429, headers: { 'Retry-After': String(rateLimit.retryAfterSec) } },
+      );
+    }
+
     const adminPassword = secrets.get("ADMIN_PASSWORD");
     const superPassword = secrets.get("SUPER_ADMIN_PASSWORD");
-    const isSuperAdmin = !!superPassword && password === superPassword;
-    const isAdmin = password === adminPassword;
+    if (!adminPassword && !superPassword) {
+      return Response.json(
+        { error: "Accesso admin non configurato: imposta i secret ADMIN_PASSWORD e SUPER_ADMIN_PASSWORD in Base44 (Impostazioni → Secrets, oppure `base44 secrets set ADMIN_PASSWORD=…`) e riprova." },
+        { status: 503 },
+      );
+    }
+    const isSuperAdmin = !!superPassword && timingSafeEquals(password, superPassword);
+    const isAdmin = !!adminPassword && timingSafeEquals(password, adminPassword);
     if (!password || (!isAdmin && !isSuperAdmin)) {
+      recordAuthFailure(clientKey);
       return Response.json({ error: "Password non valida" }, { status: 401 });
     }
+    authFailures.delete(clientKey);
 
     const base44 = createClientFromRequest(req);
     const Setting = base44.asServiceRole.entities.Setting;
