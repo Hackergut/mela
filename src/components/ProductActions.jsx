@@ -1,6 +1,7 @@
 import React from 'react';
 import { Heart, Plus } from 'lucide-react';
 import { useStore } from '@/lib/StoreContext';
+import tracking from '@/lib/tracking';
 
 export default function ProductActions({ product }) {
   const { addToCart, toggleWishlist, isInWishlist } = useStore();
@@ -14,7 +15,13 @@ export default function ProductActions({ product }) {
     <div className="flex gap-2">
       <button
         disabled={!available}
-        onClick={(event) => { event.preventDefault(); event.stopPropagation(); addToCart(product, quickVariant || product.default_variant); }}
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          const variant = quickVariant || product.default_variant;
+          addToCart(product, variant);
+          tracking.addToCart(product, variant, 1);
+        }}
         className="grid h-9 w-9 place-items-center rounded-full bg-white/90 text-[#1d1d1f] shadow-sm backdrop-blur-xl transition-colors hover:bg-[#0071e3] hover:text-white disabled:cursor-not-allowed disabled:opacity-45"
         aria-label={available ? `Aggiungi ${product.name} al carrello` : `${product.name} esaurito`}
       >

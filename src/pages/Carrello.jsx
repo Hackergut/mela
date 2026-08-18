@@ -9,8 +9,23 @@ import { useStore } from '@/lib/StoreContext';
 import { formatPriceCents, parsePriceCents } from '@/lib/catalog';
 import { base44 } from '@/api/base44Client';
 import { useCatalog } from '@/lib/useProducts';
+import tracking from '@/lib/tracking';
 
 const linePrice = (item) => Number.isSafeInteger(item.price_cents) ? item.price_cents : parsePriceCents(item.price);
+
+/** Snapshot of the cart used to fire the purchase event after the off-site
+ *  Stripe redirect to ?payment=success. Stored in sessionStorage, cleared once. */
+function readCheckoutSnapshot() {
+  try {
+    const raw = sessionStorage.getItem('tm_checkout_snapshot');
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+function clearCheckoutSnapshot() {
+  try { sessionStorage.removeItem('tm_checkout_snapshot'); } catch { /* noop */ }
+}
 
 export default function Carrello() {
   const { cart, updateQty, removeFromCart, clearCart, syncCatalog } = useStore();
@@ -39,7 +54,23 @@ export default function Carrello() {
   const estimatedTotal = subtotal + shipping;
 
   useEffect(() => {
-    if (payment === 'success') clearCart();
+    if (payment === 'success') {
+      // Fire the conversion on return from Stripe using the snapshot taken
+      // before the redirect. Then clear the snapshot and the cart.
+      const snapshot = readCheckoutSnapshot();
+      if (snapshot?.lines?.length) {
+        const totalCents = snapshot.lines.reduce((sum, line) => {
+          const cents = Number(line.variant?.price_cents ?? line.product?.price_cents) || 0;
+          return sum + cents * (Number(line.qty) || 1);
+        }, 0);
+        tracking.purchase(snapshot.lines, {
+          value: Math.round(totalCents) / 100,
+          coupon: snapshot.coupon || '',
+        });
+      }
+      clearCheckoutSnapshot();
+      clearCart();
+    }
   }, [payment, clearCart]);
 
   useEffect(() => {
@@ -61,6 +92,20 @@ export default function Carrello() {
     setCheckingOut(true);
     setError('');
     try {
+      const checkoutLines = cart.map(item => {
+        const product = products.find(p => String(p.id) === String(item.product_id || item.id)) || {
+          id: item.product_id || item.id, name: item.name, sku: item.sku, category: '',
+          price_cents: linePrice(item), image: item.image,
+        };
+        const variant = item.variant_id
+          ? product.variants?.find(v => String(v.id) === String(item.variant_id))
+          : (product.default_variant || null);
+        return { product, variant, qty: item.qty || 1 };
+      });
+      tracking.beginCheckout(checkoutLines, { coupon: discountCode.trim() });
+      try {
+        sessionStorage.setItem('tm_checkout_snapshot', JSON.stringify({ lines: checkoutLines, coupon: discountCode.trim(), at: Date.now() }));
+      } catch { /* noop */ }
       const response = await base44.functions.invoke('create-checkout-session', {
         items: cart.map(item => ({
           productId: item.product_id || item.id,
@@ -145,7 +190,11 @@ export default function Carrello() {
                           <span className="w-7 text-center text-sm font-medium" aria-live="polite">{item.qty || 1}</span>
                           <button disabled={unavailable || (item.qty || 1) >= item.stock} onClick={() => updateQty(lineId, (item.qty || 1) + 1)} className="grid h-9 w-9 place-items-center text-[#0066cc] disabled:text-[#c7c7cc]" aria-label="Aumenta quantità"><Plus size={14} /></button>
                         </div>
-                        <button onClick={() => removeFromCart(lineId)} className="inline-flex items-center gap-1.5 text-sm text-[#0066cc] hover:underline"><Trash2 size={14} /> Rimuovi</button>
+                        <button onClick={() => {
+                          removeFromCart(lineId);
+                          const product = products.find(p => String(p.id) === String(item.product_id || item.id)) || item;
+                          tracking.removeFromCart(product, product.default_variant || null, item.qty || 1);
+                        }} className="inline-flex items-center gap-1.5 text-sm text-[#0066cc] hover:underline"><Trash2 size={14} /> Rimuovi</button>
                       </div>
                     </div>
                   </article>

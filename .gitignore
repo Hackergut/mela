@@ -30,3 +30,9 @@ dist-ssr
 .env
 .vite
 base44/.app.jsonc
+
+# Convex local deployment state (keep convex/_generated stubs committed so
+# Vercel can build before `npx convex dev` links a deployment).
+.convex/
+.env.local
+convex/.env.local

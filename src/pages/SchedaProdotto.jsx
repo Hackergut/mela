@@ -12,6 +12,15 @@ import { useCatalog } from '@/lib/useProducts';
 import { formatPriceCents, variantOptionGroups } from '@/lib/catalog';
 import { bundleDiscountPercent, bundleTotals, relatedProducts, selectBundleAccessories } from '@/lib/orders';
 import { useStore } from '@/lib/StoreContext';
+import tracking from '@/lib/tracking';
+
+/** Persist a cart snapshot so the purchase event can fire after the Stripe
+ *  off-site redirect back to ?payment=success. */
+function persistCheckoutSnapshot(lines, coupon = '') {
+  try {
+    sessionStorage.setItem('tm_checkout_snapshot', JSON.stringify({ lines, coupon, at: Date.now() }));
+  } catch { /* storage unavailable */ }
+}
 
 const optionLabel = (variant) => Object.values(variant?.option_values || {}).filter(Boolean).join(' · ');
 
@@ -47,6 +56,7 @@ export default function SchedaProdotto() {
     setSelectedImage(initial?.image || product.image || '');
     setBundleSelection(null);
     recordProductView(product);
+    tracking.viewItem(product, initial);
   }, [product?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -95,6 +105,12 @@ export default function SchedaProdotto() {
     if (!product || !selectedVariant || selectedVariant.stock <= 0 || selectedAccessories.length === 0) return;
     setBuyingBundle(true);
     setBundleError('');
+    const checkoutLines = [
+      { product, variant: selectedVariant, qty: 1 },
+      ...selectedAccessories.map(accessory => ({ product: accessory, variant: accessory.default_variant, qty: 1 })),
+    ];
+    tracking.beginCheckout(checkoutLines);
+    persistCheckoutSnapshot(checkoutLines);
     try {
       const response = await base44.functions.invoke('create-checkout-session', {
         productId: product.id,
@@ -116,6 +132,7 @@ export default function SchedaProdotto() {
   const handleAdd = () => {
     if (!product || !selectedVariant || selectedVariant.stock <= 0) return;
     addToCart(product, selectedVariant);
+    tracking.addToCart(product, selectedVariant, 1);
     setAdded(true);
     window.setTimeout(() => setAdded(false), 1800);
   };
@@ -124,6 +141,9 @@ export default function SchedaProdotto() {
     if (!product || !selectedVariant || selectedVariant.stock <= 0) return;
     setBuying(true);
     setCheckoutError('');
+    const checkoutLines = [{ product, variant: selectedVariant, qty: 1 }];
+    tracking.beginCheckout(checkoutLines);
+    persistCheckoutSnapshot(checkoutLines);
     try {
       const response = await base44.functions.invoke('create-checkout-session', {
         productId: product.id,
