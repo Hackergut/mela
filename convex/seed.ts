@@ -88,8 +88,15 @@ export default mutation({
         compare_group: categoryName,
         specs: {},
         image: raw.image,
-        images: Array.isArray(raw.images) ? raw.images : (raw.image ? [raw.image] : []),
-        colors: Array.isArray(raw.colors) ? raw.colors.map((c) => ({ name: c.name, hex: c.hex, image: c.image || raw.image })) : [],
+        // Product gallery: cover + one image per color. Each variant below
+        // carries only its own color's photo sequence.
+        images: [...new Set([raw.image, ...((raw.colors || []).map((c) => c.image)).filter(Boolean)])],
+        colors: Array.isArray(raw.colors)
+          ? raw.colors.map((c) => ({
+              name: c.name, hex: c.hex, image: c.image || raw.image,
+              images: Array.isArray(c.images) && c.images.length ? c.images : (c.image ? [c.image] : [raw.image]),
+            }))
+          : [],
         description: raw.description || "",
         sort_order: -raw.id,
         is_mockup: false,
@@ -118,7 +125,10 @@ export default mutation({
           stock: 25,
           low_stock_threshold: 5,
           image,
-          images: Array.isArray(raw.images) ? raw.images : (image ? [image] : []),
+          // Variant/color gallery: only this color's photos (not all colors).
+          images: color?.images && Array.isArray(color.images) && color.images.length
+            ? color.images
+            : (image ? [image] : []),
           status: "active",
           is_default: isDefault,
           sort_order: i,

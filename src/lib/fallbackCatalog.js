@@ -57,13 +57,18 @@ export function buildFallbackCatalog() {
     const category = categoryByName[categoryName];
     const productId = `prod-${index + 1}`;
     const colors = Array.isArray(raw.colors)
-      ? raw.colors.map((c) => ({ name: c.name, hex: c.hex, image: c.image || raw.image }))
+      ? raw.colors.map((c) => ({
+          name: c.name,
+          hex: c.hex,
+          image: c.image || raw.image,
+          images: Array.isArray(c.images) && c.images.length
+            ? c.images
+            : (c.image ? [c.image] : [raw.image]),
+        }))
       : [];
-    const gallery = Array.isArray(raw.images)
-      ? raw.images
-      : raw.image
-        ? [raw.image]
-        : [];
+    // Product-level gallery: the cover plus one image per color, so the PDP
+    // shows each option without dumping every color's full photo sequence.
+    const gallery = [...new Set([raw.image, ...colors.map((c) => c.image)].filter(Boolean))];
 
     products.push({
       id: productId,
@@ -115,7 +120,9 @@ export function buildFallbackCatalog() {
         stock: 50,
         low_stock_threshold: 5,
         image: c.image || raw.image,
-        images: gallery,
+        images: (colors.length && Array.isArray(c.images) && c.images.length)
+          ? c.images
+          : (c.image ? [c.image] : gallery),
         status: "active",
         is_default: isDefault,
         sort_order: i,

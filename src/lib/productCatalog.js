@@ -103,10 +103,10 @@ const PRO_BLACK  = gallery(1325,1326,1327,1328,1329,1330,1331,1332,1333,1334,163
 
 const IPHONE_17_PRO_IMAGES = [...PRO_ORANGE, ...PRO_BLUE, ...PRO_SILVER, ...PRO_BLACK];
 export const IPHONE_17_PRO_COLORS = [
-  { name: 'Arancione Cosmico', hex: '#E85D2F', image: PRO_ORANGE[0] },
-  { name: 'Blu', hex: '#3B5B7A', image: PRO_BLUE[0] },
-  { name: 'Argento', hex: '#D8D8DC', image: PRO_SILVER[0] },
-  { name: 'Nero Spazio', hex: '#2C2C2E', image: PRO_BLACK[0] },
+  { name: 'Arancione Cosmico', hex: '#E85D2F', image: PRO_ORANGE[0], images: PRO_ORANGE },
+  { name: 'Blu', hex: '#3B5B7A', image: PRO_BLUE[0], images: PRO_BLUE },
+  { name: 'Argento', hex: '#D8D8DC', image: PRO_SILVER[0], images: PRO_SILVER },
+  { name: 'Nero Spazio', hex: '#2C2C2E', image: PRO_BLACK[0], images: PRO_BLACK },
 ];
 
 // ===== iPhone 17 — 5 colori =====
@@ -118,11 +118,11 @@ const STD_SILVER = gallery(1388,1389,1390,1391,1392,1393,1394,1395);
 
 const IPHONE_17_IMAGES = [...STD_BLUE, ...STD_PINK, ...STD_GREEN, ...STD_YELLOW, ...STD_SILVER];
 export const IPHONE_17_COLORS = [
-  { name: 'Blu', hex: '#5B7DA0', image: STD_BLUE[0] },
-  { name: 'Rosa', hex: '#E7B5C0', image: STD_PINK[0] },
-  { name: 'Verde', hex: '#4E6B54', image: STD_GREEN[0] },
-  { name: 'Giallo', hex: '#E8C547', image: STD_YELLOW[0] },
-  { name: 'Argento', hex: '#D8D8DC', image: STD_SILVER[0] },
+  { name: 'Blu', hex: '#5B7DA0', image: STD_BLUE[0], images: STD_BLUE },
+  { name: 'Rosa', hex: '#E7B5C0', image: STD_PINK[0], images: STD_PINK },
+  { name: 'Verde', hex: '#4E6B54', image: STD_GREEN[0], images: STD_GREEN },
+  { name: 'Giallo', hex: '#E8C547', image: STD_YELLOW[0], images: STD_YELLOW },
+  { name: 'Argento', hex: '#D8D8DC', image: STD_SILVER[0], images: STD_SILVER },
 ];
 
 // ===== iPhone 17 Air — 3 colori =====
@@ -132,9 +132,9 @@ const AIR_GOLD  = gallery(1415,1416,1417,1418,1419,1420,1421,1422);
 
 const IPHONE_17_AIR_IMAGES = [...AIR_BLUE, ...AIR_WHITE, ...AIR_GOLD];
 export const IPHONE_17_AIR_COLORS = [
-  { name: 'Azzurro', hex: '#7BA7C9', image: AIR_BLUE[0] },
-  { name: 'Bianco', hex: '#E8E8EC', image: AIR_WHITE[0] },
-  { name: 'Oro Scuro', hex: '#8B7355', image: AIR_GOLD[0] },
+  { name: 'Azzurro', hex: '#7BA7C9', image: AIR_BLUE[0], images: AIR_BLUE },
+  { name: 'Bianco', hex: '#E8E8EC', image: AIR_WHITE[0], images: AIR_WHITE },
+  { name: 'Oro Scuro', hex: '#8B7355', image: AIR_GOLD[0], images: AIR_GOLD },
 ];
 
 // ===== iPhone 16 — 5 colori =====
@@ -146,11 +146,11 @@ const I16_BLACK = gallery(1624,1625,1626,1627,1628,1629,1630,1631);
 
 const IPHONE_16_IMAGES = [...I16_BLUE, ...I16_PINK, ...I16_GREEN, ...I16_CREAM, ...I16_BLACK];
 export const IPHONE_16_COLORS = [
-  { name: 'Blu', hex: '#5B7DA0', image: I16_BLUE[0] },
-  { name: 'Rosa', hex: '#E7B5C0', image: I16_PINK[0] },
-  { name: 'Verde', hex: '#4E6B54', image: I16_GREEN[0] },
-  { name: 'Crema', hex: '#E5DCC8', image: I16_CREAM[0] },
-  { name: 'Nero', hex: '#2C2C2E', image: I16_BLACK[0] },
+  { name: 'Blu', hex: '#5B7DA0', image: I16_BLUE[0], images: I16_BLUE },
+  { name: 'Rosa', hex: '#E7B5C0', image: I16_PINK[0], images: I16_PINK },
+  { name: 'Verde', hex: '#4E6B54', image: I16_GREEN[0], images: I16_GREEN },
+  { name: 'Crema', hex: '#E5DCC8', image: I16_CREAM[0], images: I16_CREAM },
+  { name: 'Nero', hex: '#2C2C2E', image: I16_BLACK[0], images: I16_BLACK },
 ];
 
 // Alias per retrocompatibilità (componenti che importano IPHONE_GALLERY)

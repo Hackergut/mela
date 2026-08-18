@@ -6,10 +6,25 @@ import { fadeUp, staggerContainer, staggerItem } from '@/lib/motion';
 import { useCatalog } from '@/lib/useProducts';
 
 export default function CategoriesSection() {
-  const { categories: catalogCategories } = useCatalog();
+  const { categories: catalogCategories, products } = useCatalog();
+
+  // Pick a representative product image for each category (categories don't
+  // carry their own cover image). Use the first product in the category,
+  // falling back to the first featured product.
+  const coverFor = (name) => {
+    const inCategory = products.find((p) => (p.category_id ? false : p.category === name) || p.category === name);
+    if (inCategory?.image) return inCategory.image;
+    const any = products.find((p) => p.image);
+    return any?.image || '';
+  };
+
   const categories = catalogCategories
-    .filter(category => category.product_count > 0)
-    .map(category => ({ ...category, count: `${category.product_count} ${category.product_count === 1 ? 'prodotto' : 'prodotti'}` }));
+    .filter((category) => category.product_count > 0)
+    .map((category) => ({
+      ...category,
+      image: category.image || coverFor(category.name),
+      count: `${category.product_count} ${category.product_count === 1 ? 'prodotto' : 'prodotti'}`,
+    }));
 
   return (
     <section id="categories" className="py-20 px-6 lg:px-8 bg-[#f5f5f7]">
