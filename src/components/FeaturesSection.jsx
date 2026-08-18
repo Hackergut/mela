@@ -41,13 +41,13 @@ export default function FeaturesSection() {
         </motion.div>
 
         <motion.div {...staggerContainer} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {FEATURES.map(({ icon: Icon, title, desc }) => (
+          {FEATURES.map(({ icon: Icon, title, desc }, index) => (
             <motion.article
               key={title}
               {...staggerItem}
-              className="rounded-[28px] bg-[#f5f5f7] p-6 sm:p-7"
+              className={`group rounded-[28px] bg-[#f5f5f7] p-6 transition-shadow duration-300 hover:shadow-[0_12px_32px_rgba(0,0,0,.08)] sm:p-7 ${index === 0 ? 'sm:col-span-2 bg-gradient-to-br from-[#e8f2ff] to-[#f5f5f7]' : ''}`}
             >
-              <div className="grid h-11 w-11 place-items-center rounded-full bg-white text-[#0071e3] shadow-[0_1px_2px_rgba(0,0,0,.04)]">
+              <div className={`grid h-11 w-11 place-items-center rounded-2xl transition-transform duration-300 group-hover:scale-110 ${index === 0 ? 'bg-gradient-to-br from-[#0071e3] to-[#7d4fff] text-white' : 'bg-white text-[#0071e3] shadow-[0_1px_2px_rgba(0,0,0,.04)]'}`}>
                 <Icon size={21} strokeWidth={1.7} aria-hidden="true" />
               </div>
               <h3 className="mt-8 text-lg font-semibold tracking-[-0.02em] text-[#1d1d1f]">{title}</h3>
