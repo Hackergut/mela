@@ -7,7 +7,7 @@
 //
 // resolves to { data, status } exactly like the old Base44 SDK.
 
-import { invoke, convex, convexConfigured, api } from "./functions";
+import { invoke, convexConfigured } from "./functions";
 
 const noop = () => {};
 const unavailable = () => {
@@ -58,4 +58,4 @@ export const base44 = {
   },
 };
 
-export { convex, convexConfigured, api };
+export { convexConfigured };
