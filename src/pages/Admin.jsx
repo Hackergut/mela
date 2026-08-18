@@ -243,14 +243,14 @@ export default function Admin() {
                   <table className="w-full min-w-[820px]">
                     <thead>
                       <tr className="border-b border-gray-100 text-left text-xs text-[#6e6e73] uppercase">
-                        <th className="p-3 w-10"><input type="checkbox" checked={allSelected} onChange={toggleAll} className="w-4 h-4 accent-[#0071E3] cursor-pointer" /></th>
-                        <th className="p-3">Prodotto</th>
-                        <th className="p-3">Categoria</th>
-                        <th className="p-3">Varianti</th>
-                        <th className="p-3">Prezzi</th>
-                        <th className="p-3">Stock</th>
-                        <th className="p-3">Stato</th>
-                        <th className="p-3 text-right">Azioni</th>
+                        <th scope="col" className="p-3 w-10"><input type="checkbox" checked={allSelected} onChange={toggleAll} className="w-4 h-4 accent-[#0071E3] cursor-pointer" /></th>
+                        <th scope="col" className="p-3">Prodotto</th>
+                        <th scope="col" className="p-3">Categoria</th>
+                        <th scope="col" className="p-3">Varianti</th>
+                        <th scope="col" className="p-3">Prezzi</th>
+                        <th scope="col" className="p-3">Stock</th>
+                        <th scope="col" className="p-3">Stato</th>
+                        <th scope="col" className="p-3 text-right">Azioni</th>
                       </tr>
                     </thead>
                     <tbody>

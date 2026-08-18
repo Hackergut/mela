@@ -17,6 +17,9 @@ _Data audit: 15 agosto 2026 · baseline: `50da0532fa6547e0901f73d914d11319a2a261
 > - **Pipeline immagini estese**: il componente `Image` serve ora anche gli URL `cdn.shopify.com` ridimensionati (`width`/`height`/`crop` + srcset DPR come per Wix Media); gli URL esterni senza API di trasformazione ricevono default sicuri (`object-fit` coerente con `fittingType`, `max-w-full`, lazy + decoding async) — elimina le immagini sproporzionate nei contenuti sincronizzati o caricati con URL arbitrari.
 > - **Admin panel mobile**: header e toolbar della console si impilano/a capo su schermi stretti, tab nav scorrevole a filo bordi, tabelle prodotti/ordini/clienti con larghezza minima e scroll orizzontale invece di colonne compresse, toolbar dei manager con `flex-wrap` ovunque.
 > - **Storefront mobile**: barra filtri catalogo allineata alla navbar sticky con padding ridotti su mobile; griglie già responsive verificate su tutte le pagine.
+> - **Shopify GraphQL (priorità media #5)**: `shopify-sync` migrato dalla REST Admin API (legacy) all'Admin GraphQL API 2025-10 con paginazione a cursore e **checkpoint incrementali** (`shopify_orders_checkpoint`/`shopify_customers_checkpoint`): dopo il primo backfill si leggono solo ordini/clienti modificati dall'ultima sincronizzazione. Checkbox «risincronizzazione completa» e checkpoint visibili nella scheda Shopify del CMS.
+> - **Paginazione CMS (priorità bassa #8)**: nuova operazione `list_more` con cursore `created_date` (fino a 250 righe per chiamata) e pulsante «Carica ordini meno recenti» in OrdersManager oltre il tetto delle 500 righe.
+> - **Accessibilità (priorità media #7, prima tranche)**: `scope="col"` sugli header delle tabelle admin e `aria-label` sulle select di stato ordini; login, carrello e pulsanti icona erano già etichettati.
 
 ## Sintesi
 

@@ -64,13 +64,13 @@ export default function CustomersManager({ password }) {
             <table className="w-full min-w-[760px]">
               <thead>
                 <tr className="border-b border-gray-100 text-left text-xs text-[#6e6e73] uppercase">
-                  <th className="p-3 w-10"><SelectAllCheckbox checked={bulk.allSelected} indeterminate={bulk.someSelected} onChange={bulk.toggleAll} /></th>
-                  <th className="p-3">Cliente</th>
-                  <th className="p-3">Email</th>
-                  <th className="p-3">Telefono</th>
-                  <th className="p-3">Ordini</th>
-                  <th className="p-3">Totale speso</th>
-                  <th className="p-3 text-right">Azioni</th>
+                  <th scope="col" className="p-3 w-10"><SelectAllCheckbox checked={bulk.allSelected} indeterminate={bulk.someSelected} onChange={bulk.toggleAll} /></th>
+                  <th scope="col" className="p-3">Cliente</th>
+                  <th scope="col" className="p-3">Email</th>
+                  <th scope="col" className="p-3">Telefono</th>
+                  <th scope="col" className="p-3">Ordini</th>
+                  <th scope="col" className="p-3">Totale speso</th>
+                  <th scope="col" className="p-3 text-right">Azioni</th>
                 </tr>
               </thead>
               <tbody>

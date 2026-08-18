@@ -771,6 +771,23 @@ export default async function(req) {
 
         return Response.json({ report });
       }
+      case 'list_more': {
+        // Cursor pagination beyond the first page: the client passes the
+        // created_date of the last loaded row and receives up to `limit`
+        // older rows plus the next cursor. Works for any time-sorted
+        // resource (orders, notifications, customers, …).
+        const limit = Math.min(Math.max(integer(payload?.limit, 50), 1), 250);
+        const before = String(payload?.before || '').trim();
+        if (before && Number.isNaN(new Date(before).getTime())) {
+          return Response.json({ error: 'Cursore non valido' }, { status: 400 });
+        }
+        const filter = before ? { created_date: { $lt: before } } : {};
+        const items = await db.filter(filter, sortMap[res] || '-created_date', limit);
+        return Response.json({
+          items,
+          nextBefore: items.length === limit ? String(items[items.length - 1]?.created_date || '') : null,
+        });
+      }
       default:
         return Response.json({ error: 'Operazione non valida' }, { status: 400 });
     }

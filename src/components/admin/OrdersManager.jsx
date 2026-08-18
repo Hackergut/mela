@@ -16,14 +16,32 @@ export default function OrdersManager({ password }) {
   const [expandedId, setExpandedId] = useState('');
   const [reconciling, setReconciling] = useState('');
   const [reconcileMsg, setReconcileMsg] = useState(null);
+  const [nextBefore, setNextBefore] = useState(null);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
       const res = await base44.functions.invoke('admin-cms', { password, operation: 'list', resource: 'order' });
-      setOrders(res.data.items || []);
+      const items = res.data.items || [];
+      setOrders(items);
+      // The base list caps at 500 rows: keep a cursor when there may be more.
+      setNextBefore(items.length >= 500 && items[items.length - 1]?.created_date ? items[items.length - 1].created_date : null);
     } finally { setLoading(false); }
   }, [password]);
+
+  const loadMore = async () => {
+    if (!nextBefore || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const res = await base44.functions.invoke('admin-cms', { password, operation: 'list_more', resource: 'order', payload: { before: nextBefore, limit: 50 } });
+      const items = res.data.items || [];
+      setOrders(prev => [...prev, ...items]);
+      setNextBefore(res.data.nextBefore || null);
+    } catch (error) {
+      console.error('orders load more failed:', error);
+    } finally { setLoadingMore(false); }
+  };
 
   useEffect(() => { load(); }, [load]);
 
@@ -96,13 +114,13 @@ export default function OrdersManager({ password }) {
             <table className="w-full min-w-[760px]">
               <thead>
                 <tr className="border-b border-gray-100 text-left text-xs text-[#6e6e73] uppercase">
-                  <th className="p-3 w-10"><SelectAllCheckbox checked={bulk.allSelected} indeterminate={bulk.someSelected} onChange={bulk.toggleAll} /></th>
-                  <th className="p-3">Ordine</th>
-                  <th className="p-3">Cliente</th>
-                  <th className="p-3">Data</th>
-                  <th className="p-3">Sconto</th>
-                  <th className="p-3">Totale</th>
-                  <th className="p-3">Stato</th>
+                  <th scope="col" className="p-3 w-10"><SelectAllCheckbox checked={bulk.allSelected} indeterminate={bulk.someSelected} onChange={bulk.toggleAll} /></th>
+                  <th scope="col" className="p-3">Ordine</th>
+                  <th scope="col" className="p-3">Cliente</th>
+                  <th scope="col" className="p-3">Data</th>
+                  <th scope="col" className="p-3">Sconto</th>
+                  <th scope="col" className="p-3">Totale</th>
+                  <th scope="col" className="p-3">Stato</th>
                 </tr>
               </thead>
               <tbody>
@@ -130,6 +148,7 @@ export default function OrdersManager({ password }) {
                         <td className="p-3">
                           <select
                             value={o.status}
+                            aria-label={`Stato ordine ${o.order_number}`}
                             onChange={e => updateStatus(o.id, e.target.value)}
                             className={`cursor-pointer rounded-full border-0 px-2 py-1 text-xs font-semibold ${BADGE[o.status] || ''}`}
                           >
@@ -201,6 +220,19 @@ export default function OrdersManager({ password }) {
             </table>
           </div>
         )}
+
+      {!loading && nextBefore && (
+        <div className="mt-4 text-center">
+          <button
+            onClick={loadMore}
+            disabled={loadingMore}
+            className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-6 py-2.5 text-sm font-semibold text-[#1d1d1f] transition hover:border-[#86868b] disabled:opacity-50"
+          >
+            {loadingMore ? <Loader2 size={15} className="animate-spin" /> : null}
+            {loadingMore ? 'Caricamento…' : 'Carica ordini meno recenti'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
