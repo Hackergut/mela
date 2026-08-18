@@ -22,8 +22,8 @@ export default function FooterSection() {
       <div className="mx-auto flex max-w-7xl flex-col gap-8 md:flex-row md:items-start md:justify-between">
         <div className="flex flex-col items-center gap-3 md:items-start">
           <Link to="/" className="flex items-center gap-2.5 text-white" aria-label={`${storeName}, home`}>
-            <span className="grid h-8 w-8 place-items-center rounded-full bg-white/10"><ShoppingBag size={16} aria-hidden="true" /></span>
-            <span className="text-base font-semibold">{storeName}</span>
+            <img src="/brand/logo.svg" alt="" className="h-8 w-auto brightness-0 invert" width="44" height="32" />
+            <span className="sr-only">{storeName}</span>
           </Link>
           <div className="flex flex-col items-center gap-2 text-sm sm:flex-row sm:gap-5 md:items-start">
             <a
