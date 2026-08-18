@@ -14,6 +14,7 @@ const HowItWorksSection = lazy(() => import('@/components/HowItWorksSection'));
 const StatsSection = lazy(() => import('@/components/StatsSection'));
 const FeaturesSection = lazy(() => import('@/components/FeaturesSection'));
 const TestimonialsSection = lazy(() => import('@/components/TestimonialsSection'));
+const SupportSection = lazy(() => import('@/components/SupportSection'));
 const FAQSection = lazy(() => import('@/components/FAQSection'));
 const NewsletterSection = lazy(() => import('@/components/NewsletterSection'));
 const FooterSection = lazy(() => import('@/components/FooterSection'));
@@ -39,6 +40,7 @@ export default function Home() {
           <StatsSection />
           <FeaturesSection />
           <TestimonialsSection />
+          <SupportSection />
           <FAQSection />
           <NewsletterSection />
         </Suspense>
