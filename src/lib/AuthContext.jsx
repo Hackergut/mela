@@ -1,95 +1,26 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { createAxiosClient } from '@base44/sdk/dist/utils/axios-client';
+import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { appParams } from '@/lib/app-params';
 
+// After the Base44 → Convex migration there is no app-bootstrap network call
+// and no built-in customer session on the storefront. Customer accounts can be
+// added later via Convex Auth; the admin console uses its own shared password.
+// This provider keeps the same useAuth() shape consumed across the app so no
+// call sites need to change, without any Base44 runtime dependency.
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
-  const [isLoadingPublicSettings, setIsLoadingPublicSettings] = useState(true);
-  const [authError, setAuthError] = useState(null);
-  const [authChecked, setAuthChecked] = useState(false);
-  const [appPublicSettings, setAppPublicSettings] = useState(null);
+  const [user] = useState(null);
+  const [isAuthenticated] = useState(false);
+  const [isLoadingAuth] = useState(false);
+  const [isLoadingPublicSettings] = useState(false);
+  const [authError] = useState(null);
+  const [authChecked] = useState(true);
+  const [appPublicSettings] = useState({});
 
-  const checkUserAuth = useCallback(async () => {
-    try {
-      setIsLoadingAuth(true);
-      const currentUser = await base44.auth.me();
-      setUser(currentUser);
-      setIsAuthenticated(true);
-      setAuthError(null);
-    } catch (error) {
-      console.error('User auth check failed:', error);
-      setUser(null);
-      setIsAuthenticated(false);
-
-      if (error.status === 401 || error.status === 403) {
-        setAuthError({ type: 'auth_required', message: 'Authentication required' });
-      }
-    } finally {
-      setIsLoadingAuth(false);
-      setAuthChecked(true);
-    }
-  }, []);
-
-  const checkAppState = useCallback(async () => {
-    setIsLoadingPublicSettings(true);
-    setAuthError(null);
-
-    try {
-      // A standalone/local preview may not receive Base44 launch parameters.
-      // Render the public storefront anyway; data queries will surface their
-      // own unavailable state instead of leaving the entire app behind a gate.
-      if (!appParams.appId) {
-        setAppPublicSettings({});
-        setIsLoadingAuth(false);
-        setIsAuthenticated(false);
-        setAuthChecked(true);
-        return;
-      }
-
-      const appClient = createAxiosClient({
-        baseURL: '/api/apps/public',
-        headers: { 'X-App-Id': appParams.appId },
-        token: appParams.token,
-        interceptResponses: true,
-      });
-
-      const publicSettings = await appClient.get(`/prod/public-settings/by-id/${appParams.appId}`);
-      setAppPublicSettings(publicSettings);
-
-      if (appParams.token) {
-        await checkUserAuth();
-      } else {
-        setIsLoadingAuth(false);
-        setIsAuthenticated(false);
-        setAuthChecked(true);
-      }
-    } catch (error) {
-      console.error('App state check failed:', error);
-      const reason = error.status === 403 ? error.data?.extra_data?.reason : null;
-      setAuthError({
-        type: reason || 'unknown',
-        message: error.message || 'Failed to load app',
-      });
-      setIsLoadingAuth(false);
-    } finally {
-      setIsLoadingPublicSettings(false);
-    }
-  }, [checkUserAuth]);
-
-  useEffect(() => {
-    checkAppState();
-  }, [checkAppState]);
+  const checkUserAuth = useCallback(async () => null, []);
+  const checkAppState = useCallback(async () => {}, []);
 
   const logout = useCallback((shouldRedirect = true) => {
-    setUser(null);
-    setIsAuthenticated(false);
-    setAuthChecked(true);
-
     base44.auth.logout(shouldRedirect ? window.location.href : undefined);
   }, []);
 
