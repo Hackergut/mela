@@ -36,3 +36,4 @@ base44/.app.jsonc
 .convex/
 .env.local
 convex/.env.local
+convex-deploy.yml

@@ -16,22 +16,27 @@ const httpClient = convexConfigured
   ? new ConvexHttpClient(import.meta.env.VITE_CONVEX_URL)
   : null;
 
-// Legacy function name → Convex action reference (api.<module>.<export>).
+// Legacy function name → Convex UDF path. All backend files export a default
+// function, which Convex names "<file>:default" (e.g. "adminCms:default").
+// The _generated api stubs mirror that.
 const ACTIONS = {
-  catalog: () => api.catalog,
-  "admin-cms": () => api.adminCms,
-  "create-checkout-session": () => api.createCheckout,
-  "shopify-sync": () => api.shopifySync,
-  "integration-hub": () => api.integrationHub,
-  "order-lookup": () => api.orderLookup,
+  catalog: "catalog:default",
+  "admin-cms": "adminCms:default",
+  "create-checkout-session": "createCheckout:default",
+  "shopify-sync": "shopifySync:default",
+  "integration-hub": "integrationHub:default",
+  "order-lookup": "orderLookup:default",
 };
 
 function refFor(functionName) {
-  const factory = ACTIONS[functionName];
-  if (!factory) {
+  const path = ACTIONS[functionName];
+  if (!path) {
     throw Object.assign(new Error(`Funzione "${functionName}" non trovata su Convex`), { status: 404 });
   }
-  return factory();
+  // Prefer the generated function reference when available (typed), otherwise
+  // fall back to the path string accepted by ConvexHttpClient.
+  const moduleName = path.split(":")[0];
+  return api?.[moduleName]?.default || path;
 }
 
 /**
