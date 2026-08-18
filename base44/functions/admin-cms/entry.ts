@@ -667,24 +667,44 @@ export default async function(req) {
         const publishable = secrets.get('STRIPE_PUBLISHABLE_KEY');
         const keySet = Boolean(stripeKey);
         const isTest = stripeKey ? stripeKey.startsWith('sk_test') || stripeKey.startsWith('rk_test') : false;
+        // Checkout redirects require PUBLIC_APP_URL in production: without it
+        // create-checkout-session refuses non-localhost origins (503).
+        let publicAppUrl = null;
+        try {
+          const parsed = new URL(String(secrets.get('PUBLIC_APP_URL') || ''));
+          const isLocal = parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1';
+          if (parsed.protocol === 'https:' || (isLocal && parsed.protocol === 'http:')) publicAppUrl = parsed.origin;
+        } catch { /* invalid or missing PUBLIC_APP_URL */ }
         let account = null;
         if (stripeKey) {
           try {
             const stripe = new Stripe(stripeKey);
+            // Identify which Stripe account the keys belong to: essential when
+            // rotating or switching accounts, since the dashboard may show a
+            // different one than the deployed functions actually use.
+            const accountApi = /** @type {any} */ (stripe.accounts);
+            const accountInfo = typeof accountApi.retrieveSelf === 'function'
+              ? await accountApi.retrieveSelf()
+              : await accountApi.retrieve();
             const balance = await stripe.balance.retrieve();
             account = {
+              id: String(accountInfo?.id || ''),
+              business_name: String(accountInfo?.settings?.dashboard?.display_name || accountInfo?.business_profile?.name || ''),
+              country: String(accountInfo?.country || ''),
+              payouts_enabled: Boolean(accountInfo?.payouts_enabled),
               available_eur: balance.available.find(item => item.currency === 'eur')?.amount ?? null,
               pending_eur: balance.pending.find(item => item.currency === 'eur')?.amount ?? null,
             };
           } catch (error) {
-            console.error('Stripe balance check failed:', error);
-            account = { error: 'Impossibile leggere il saldo Stripe' };
+            console.error('Stripe account/balance check failed:', error);
+            account = { error: 'Impossibile leggere l’account Stripe: chiave non valida o insufficiente' };
           }
         }
         return Response.json({
           stripeKeySet: keySet,
           publishableKeySet: Boolean(publishable),
           webhookSecretSet: Boolean(webhookSecret),
+          publicAppUrl,
           mode: keySet ? (isTest ? 'test' : 'live') : null,
           currency: 'eur',
           account,
