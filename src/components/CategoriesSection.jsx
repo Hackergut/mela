@@ -61,27 +61,39 @@ function CategoryCard({ cat, featured = false }) {
   return (
     <motion.div
       whileHover={{ y: -6 }}
-      transition={{ duration: 0.3, ease: 'easeOut' }}
-      className="group relative h-full cursor-pointer overflow-hidden rounded-[28px] bg-white shadow-[0_1px_2px_rgba(0,0,0,.04)] transition-shadow duration-300 hover:shadow-[0_16px_40px_rgba(0,0,0,.12)]"
-      style={{ minHeight: featured ? '360px' : '340px' }}
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      className="group relative h-full cursor-pointer overflow-hidden rounded-[28px] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.06)] transition-shadow duration-500 hover:shadow-[0_20px_50px_rgba(0,0,0,0.12)]"
+      style={{ minHeight: featured ? '440px' : '420px' }}
     >
-      <div className="absolute inset-0">
-        <Image src={cat.image} alt={cat.name} className="w-full h-full transition-transform duration-700 ease-out group-hover:scale-[1.06]" fittingType="fill" />
+      {/* Light, product-first background (Apple tile look) */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#f5f5f7] to-white" />
+      <div className="absolute inset-x-0 top-0 h-2/3">
+        {cat.image ? (
+          <Image
+            src={cat.image}
+            alt={cat.name}
+            className="h-full w-full object-contain p-8 transition-transform duration-[900ms] ease-out group-hover:scale-[1.06]"
+            fittingType="fit"
+            quality={85}
+          />
+        ) : null}
       </div>
-      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent transition-all duration-300 group-hover:from-black/85" />
-      <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-6">
-        <div>
-          <p className="mb-2 inline-flex rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/90 backdrop-blur-sm">{cat.count}</p>
-          <h3 className={`font-bold text-white mb-0 ${featured ? 'text-3xl sm:text-4xl tracking-[-0.02em]' : 'text-2xl'}`}>{cat.name}</h3>
-        </div>
-        <span
-          aria-hidden="true"
-          className="grid h-11 w-11 shrink-0 translate-x-2 place-items-center rounded-full bg-white/90 text-[#1d1d1f] opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100"
+
+      {/* Copy anchored at the bottom, no heavy dark overlay */}
+      <div className="absolute inset-x-0 bottom-0 p-6 text-center sm:p-8">
+        <h3
+          className={`font-semibold tracking-[-0.02em] text-[#1d1d1f] ${
+            featured ? 'text-3xl sm:text-4xl' : 'text-2xl'
+          }`}
         >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 8h10M8 3l5 5-5 5" />
+          {cat.name}
+        </h3>
+        <p className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-[#0071e3] opacity-0 transition-all duration-300 group-hover:opacity-100">
+          {cat.count}
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M5 3l5 5-5 5" />
           </svg>
-        </span>
+        </p>
       </div>
     </motion.div>
   );
