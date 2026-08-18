@@ -1,108 +1,85 @@
-# Configurazione pagamenti Stripe — TechMania
+# Pagamenti Stripe — setup (techmania.pro)
 
-_Guida per collegare un **nuovo account Stripe** (già creato) al checkout del negozio._
+Il backend è già pronto: la funzione `createCheckout` crea una sessione Stripe
+Checkout, `http.ts` riceve il webhook firmato, aggiorna l'ordine, decrementa lo
+stock, crea clienti/notifiche e spedisce i webhook di automazione. Manca solo la
+configurazione di 3 chiavi e dell'endpoint webhook.
 
-> **Dominio configurato (techmania.pro):** con i record DNS `A @ → 2.57.91.91` e
-> `CNAME www → techmania.pro`, imposta `PUBLIC_APP_URL=https://techmania.pro` e
-> registra su Stripe l'endpoint `https://techmania.pro/apps/<APP_ID>/functions/stripe-webhook`
-> (oppure l'equivalente su `www.techmania.pro`, coerente con il dominio scelto come canonico).
+## Cosa ho già fatto io (codice)
+- Checkout server-side in EUR con creazione ordine `pending` e aggiornamento a
+  `paid` via webhook firmato (idempotente).
+- Verifica di prezzi, stock, sconti e spedizioni **sul server** (mai dal browser).
+- URL di successo `https://techmania.pro/ordine?session_id=...` e di annullo.
+- Stato connessione Stripe visibile in **Impostazioni → Pagamenti** dell'admin.
 
-## Come funziona il flusso (già implementato)
+---
 
-```
-Carrello ──▶ funzione create-checkout-session ──▶ Stripe Checkout (pagina di pagamento Stripe)
-                     │ crea ordine "pending"                │ pagamento
-                     ▼                                     ▼
-            Base44 Orders entity  ◀──  funzione stripe-webhook (firma verificata)
-                     │                     ├─ ordine → "paid" + dati cliente/spedizione
-                     │                     ├─ sconto: usage_count +1
-                     │                     ├─ stock decrementato (+ notifica se basso)
-                     └─ redirect a /scheda-prodotto o /carrello con ?payment=success
-```
+## Passaggi che devi fare TU (10 minuti)
 
-Prezzi, stock e sconti sono **riletti server-side**: il browser non può alterare gli importi. Nessun codice va modificato per cambiare account — **basta aggiornare i secret**.
+### 1. Recupera le chiavi (Stripe Dashboard, modalità TEST)
+Apri https://dashboard.stripe.com/test/apikeys (assicurati che l'interruttore
+**Modalità di test** in alto a destra sia attivo). Ti servono:
 
-## I 4 secret da impostare su Base44
+- **Chiave segreta** `sk_test_...`  ⚠️ NON condividerla con nessuno.
+- **Chiave pubblicabile** `pk_test_...`  (quella che mi hai già dato va bene).
 
-| Secret | Dove trovarlo su Stripe | A cosa serve |
-|---|---|---|
-| `STRIPE_SECRET_KEY` | Sviluppatori → **Chiavi API** → `sk_test_…` / `sk_live_…` (copiare la *Secret key*) | Crea le sessioni di checkout, verifica il webhook, legge il saldo |
-| `STRIPE_PUBLISHABLE_KEY` | Stessa pagina → `pk_…` | Solo indicazione di stato nel pannello admin |
-| `STRIPE_WEBHOOK_SECRET` | Sviluppatori → **Webhook** → endpoint → *Chiave di firma* `whsec_…` (dopo il punto 2 sotto) | Verifica la firma degli eventi in arrivo |
-| `PUBLIC_APP_URL` | L'URL **pubblico** del sito, es. `https://techmania.base44.app` | Redirect di successo/annullamento; **senza questo il checkout in produzione risponde «Checkout non configurato» (503)** |
-
-> Facoltativo: `BASE44_APP_ID` (solo metadato dell'ordine).
-
-## Procedura con il nuovo account
-
-### 1. Imposta le chiavi su Base44
-
-**Opzione A — Builder Base44 (consigliata)**
-Apri il progetto → **Dashboard → Integrations → Stripe** → incolla *Secret key* e *Publishable key* del nuovo account.
-
-**Opzione B — CLI**
-
-```bash
-base44 secrets set STRIPE_SECRET_KEY='sk_test_…' \
-                  STRIPE_PUBLISHABLE_KEY='pk_test_…' \
-                  PUBLIC_APP_URL='https://tuo-dominio'
-```
-
-> Le chiavi `sk_test`/`pk_test` valutano in **modalità test**; le `sk_live`/`pk_live` in **live**. La modalità attiva è mostrata nel pannello admin.
-
-### 2. Registra il webhook nel nuovo account Stripe
-
-1. Su Stripe: **Sviluppatori → Webhook → Aggiungi endpoint**.
+### 2. Crea il webhook
+1. Vai su https://dashboard.stripe.com/test/webhooks → **Aggiungi endpoint**.
 2. **URL dell'endpoint**:
    ```
-   https://TUO-DOMINIO/apps/TUO_APP_ID/functions/stripe-webhook
+   https://acoustic-flamingo-875.convex.site/stripe-webhook
    ```
-   (`TUO_APP_ID` è visibile nel Builder Base44; in locale la funzione è servita da `base44 dev`.)
-3. **Eventi da selezionare** (esattamente questi due):
+3. **Eventi da ascoltare** → aggiungi:
    - `checkout.session.completed`
    - `checkout.session.expired`
-4. Salva → copia la **chiave di firma** `whsec_…` e impostala:
-   ```bash
-   base44 secrets set STRIPE_WEBHOOK_SECRET='whsec_…'
-   ```
+4. Salva, poi clicca sul webhook creato → **Rivela** il
+   **Segreto di firma** (`whsec_...`). Copialo.
 
-### 3. Verifica dal pannello admin
+### 3. Inserisci i secret in Convex
+Sono variabili d'ambiente **lato server** (non vanno su Vercel).
+Dashboard Convex → progetto `acoustic-flamingo-875` (ambiente **production**)
+→ **Settings → Environment Variables** → aggiungi:
 
-`/admin` → tab **Impostazioni** → sezione **Pagamenti (Stripe)**:
+| Name | Value |
+|---|---|
+| `ADMIN_PASSWORD` | password per accedere all'admin |
+| `SUPER_ADMIN_PASSWORD` | password per i settaggi principali |
+| `PUBLIC_APP_URL` | `https://techmania.pro` |
+| `STRIPE_SECRET_KEY` | `sk_test_...` |
+| `STRIPE_PUBLISHABLE_KEY` | `pk_test_51U57MaJPrsrxAt5rCQaEPmTuc4X9PCjO89gTqpGQ6KeXeY6mKdQtSTyZqePQJ80eErFXKqSGK5HrbEaHcWZKrpJK00iY8NpMCJ` |
+| `STRIPE_WEBHOOK_SECRET` | `whsec_...` |
 
-- ✅ Connessione Stripe · Modalità (Test/Live) · Webhook · Publishable · Redirect sito
-- **Account Stripe collegato**: mostra `acct_…`, nome attività e paese — **controlla che sia il nuovo account**, non il vecchio
-- Saldo disponibile/in attesa · pulsante **Test connessione**
+### 4. Carica i prodotti (se non l'hai fatto)
+Convex → **Functions** → `seed` → `default` → Arguments `{}` → **Run**.
+(Crea i 44 prodotti demo con varianti e categorie.)
 
-### 4. Prova un pagamento (modalità test)
+### 5. Redeploy Vercel
+Assicurati che in Vercel → **Settings → Environment Variables** ci sia:
+- `VITE_CONVEX_URL` = l'URL Cloud di **produzione** Convex.
+Poi **Deployments → ⋯ → Redeploy**.
 
-1. Aggiungi un prodotto al carrello → **Vai al checkout**.
-2. Sulla pagina Stripe paga con: carta **`4242 4242 4242 4242`**, scadenza futura qualsiasi, CVC qualsiasi.
-3. Verifica: redirect «Pagamento completato», ordine **paid** nell'admin, stock decrementato, eventuale notifica.
+---
 
-## Passare a live (go-live)
+## Provare un pagamento (test)
+Usa una carta di test:
+- Numero: **`4242 4242 4242 4242`**
+- Scadenza: una data futura (es. `12/34`)
+- CVC: qualunque (es. `123`)
 
-- [ ] Account nuovo: profilo aziendale e **payout abilitati** (il pannello mostra ⚠️ se non lo sono)
-- [ ] Sostituisci le chiavi con `sk_live_…` / `pk_live_…`
-- [ ] Ricrea/attiva il webhook **in modalità live** su Stripe (i webhook test e live sono separati: nuovo `whsec_live…`)
-- [ ] `PUBLIC_APP_URL` = dominio pubblico definitivo
-- [ ] Un pagamento reale di piccolo importo di verifica
-- [ ] Vecchio account: **rimuovi l'endpoint webhook** e revoca le vecchie chiavi
+Altre carte di test (es. 3D Secure, fondi insufficienti):
+https://stripe.com/docs/testing
 
-## Risoluzione problemi
+## Andare in produzione (dopo i test)
+Quando i test funzionano:
+1. In Stripe attiva il conto business e passa alla **modalità Live**.
+2. Crea un secondo webhook live sullo stesso URL e prendi il `whsec_...` live.
+3. In Convex aggiorna le variabili con le chiavi `sk_live_...` / `pk_live_...` /
+   `whsec_...` live.
+4. Fai un Redeploy.
 
-| Sintomo | Causa | Rimedio |
-|---|---|---|
-| «Checkout non configurato» (503) al checkout | `STRIPE_SECRET_KEY` o `PUBLIC_APP_URL` mancanti | Imposta i secret (tabella sopra) e riprova |
-| Ordini rimasti `pending` dopo il pagamento | Webhook non registrato / `STRIPE_WEBHOOK_SECRET` sbagliato / eventi mancanti | Rifai il punto 2; su Stripe → Webhook → *tentativi di consegna* per il dettaglio degli errori |
-| «Invalid webhook» nei log | Firma non corrispondente (endpoint di un altro account o whsec test/live mescolati) | Rigenera il segreto dell'endpoint e aggiorna il secret |
-| Il pannello mostra il vecchio account | Chiavi del vecchio account ancora impostate | Guarda «Account Stripe collegato» e sovrascrivi `STRIPE_SECRET_KEY` |
-| Pagamenti riusciti ma saldo 0 / valuta strana | Stai guardando il test mode | Sul dashboard Stripe attiva/disattiva **Modalità test** |
-
-## Note di sicurezza (già attive nel codice)
-
-- Verifica firma sul body raw; solo gli eventi attesi vengono processati.
-- Idempotenza: consegne duplicate non duplicano stock, contatori sconto o clienti.
-- Verifica incrociata ordine↔sessione (importo, valuta, session ID) prima di qualsiasi movimento.
-- Gli importi derivano sempre dal catalogo server-side; il minimo Stripe (0,50 €) è rispettato.
-- Le chiavi non vengono mai restituite al browser: il pannello mostra solo la presenza e i dati pubblici dell'account.
+## Risoluzione
+- **Pagamento non aggiorna l'ordine** → quasi sempre `STRIPE_WEBHOOK_SECRET`
+  sbagliato o webhook non creato. Controlla i log del webhook su Stripe.
+- **"Checkout non configurato"** → manca `STRIPE_SECRET_KEY` o `PUBLIC_APP_URL`.
+- **"Store non disponibile"** → manca `VITE_CONVEX_URL` su Vercel o Convex non ha
+  le funzioni deployate.
