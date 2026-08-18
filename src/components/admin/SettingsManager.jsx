@@ -12,6 +12,7 @@ const STORE_KEYS = [
   { key: 'free_shipping_threshold', label: 'Soglia spedizione gratuita (€)', value: '99' },
   { key: 'shipping_flat_rate', label: 'Tariffa spedizione standard (€)', value: '0' },
   { key: 'shipping_countries', label: 'Paesi di consegna (codici ISO separati da virgola)', value: 'IT' },
+  { key: 'bundle_discount_percent', label: 'Sconto bundle accessori (% sul totale accessori, max 15)', value: '5' },
 ];
 const MAIN_KEYS = STORE_KEYS.map(s => s.key);
 
@@ -131,6 +132,7 @@ export default function SettingsManager({ password, isSuperAdmin }) {
               <StatusCard label="Modalità" ok={payment?.mode === 'test'} bad={payment?.mode === 'live'} okText="Test (Sandbox)" badText="Live" neutral={payment?.mode} />
               <StatusCard label="Webhook" ok={!!payment?.webhookSecretSet} okText="Configurato" badText="Non configurato" />
               <StatusCard label="Publishable Key" ok={!!payment?.publishableKeySet} okText="Configurata" badText="Mancante" />
+              <StatusCard label="Redirect sito (PUBLIC_APP_URL)" ok={!!payment?.publicAppUrl} okText="Configurato" badText="Mancante" neutral={payment?.publicAppUrl || undefined} />
               <StatusCard label="Valuta" neutral="EUR (€)" />
               <div className="bg-[#f5f5f7] rounded-xl p-3">
                 <p className="text-[10px] text-[#6e6e73] uppercase font-semibold mb-1">Carta di test</p>
@@ -140,14 +142,22 @@ export default function SettingsManager({ password, isSuperAdmin }) {
 
             {payment?.account && (
               <div className="bg-[#f5f5f7] rounded-xl p-3 mb-4 text-sm">
-                <p className="text-xs font-semibold text-[#6e6e73] uppercase mb-1">Saldo Stripe</p>
+                <p className="text-xs font-semibold text-[#6e6e73] uppercase mb-1">Account Stripe collegato</p>
                 {payment.account.error ? (
                   <p className="text-red-600 text-xs">{payment.account.error}</p>
                 ) : (
-                  <p className="text-[#1d1d1f]">
-                    Disponibile: {payment.account.available_eur != null ? `${(payment.account.available_eur/100).toFixed(2)} €` : '—'} ·
-                    In attesa: {payment.account.pending_eur != null ? `${(payment.account.pending_eur/100).toFixed(2)} €` : '—'}
-                  </p>
+                  <>
+                    <p className="text-[#1d1d1f]">
+                      {payment.account.id ? <span className="font-mono text-xs">{payment.account.id} </span> : null}
+                      {payment.account.business_name ? `· ${payment.account.business_name}` : ''}
+                      {payment.account.country ? ` (${payment.account.country})` : ''}
+                      {payment.account.payouts_enabled ? '' : ' · ⚠️ payout non abilitati'}
+                    </p>
+                    <p className="text-[#6e6e73] text-xs mt-1">
+                      Disponibile: {payment.account.available_eur != null ? `${(payment.account.available_eur/100).toFixed(2)} €` : '—'} ·
+                      In attesa: {payment.account.pending_eur != null ? `${(payment.account.pending_eur/100).toFixed(2)} €` : '—'}
+                    </p>
+                  </>
                 )}
               </div>
             )}
@@ -163,8 +173,11 @@ export default function SettingsManager({ password, isSuperAdmin }) {
               )}
             </div>
 
-            <div className="mt-4 p-3 bg-amber-50 rounded-xl text-xs text-amber-700">
-              Le chiavi Stripe si configurano in <strong>Dashboard → Integrations → Stripe</strong>. In modalità test puoi pagare con la carta 4242. Per andare live, inserisci le chiavi di produzione nella stessa sezione.
+            <div className="mt-4 p-3 bg-amber-50 rounded-xl text-xs text-amber-700 leading-relaxed">
+              <p className="font-semibold text-amber-800 mb-1">Collegare un account Stripe (guida completa: <code>STRIPE_SETUP.md</code>)</p>
+              1. Imposta i secret in <strong>Dashboard → Integrations → Stripe</strong> oppure con la CLI (<code>base44 secrets set STRIPE_SECRET_KEY=… STRIPE_WEBHOOK_SECRET=… STRIPE_PUBLISHABLE_KEY=… PUBLIC_APP_URL=https://tuo-dominio</code>).<br />
+              2. Su Stripe (Sviluppatori → Webhook) registra l'endpoint <code>https://tuo-dominio/apps/&lt;APP_ID&gt;/functions/stripe-webhook</code> con gli eventi <code>checkout.session.completed</code> e <code>checkout.session.expired</code>, poi copia il <code>whsec_…</code> in <code>STRIPE_WEBHOOK_SECRET</code>.<br />
+              3. In modalità test paga con la carta 4242; per andare live sostituisci le chiavi <code>sk_live_…</code>/<code>pk_live_…</code> e ricrea il webhook in modalità live. Senza <code>PUBLIC_APP_URL</code> il checkout in produzione risponde «Checkout non configurato».
             </div>
           </>
         )}
@@ -172,7 +185,7 @@ export default function SettingsManager({ password, isSuperAdmin }) {
 
       {/* Store settings — main CMS (super admin only) */}
       <div className={`bg-white rounded-2xl p-6 ${!isSuperAdmin ? 'opacity-90' : ''}`}>
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-2">
             <Store size={18} className="text-[#0071E3]" />
             <h2 className="text-lg font-bold text-[#1d1d1f]">Settaggi CMS Principali</h2>
@@ -206,7 +219,7 @@ export default function SettingsManager({ password, isSuperAdmin }) {
 
       {/* Custom & mockup settings */}
       <div className="bg-white rounded-2xl p-6">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <h2 className="text-lg font-bold text-[#1d1d1f]">Settaggi personalizzati & Mockup</h2>
           <button onClick={() => setShowAddCustom(true)} className="px-3 py-2 bg-[#0071E3] text-white text-sm font-semibold rounded-xl flex items-center gap-2"><Plus size={16} /> Aggiungi</button>
         </div>

@@ -2,6 +2,25 @@
 
 _Data audit: 15 agosto 2026 · baseline: `50da0532fa6547e0901f73d914d11319a2a2618e`_
 
+> ## Aggiornamento — 18 agosto 2026
+>
+> Interventi successivi all'audit, verificati con lint/typecheck/test/build:
+>
+> - **React Router 6 → 7.18.2**: risolte entrambe le vulnerabilità moderate segnalate da `npm audit` (CVE-2025-68470 bypass e injection in hydration). `npm audit` ora riporta **0 vulnerabilità**. I flag `future` v6 sono stati rimossi (default in v7).
+> - **CI effettivamente presente**: la pipeline `.github/workflows/ci.yml` citata nel report non era stata inclusa nel repository; ora è committata (npm ci + lint + typecheck + test + build su ogni push/PR).
+> - **Rate limiting sul login admin** (mitigazione interim della priorità alta #1): 5 tentativi falliti per IP → lockout 10 minuti con `Retry-After`, sia su `admin-cms` sia su `shopify-sync` (che condivide le stesse password). Confronto password a tempo costante.
+> - **Diagnosi accesso admin**: se i secret `ADMIN_PASSWORD`/`SUPER_ADMIN_PASSWORD` non sono impostati, il server risponde ora 503 con istruzioni esplicite invece del generico 401 «Password non valida»; la schermata di login mostra la procedura di configurazione. Guida completa in `ADMIN_ACCESS.md`.
+> - **Ledger eventi webhook + riconciliazione** (priorità alta #2, parte 1 e 3): nuova entità `WebhookEvent`; i duplicati sequenziali vengono scartati prima di qualsiasi mutazione e gli effetti secondari falliti (CRM, sconto, notifiche) restano segnati come `effects_pending`. L'operazione admin `reconcile_order` ricalcola in modo idempotente totali cliente e utilizzi sconto dagli ordini pagati e chiude gli eventi in sospeso (pulsante nell'area Ordini). La finestra di gara per consegne perfettamente simultanee resta aperta in assenza di un vincolo univoco a livello piattaforma.
+> - **Setup Stripe verificabile**: `payment_status` identifica l'account collegato (`acct_…`, nome, paese, payout) e lo stato di `PUBLIC_APP_URL`; guida completa in `STRIPE_SETUP.md`.
+> - **UX e-commerce completata**: pagina di conferma ordine `/ordine` (con `success_url` Stripe basata su session id), tracciamento ordine pubblico `/traccia-ordine` con timeline, tracking corriere e lookup rate-limited, prodotti correlati e visti di recente sulla scheda prodotto, ricerca rapida in navbar, breadcrumb, link ordini nel footer/menu.
+> - **Test estesi** (priorità media #6): 16 test (timeline ordine, mascheramento email, link corrieri, correlati, formattazioni).
+> - **Pipeline immagini estese**: il componente `Image` serve ora anche gli URL `cdn.shopify.com` ridimensionati (`width`/`height`/`crop` + srcset DPR come per Wix Media); gli URL esterni senza API di trasformazione ricevono default sicuri (`object-fit` coerente con `fittingType`, `max-w-full`, lazy + decoding async) — elimina le immagini sproporzionate nei contenuti sincronizzati o caricati con URL arbitrari.
+> - **Admin panel mobile**: header e toolbar della console si impilano/a capo su schermi stretti, tab nav scorrevole a filo bordi, tabelle prodotti/ordini/clienti con larghezza minima e scroll orizzontale invece di colonne compresse, toolbar dei manager con `flex-wrap` ovunque.
+> - **Storefront mobile**: barra filtri catalogo allineata alla navbar sticky con padding ridotti su mobile; griglie già responsive verificate su tutte le pagine.
+> - **Shopify GraphQL (priorità media #5)**: `shopify-sync` migrato dalla REST Admin API (legacy) all'Admin GraphQL API 2025-10 con paginazione a cursore e **checkpoint incrementali** (`shopify_orders_checkpoint`/`shopify_customers_checkpoint`): dopo il primo backfill si leggono solo ordini/clienti modificati dall'ultima sincronizzazione. Checkbox «risincronizzazione completa» e checkpoint visibili nella scheda Shopify del CMS.
+> - **Paginazione CMS (priorità bassa #8)**: nuova operazione `list_more` con cursore `created_date` (fino a 250 righe per chiamata) e pulsante «Carica ordini meno recenti» in OrdersManager oltre il tetto delle 500 righe.
+> - **Accessibilità (priorità media #7, prima tranche)**: `scope="col"` sugli header delle tabelle admin e `aria-label` sulle select di stato ordini; login, carrello e pulsanti icona erano già etichettati.
+
 ## Sintesi
 
 Il progetto è una SPA e-commerce React 18/Vite 6 con backend serverless Base44, entità JSONC, checkout Stripe e sincronizzazione Shopify. L'intervento ha privilegiato modifiche compatibili: nessun cambio di framework o di modello dati distruttivo, mantenimento di React Router 6 e delle API Base44 esistenti.

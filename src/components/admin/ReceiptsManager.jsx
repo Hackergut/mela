@@ -104,7 +104,7 @@ export default function ReceiptsManager({ password }) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-2">
           <ReceiptIcon size={18} className="text-[#0071E3]" />
           <h2 className="text-lg font-bold text-[#1d1d1f]">Ricevute (Vendita & Acquisto)</h2>
@@ -205,7 +205,7 @@ function ReceiptForm({ password, orders, onClose, onCreated }) {
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="bg-white rounded-2xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <h3 className="text-lg font-bold text-[#1d1d1f]">Nuova ricevuta</h3>
           <button onClick={onClose}><X size={20} /></button>
         </div>

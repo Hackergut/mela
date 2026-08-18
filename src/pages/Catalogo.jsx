@@ -25,6 +25,13 @@ export default function Catalogo() {
     if (match) setActiveFilter(match.name);
   }, [params, catalogCategories]);
 
+  // Quick search from the navbar lands here with ?q=: keep the field in sync
+  // when the query parameter changes (including back/forward navigation).
+  useEffect(() => {
+    const query = params.get('q') || '';
+    setSearch(prev => (prev === query ? prev : query));
+  }, [params]);
+
   const filtered = useMemo(() => {
     let result = activeFilter === 'Tutti'
       ? [...products]
@@ -70,7 +77,7 @@ export default function Catalogo() {
         </div>
       </section>
 
-      <section className="sticky top-16 z-40 bg-[#f5f5f7]/95 backdrop-blur-md border-b border-gray-200 px-6 lg:px-8 py-4">
+      <section className="sticky top-14 z-40 bg-[#f5f5f7]/95 backdrop-blur-md border-b border-gray-200 px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
         <div className="max-w-7xl mx-auto space-y-4">
           <div className="flex flex-col md:flex-row gap-3">
             <div className="relative flex-1">

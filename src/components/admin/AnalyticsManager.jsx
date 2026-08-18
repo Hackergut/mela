@@ -114,7 +114,7 @@ export default function AnalyticsManager({ password }) {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <BarChart3 size={18} className="text-[#0071E3]" />
           <h2 className="text-lg font-bold text-[#1d1d1f]">Analytics Vendite</h2>

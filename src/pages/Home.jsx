@@ -2,10 +2,20 @@ import React, { lazy, Suspense } from 'react';
 import PromoBanner from '@/components/PromoBanner';
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
+import ValueMarquee from '@/components/ValueMarquee';
 
+// Below-the-fold sections stay in separate chunks: the hero paints with the
+// eager bundle while everything else streams in as the user scrolls.
 const CategoriesSection = lazy(() => import('@/components/CategoriesSection'));
-const FeaturesSection = lazy(() => import('@/components/FeaturesSection'));
 const PopularProducts = lazy(() => import('@/components/PopularProducts'));
+const OffersSection = lazy(() => import('@/components/OffersSection'));
+const SpotlightSection = lazy(() => import('@/components/SpotlightSection'));
+const HowItWorksSection = lazy(() => import('@/components/HowItWorksSection'));
+const StatsSection = lazy(() => import('@/components/StatsSection'));
+const FeaturesSection = lazy(() => import('@/components/FeaturesSection'));
+const TestimonialsSection = lazy(() => import('@/components/TestimonialsSection'));
+const SupportSection = lazy(() => import('@/components/SupportSection'));
+const FAQSection = lazy(() => import('@/components/FAQSection'));
 const NewsletterSection = lazy(() => import('@/components/NewsletterSection'));
 const FooterSection = lazy(() => import('@/components/FooterSection'));
 
@@ -20,10 +30,18 @@ export default function Home() {
       <Navbar />
       <main>
         <HeroSection />
+        <ValueMarquee />
         <Suspense fallback={<SectionFallback />}>
           <CategoriesSection />
           <PopularProducts />
+          <OffersSection />
+          <SpotlightSection />
+          <HowItWorksSection />
+          <StatsSection />
           <FeaturesSection />
+          <TestimonialsSection />
+          <SupportSection />
+          <FAQSection />
           <NewsletterSection />
         </Suspense>
       </main>

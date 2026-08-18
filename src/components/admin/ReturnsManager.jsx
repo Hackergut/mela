@@ -57,7 +57,7 @@ export default function ReturnsManager({ password }) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-2">
           <RotateCcw size={18} className="text-[#0071E3]" />
           <h2 className="text-lg font-bold text-[#1d1d1f]">Resi e Stornaggi</h2>
@@ -159,7 +159,7 @@ function ReturnForm({ password, orders, onClose, onCreated }) {
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="bg-white rounded-2xl p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <h3 className="text-lg font-bold text-[#1d1d1f]">Nuovo reso / storno</h3>
           <button onClick={onClose}><X size={20} /></button>
         </div>

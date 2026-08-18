@@ -61,16 +61,16 @@ export default function CustomersManager({ password }) {
       {loading ? <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#0071E3]" size={28} /></div> :
         filtered.length === 0 ? <p className="text-center text-[#6e6e73] py-20">Nessun cliente.</p> : (
           <div className="bg-white rounded-2xl overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[760px]">
               <thead>
                 <tr className="border-b border-gray-100 text-left text-xs text-[#6e6e73] uppercase">
-                  <th className="p-3 w-10"><SelectAllCheckbox checked={bulk.allSelected} indeterminate={bulk.someSelected} onChange={bulk.toggleAll} /></th>
-                  <th className="p-3">Cliente</th>
-                  <th className="p-3">Email</th>
-                  <th className="p-3">Telefono</th>
-                  <th className="p-3">Ordini</th>
-                  <th className="p-3">Totale speso</th>
-                  <th className="p-3 text-right">Azioni</th>
+                  <th scope="col" className="p-3 w-10"><SelectAllCheckbox checked={bulk.allSelected} indeterminate={bulk.someSelected} onChange={bulk.toggleAll} /></th>
+                  <th scope="col" className="p-3">Cliente</th>
+                  <th scope="col" className="p-3">Email</th>
+                  <th scope="col" className="p-3">Telefono</th>
+                  <th scope="col" className="p-3">Ordini</th>
+                  <th scope="col" className="p-3">Totale speso</th>
+                  <th scope="col" className="p-3 text-right">Azioni</th>
                 </tr>
               </thead>
               <tbody>
@@ -96,7 +96,7 @@ export default function CustomersManager({ password }) {
       {detail && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center p-4 overflow-y-auto">
           <div className="bg-white rounded-3xl w-full max-w-lg p-6 my-8">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
               <h2 className="text-xl font-bold text-[#1d1d1f]">{detail.customer.name || detail.customer.email}</h2>
               <button onClick={() => setDetail(null)}><X size={20} /></button>
             </div>

@@ -14,6 +14,8 @@ export default function ShopifyManager({ password }) {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [hasToken, setHasToken] = useState(false);
+  const [fullSync, setFullSync] = useState(false);
+  const [checkpoints, setCheckpoints] = useState({ orders: null, customers: null });
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -23,6 +25,7 @@ export default function ShopifyManager({ password }) {
       setShopDomain(res.data.domain || '');
       setAccessToken('');
       setHasToken(res.data.has_token);
+      setCheckpoints({ orders: res.data.orders_checkpoint || null, customers: res.data.customers_checkpoint || null });
     } catch (e) { setError(e.response?.data?.error || e.message); }
     finally { setLoading(false); }
   }, [password]);
@@ -53,8 +56,9 @@ export default function ShopifyManager({ password }) {
   const sync = async (op) => {
     setSyncing(op); setError(null); setResult(null);
     try {
-      const res = await base44.functions.invoke('shopify-sync', { password, operation: op, payload: { shop_domain: shopDomain, access_token: accessToken } });
+      const res = await base44.functions.invoke('shopify-sync', { password, operation: op, payload: { shop_domain: shopDomain, access_token: accessToken, full: fullSync } });
       setResult(res.data);
+      await load();
     } catch (e) { setError(e.response?.data?.error || e.message); }
     finally { setSyncing(null); }
   };
@@ -96,10 +100,9 @@ export default function ShopifyManager({ password }) {
         </div>
 
         {shopInfo && (
-          <div className="mt-4 bg-[#f5f5f7] rounded-xl p-4 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+          <div className="mt-4 bg-[#f5f5f7] rounded-xl p-4 grid grid-cols-3 gap-3 text-sm">
             <div><p className="text-xs text-[#6e6e73]">Negozio</p><p className="font-semibold text-[#1d1d1f]">{shopInfo.name}</p></div>
             <div><p className="text-xs text-[#6e6e73]">Dominio</p><p className="font-semibold text-[#1d1d1f]">{shopInfo.domain}</p></div>
-            <div><p className="text-xs text-[#6e6e73]">Piano</p><p className="font-semibold text-[#1d1d1f]">{shopInfo.plan}</p></div>
             <div><p className="text-xs text-[#6e6e73]">Paese</p><p className="font-semibold text-[#1d1d1f]">{shopInfo.country}</p></div>
           </div>
         )}
@@ -118,18 +121,31 @@ export default function ShopifyManager({ password }) {
             {syncing === 'sync_all' ? <Loader2 size={15} className="animate-spin" /> : <RefreshCw size={15} />} Sincronizza tutto
           </button>
         </div>
-        <p className="text-xs text-[#6e6e73] mt-3">La sincronizzazione importa gli ordini storici (con stato "any") e i clienti, aggiornando i record esistenti in base al numero ordine e all'email.</p>
+        <div className="flex flex-wrap items-center justify-between gap-3 mt-3">
+          <label className="flex items-center gap-2 text-xs text-[#6e6e73]">
+            <input type="checkbox" checked={fullSync} onChange={e => setFullSync(e.target.checked)} className="h-4 w-4 accent-[#0071E3] cursor-pointer" />
+            Risincronizzazione completa (ignora i checkpoint e rilegge tutto lo storico)
+          </label>
+          {(checkpoints.orders || checkpoints.customers) && (
+            <p className="text-[11px] text-[#86868b]">
+              Checkpoint: ordini {checkpoints.orders ? new Date(checkpoints.orders).toLocaleString('it-IT') : '—'} · clienti {checkpoints.customers ? new Date(checkpoints.customers).toLocaleString('it-IT') : '—'}
+            </p>
+          )}
+        </div>
+        <p className="text-xs text-[#6e6e73] mt-2">
+          La sincronizzazione usa l'Admin GraphQL API con checkpoint incrementali: dopo il primo backfill vengono letti solo gli ordini e i clienti modificati dall'ultima sincronizzazione. I record esistenti vengono aggiornati per numero ordine ed email.
+        </p>
 
         {result && !result.saved && !result.test && (
           <div className="mt-4 bg-green-50 border border-green-200 rounded-xl p-4 text-sm">
             {result.orders ? (
               <div className="space-y-1">
                 <p className="font-semibold text-green-800">Sincronizzazione completata</p>
-                <p className="text-green-700">Ordini: {result.orders.fetched} scaricati · {result.orders.created} nuovi · {result.orders.updated} aggiornati</p>
-                <p className="text-green-700">Clienti: {result.customers.fetched} scaricati · {result.customers.created} nuovi · {result.customers.updated} aggiornati</p>
+                <p className="text-green-700">Ordini: {result.orders.fetched} scaricati · {result.orders.created} nuovi · {result.orders.updated} aggiornati{result.orders.incremental ? ' · incrementale' : ' · backfill completo'}</p>
+                <p className="text-green-700">Clienti: {result.customers.fetched} scaricati · {result.customers.created} nuovi · {result.customers.updated} aggiornati{result.customers.incremental ? ' · incrementale' : ' · backfill completo'}</p>
               </div>
             ) : (
-              <p className="text-green-700">{result.fetched} scaricati · {result.created} nuovi · {result.updated} aggiornati</p>
+              <p className="text-green-700">{result.fetched} scaricati · {result.created} nuovi · {result.updated} aggiornati{result.incremental ? ' · incrementale' : ' · backfill completo'}</p>
             )}
           </div>
         )}

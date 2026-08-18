@@ -2,6 +2,8 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.41';
 import { secrets } from 'base44:runtime';
 
 const API_VERSION = '2025-10';
+const GRAPHQL_PAGE_SIZE = 100;
+const GRAPHQL_MAX_PAGES = 40;
 
 function normalizeShopDomain(value) {
   const raw = String(value || '').trim().toLowerCase();
@@ -15,87 +17,173 @@ function normalizeShopDomain(value) {
   }
 }
 
-async function shopifyFetch(domain, token, path) {
+// Single fixed GraphQL endpoint per shop — no remote pagination URLs to
+// validate any more (the REST Link-header SSRF guard is obsolete here).
+async function shopifyGraphQL(domain, token, query, variables = {}) {
   const normalizedDomain = normalizeShopDomain(domain);
   if (!normalizedDomain) throw new Error('Invalid Shopify domain');
-
-  const baseUrl = new URL(`https://${normalizedDomain}`);
-  const url = new URL(
-    path.startsWith('http') ? path : `/admin/api/${API_VERSION}/${path}`,
-    baseUrl,
-  );
-  // Shopify pagination links are remote input too: never follow a Link header
-  // that leaves the configured shop origin.
-  if (url.origin !== baseUrl.origin) throw new Error('Invalid Shopify pagination URL');
-
-  const res = await fetch(url, {
+  const res = await fetch(`https://${normalizedDomain}/admin/api/${API_VERSION}/graphql.json`, {
+    method: 'POST',
     headers: { 'X-Shopify-Access-Token': token, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query, variables }),
   });
   if (!res.ok) {
     const detail = (await res.text()).slice(0, 300);
-    console.error(`Shopify API ${res.status}:`, detail);
-    throw new Error(`Shopify API request failed (${res.status})`);
+    console.error(`Shopify GraphQL ${res.status}:`, detail);
+    throw new Error(`Richiesta Shopify non riuscita (${res.status})`);
   }
-  const data = await res.json();
-  const linkHeader = res.headers.get('link') || '';
-  let nextUrl = null;
-  const match = linkHeader.match(/<([^>]+)>;\s*rel="next"/);
-  if (match) nextUrl = match[1];
-  return { data, nextUrl };
+  const body = await res.json();
+  if (body.errors?.length) {
+    // Surface only the message: response bodies may embed internal details.
+    console.error('Shopify GraphQL errors:', JSON.stringify(body.errors).slice(0, 500));
+    throw new Error(body.errors[0]?.message || 'Errore GraphQL Shopify');
+  }
+  return body.data;
 }
 
-async function shopifyPaginate(domain, token, resource, extra = '') {
-  const all = [];
-  let path = `${resource}.json?limit=250${extra}`;
-  let guard = 0;
-  while (path && guard < 60) {
-    const { data, nextUrl } = await shopifyFetch(domain, token, path);
-    all.push(...(data[resource] || []));
-    path = nextUrl;
-    guard++;
-  }
-  return all;
-}
-
-function mapOrderStatus(o) {
-  if (o.cancelled_at) return 'cancelled';
-  if (o.financial_status === 'refunded') return 'refunded';
-  if (o.fulfillment_status === 'fulfilled') return 'delivered';
-  if (o.fulfillment_status === 'partial') return 'shipped';
-  if (o.financial_status === 'paid' || o.financial_status === 'partially_paid') return 'paid';
+function mapOrderStatus(order) {
+  if (order.canceledAt) return 'cancelled';
+  if (order.financialStatus === 'REFUNDED') return 'refunded';
+  if (order.fulfillmentStatus === 'FULFILLED') return 'delivered';
+  if (order.fulfillmentStatus === 'PARTIAL') return 'shipped';
+  if (order.financialStatus === 'PAID' || order.financialStatus === 'PARTIALLY_PAID') return 'paid';
   return 'pending';
 }
 
-function mapShopifyOrder(o) {
-  const items = (o.line_items || []).map(li => ({
-    name: li.name || li.title || 'Articolo',
-    price_cents: Math.round(parseFloat(li.price || 0) * 100),
-    qty: li.quantity || 1,
+const money = (set) => Math.round(parseFloat(set?.shopMoney?.amount || 0) * 100);
+
+function mapShopifyOrder(order) {
+  const items = (order.lineItems?.nodes || []).map(line => ({
+    name: line.name || line.title || 'Articolo',
+    price_cents: money(line.originalUnitPriceSet),
+    qty: line.quantity || 1,
   }));
   return {
-    order_number: o.name || `#${o.order_number}`,
-    customer_name: [o.customer?.first_name, o.customer?.last_name].filter(Boolean).join(' ') || o.customer?.name || '',
-    customer_email: o.email || o.customer?.email || '',
+    order_number: order.name || '',
+    customer_name: [order.customer?.firstName, order.customer?.lastName].filter(Boolean).join(' ') || order.customer?.displayName || '',
+    customer_email: order.email || order.customer?.email || '',
     items,
-    subtotal_cents: Math.round(parseFloat(o.subtotal_price || 0) * 100),
-    discount_amount_cents: Math.round(parseFloat(o.total_discounts || 0) * 100),
-    total_cents: Math.round(parseFloat(o.total_price || 0) * 100),
-    status: mapOrderStatus(o),
-    discount_code: (o.discount_codes && o.discount_codes[0]?.code) || '',
-    shipped_date: o.fulfillment_status === 'fulfilled' && o.processed_at ? o.processed_at : null,
+    subtotal_cents: money(order.subtotalPriceSet),
+    discount_amount_cents: money(order.totalDiscountsSet),
+    total_cents: money(order.totalPriceSet),
+    status: mapOrderStatus(order),
+    discount_code: order.discountCode || '',
+    shipped_date: order.fulfillmentStatus === 'FULFILLED' && order.processedAt ? order.processedAt : null,
   };
 }
 
-function mapShopifyCustomer(c) {
+function mapShopifyCustomer(customer) {
   return {
-    name: [c.first_name, c.last_name].filter(Boolean).join(' ') || c.email || '',
-    email: c.email || '',
-    phone: c.phone || '',
-    notes: c.note || '',
-    total_spent: Math.round(parseFloat(c.total_spent || 0) * 100),
-    orders_count: c.orders_count || 0,
-    tags: (c.tags || '').split(',').map(t => t.trim()).filter(Boolean),
+    name: [customer.firstName, customer.lastName].filter(Boolean).join(' ') || customer.email || '',
+    email: customer.email || '',
+    phone: customer.phone || '',
+    notes: customer.note || '',
+    total_spent: Math.round(parseFloat(customer.totalSpent || 0) * 100),
+    orders_count: customer.ordersCount || 0,
+    tags: (customer.tags || []).map(tag => String(tag).trim()).filter(Boolean),
   };
+}
+
+const ORDERS_QUERY = `
+  query SyncOrders($first: Int!, $after: String, $query: String) {
+    orders(first: $first, after: $after, query: $query, sortKey: UPDATED_AT, reverse: false) {
+      pageInfo { hasNextPage endCursor }
+      nodes {
+        id name email canceledAt processedAt updatedAt
+        financialStatus fulfillmentStatus discountCode
+        totalPriceSet { shopMoney { amount } }
+        subtotalPriceSet { shopMoney { amount } }
+        totalDiscountsSet { shopMoney { amount } }
+        customer { firstName lastName displayName email }
+        lineItems(first: 50) {
+          nodes { name title quantity originalUnitPriceSet { shopMoney { amount } } }
+        }
+      }
+    }
+  }
+`;
+
+const CUSTOMERS_QUERY = `
+  query SyncCustomers($first: Int!, $after: String, $query: String) {
+    customers(first: $first, after: $after, query: $query, sortKey: UPDATED_AT, reverse: false) {
+      pageInfo { hasNextPage endCursor }
+      nodes {
+        id firstName lastName email phone note updatedAt totalSpent ordersCount tags
+      }
+    }
+  }
+`;
+
+/**
+ * Cursor-paginated GraphQL fetch. `since` filters by updated_at so repeated
+ * syncs only read what changed since the previous checkpoint; `onNode`
+ * receives every raw node. Returns the newest updatedAt seen (ISO string) or
+ * null when nothing was fetched.
+ */
+async function fetchSince(domain, token, query, resourceName, since, onNode) {
+  let after = null;
+  let newest = since || null;
+  for (let page = 0; page < GRAPHQL_MAX_PAGES; page++) {
+    const data = await shopifyGraphQL(domain, token, query, {
+      first: GRAPHQL_PAGE_SIZE,
+      after,
+      query: since ? `updated_at:>${since}` : null,
+    });
+    const connection = data?.[resourceName];
+    if (!connection) throw new Error('Risposta Shopify inattesa');
+    for (const node of connection.nodes || []) {
+      onNode(node);
+      if (node.updatedAt && (!newest || node.updatedAt > newest)) newest = node.updatedAt;
+    }
+    if (!connection.pageInfo?.hasNextPage) break;
+    after = connection.pageInfo.endCursor;
+  }
+  return newest;
+}
+
+// Rate limiting for the shared admin password (mirrors admin-cms).
+const AUTH_MAX_FAILURES = 5;
+const AUTH_LOCKOUT_MS = 10 * 60 * 1000;
+/** @type {Map<string, { count: number, lockedUntil: number, firstFailure: number }>} */
+const authFailures = new Map();
+
+function getClientKey(req) {
+  const forwarded = String(req.headers?.get?.('x-forwarded-for') || '');
+  const ip = forwarded.split(',')[0].trim() || String(req.headers?.get?.('cf-connecting-ip') || '').trim();
+  return ip || 'unknown';
+}
+
+function timingSafeEquals(actual, expected) {
+  const encoder = new TextEncoder();
+  const a = encoder.encode(String(actual ?? ''));
+  const b = encoder.encode(String(expected ?? ''));
+  let diff = a.length ^ b.length;
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    diff |= (a[i] || 0) ^ (b[i] || 0);
+  }
+  return diff === 0;
+}
+
+function checkAuthRateLimit(key) {
+  const now = Date.now();
+  const entry = authFailures.get(key);
+  if (!entry) return { allowed: true };
+  if (entry.lockedUntil > now) {
+    return { allowed: false, retryAfterSec: Math.ceil((entry.lockedUntil - now) / 1000) };
+  }
+  if (now - entry.firstFailure > AUTH_LOCKOUT_MS) authFailures.delete(key);
+  return { allowed: true };
+}
+
+function recordAuthFailure(key) {
+  const now = Date.now();
+  const entry = authFailures.get(key);
+  if (!entry || now - entry.firstFailure > AUTH_LOCKOUT_MS) {
+    authFailures.set(key, { count: 1, lockedUntil: 0, firstFailure: now });
+    return;
+  }
+  entry.count += 1;
+  if (entry.count >= AUTH_MAX_FAILURES) entry.lockedUntil = now + AUTH_LOCKOUT_MS;
 }
 
 export default async function(req) {
@@ -103,13 +191,31 @@ export default async function(req) {
     const body = await req.json();
     const { password, operation, payload } = body;
 
+    const clientKey = getClientKey(req);
+    const rateLimit = checkAuthRateLimit(clientKey);
+    if (!rateLimit.allowed) {
+      const minutes = Math.max(1, Math.ceil(rateLimit.retryAfterSec / 60));
+      return Response.json(
+        { error: `Troppi tentativi falliti. Riprova tra ${minutes} minuti.` },
+        { status: 429, headers: { 'Retry-After': String(rateLimit.retryAfterSec) } },
+      );
+    }
+
     const adminPassword = secrets.get("ADMIN_PASSWORD");
     const superPassword = secrets.get("SUPER_ADMIN_PASSWORD");
-    const isSuperAdmin = !!superPassword && password === superPassword;
-    const isAdmin = password === adminPassword;
+    if (!adminPassword && !superPassword) {
+      return Response.json(
+        { error: "Accesso admin non configurato: imposta i secret ADMIN_PASSWORD e SUPER_ADMIN_PASSWORD in Base44 (Impostazioni → Secrets, oppure `base44 secrets set ADMIN_PASSWORD=…`) e riprova." },
+        { status: 503 },
+      );
+    }
+    const isSuperAdmin = !!superPassword && timingSafeEquals(password, superPassword);
+    const isAdmin = !!adminPassword && timingSafeEquals(password, adminPassword);
     if (!password || (!isAdmin && !isSuperAdmin)) {
+      recordAuthFailure(clientKey);
       return Response.json({ error: "Password non valida" }, { status: 401 });
     }
+    authFailures.delete(clientKey);
 
     const base44 = createClientFromRequest(req);
     const Setting = base44.asServiceRole.entities.Setting;
@@ -132,6 +238,56 @@ export default async function(req) {
       ).trim(),
     });
 
+    // Incremental checkpoint helpers: the setting stores the newest Shopify
+    // updatedAt already processed, so each sync only fetches what changed.
+    // `payload.full === true` forces a complete backfill and resets it.
+    const readCheckpoint = (name) => (!payload?.full ? (getSetting(name) || null) : null);
+    const writeCheckpoint = async (name, value, label) => {
+      if (value) await upsertSetting(name, value, label);
+    };
+
+    const syncOrders = async (domain, token) => {
+      const since = readCheckpoint('shopify_orders_checkpoint');
+      const sOrders = [];
+      const newest = await fetchSince(domain, token, ORDERS_QUERY, 'orders', since, node => sOrders.push(node));
+      const existing = await base44.asServiceRole.entities.Order.filter({}, '-created_date', 500);
+      const map = {};
+      existing.forEach(o => { if (o.order_number) map[o.order_number] = o; });
+      const toCreate = [];
+      const toUpdate = [];
+      sOrders.forEach(so => {
+        const mapped = mapShopifyOrder(so);
+        if (!mapped.order_number) return;
+        if (map[mapped.order_number]) toUpdate.push({ id: map[mapped.order_number].id, ...mapped });
+        else toCreate.push(mapped);
+      });
+      if (toCreate.length) await base44.asServiceRole.entities.Order.bulkCreate(toCreate);
+      if (toUpdate.length) await base44.asServiceRole.entities.Order.bulkUpdate(toUpdate);
+      await writeCheckpoint('shopify_orders_checkpoint', newest, 'Shopify Checkpoint Ordini');
+      return { fetched: sOrders.length, created: toCreate.length, updated: toUpdate.length, checkpoint: newest, incremental: !!since };
+    };
+
+    const syncCustomers = async (domain, token) => {
+      const since = readCheckpoint('shopify_customers_checkpoint');
+      const sCustomers = [];
+      const newest = await fetchSince(domain, token, CUSTOMERS_QUERY, 'customers', since, node => sCustomers.push(node));
+      const existing = await base44.asServiceRole.entities.Customer.filter({}, '-created_date', 500);
+      const map = {};
+      existing.forEach(c => { if (c.email) map[c.email.toLowerCase()] = c; });
+      const toCreate = [];
+      const toUpdate = [];
+      sCustomers.forEach(sc => {
+        const mapped = mapShopifyCustomer(sc);
+        if (!mapped.email) return;
+        if (map[mapped.email.toLowerCase()]) toUpdate.push({ id: map[mapped.email.toLowerCase()].id, ...mapped });
+        else toCreate.push(mapped);
+      });
+      if (toCreate.length) await base44.asServiceRole.entities.Customer.bulkCreate(toCreate);
+      if (toUpdate.length) await base44.asServiceRole.entities.Customer.bulkUpdate(toUpdate);
+      await writeCheckpoint('shopify_customers_checkpoint', newest, 'Shopify Checkpoint Clienti');
+      return { fetched: sCustomers.length, created: toCreate.length, updated: toUpdate.length, checkpoint: newest, incremental: !!since };
+    };
+
     switch (operation) {
       case "status": {
         const { domain, token } = resolveCreds();
@@ -139,6 +295,8 @@ export default async function(req) {
           configured: !!domain && !!token,
           domain,
           has_token: !!token,
+          orders_checkpoint: getSetting('shopify_orders_checkpoint') || null,
+          customers_checkpoint: getSetting('shopify_customers_checkpoint') || null,
         });
       }
       case "save_creds": {
@@ -153,75 +311,25 @@ export default async function(req) {
       case "test": {
         const { domain, token } = resolveCreds();
         if (!domain || !token) return Response.json({ error: "Credenziali Shopify non configurate" }, { status: 400 });
-        const { data } = await shopifyFetch(domain, token, 'shop.json');
-        return Response.json({ shop: { name: data.shop?.name, domain: data.shop?.domain, plan: data.shop?.plan_name, country: data.shop?.country_code } });
+        const data = await shopifyGraphQL(domain, token, 'query { shop { name domain countryCode } }');
+        return Response.json({ shop: { name: data.shop?.name, domain: data.shop?.domain, country: data.shop?.countryCode } });
       }
       case "sync_orders": {
         const { domain, token } = resolveCreds();
         if (!domain || !token) return Response.json({ error: "Credenziali Shopify non configurate" }, { status: 400 });
-        const sOrders = await shopifyPaginate(domain, token, 'orders', '&status=any');
-        const existing = await base44.asServiceRole.entities.Order.filter({}, '-created_date', 500);
-        const map = {};
-        existing.forEach(o => { if (o.order_number) map[o.order_number] = o; });
-        const toCreate = [];
-        const toUpdate = [];
-        sOrders.forEach(so => {
-          const mapped = mapShopifyOrder(so);
-          if (map[mapped.order_number]) toUpdate.push({ id: map[mapped.order_number].id, ...mapped });
-          else toCreate.push(mapped);
-        });
-        if (toCreate.length) await base44.asServiceRole.entities.Order.bulkCreate(toCreate);
-        if (toUpdate.length) await base44.asServiceRole.entities.Order.bulkUpdate(toUpdate);
-        return Response.json({ fetched: sOrders.length, created: toCreate.length, updated: toUpdate.length });
+        return Response.json(await syncOrders(domain, token));
       }
       case "sync_customers": {
         const { domain, token } = resolveCreds();
         if (!domain || !token) return Response.json({ error: "Credenziali Shopify non configurate" }, { status: 400 });
-        const sCustomers = await shopifyPaginate(domain, token, 'customers');
-        const existing = await base44.asServiceRole.entities.Customer.filter({}, '-created_date', 500);
-        const map = {};
-        existing.forEach(c => { if (c.email) map[c.email.toLowerCase()] = c; });
-        const toCreate = [];
-        const toUpdate = [];
-        sCustomers.forEach(sc => {
-          const mapped = mapShopifyCustomer(sc);
-          if (!mapped.email) return;
-          if (map[mapped.email.toLowerCase()]) toUpdate.push({ id: map[mapped.email.toLowerCase()].id, ...mapped });
-          else toCreate.push(mapped);
-        });
-        if (toCreate.length) await base44.asServiceRole.entities.Customer.bulkCreate(toCreate);
-        if (toUpdate.length) await base44.asServiceRole.entities.Customer.bulkUpdate(toUpdate);
-        return Response.json({ fetched: sCustomers.length, created: toCreate.length, updated: toUpdate.length });
+        return Response.json(await syncCustomers(domain, token));
       }
       case "sync_all": {
         const { domain, token } = resolveCreds();
         if (!domain || !token) return Response.json({ error: "Credenziali Shopify non configurate" }, { status: 400 });
-        const sOrders = await shopifyPaginate(domain, token, 'orders', '&status=any');
-        const sCustomers = await shopifyPaginate(domain, token, 'customers');
-        const exOrders = await base44.asServiceRole.entities.Order.filter({}, '-created_date', 500);
-        const exCust = await base44.asServiceRole.entities.Customer.filter({}, '-created_date', 500);
-        const oMap = {}; exOrders.forEach(o => { if (o.order_number) oMap[o.order_number] = o; });
-        const cMap = {}; exCust.forEach(c => { if (c.email) cMap[c.email.toLowerCase()] = c; });
-        const oc = [], ou = [], cc = [], cu = [];
-        sOrders.forEach(so => {
-          const m = mapShopifyOrder(so);
-          if (oMap[m.order_number]) ou.push({ id: oMap[m.order_number].id, ...m });
-          else oc.push(m);
-        });
-        sCustomers.forEach(sc => {
-          const m = mapShopifyCustomer(sc);
-          if (!m.email) return;
-          if (cMap[m.email.toLowerCase()]) cu.push({ id: cMap[m.email.toLowerCase()].id, ...m });
-          else cc.push(m);
-        });
-        if (oc.length) await base44.asServiceRole.entities.Order.bulkCreate(oc);
-        if (ou.length) await base44.asServiceRole.entities.Order.bulkUpdate(ou);
-        if (cc.length) await base44.asServiceRole.entities.Customer.bulkCreate(cc);
-        if (cu.length) await base44.asServiceRole.entities.Customer.bulkUpdate(cu);
-        return Response.json({
-          orders: { fetched: sOrders.length, created: oc.length, updated: ou.length },
-          customers: { fetched: sCustomers.length, created: cc.length, updated: cu.length },
-        });
+        const orders = await syncOrders(domain, token);
+        const customers = await syncCustomers(domain, token);
+        return Response.json({ orders, customers });
       }
       default:
         return Response.json({ error: "Operazione non valida" }, { status: 400 });

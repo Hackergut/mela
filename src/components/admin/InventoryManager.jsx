@@ -78,7 +78,7 @@ export default function InventoryManager({ password }) {
       {loading ? <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#0071e3]" size={28} /></div> : (
         <div className="overflow-x-auto rounded-3xl bg-white">
           <table className="w-full min-w-[900px]">
-            <thead><tr className="border-b border-[#e5e5e5] text-left text-[11px] font-semibold uppercase tracking-wide text-[#6e6e73]"><th className="p-4">Prodotto / Variante</th><th className="p-4">SKU</th><th className="p-4">Prezzo</th><th className="p-4">Costo</th><th className="p-4">Stock</th><th className="p-4">Soglia</th><th className="p-4">Stato</th></tr></thead>
+            <thead><tr className="border-b border-[#e5e5e5] text-left text-[11px] font-semibold uppercase tracking-wide text-[#6e6e73]"><th scope="col" className="p-4">Prodotto / Variante</th><th scope="col" className="p-4">SKU</th><th scope="col" className="p-4">Prezzo</th><th scope="col" className="p-4">Costo</th><th scope="col" className="p-4">Stock</th><th scope="col" className="p-4">Soglia</th><th scope="col" className="p-4">Stato</th></tr></thead>
             <tbody>
               {filtered.map(row => {
                 const low = row.status === 'active' && (Number(row.stock) || 0) <= (row.low_stock_threshold ?? 5);

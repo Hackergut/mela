@@ -25,10 +25,14 @@ export default function CategoriesSection() {
         </motion.div>
 
         <motion.div {...staggerContainer} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {categories.map((cat) => (
-            <motion.div key={cat.id} {...staggerItem}>
+          {categories.map((cat, index) => (
+            <motion.div
+              key={cat.id}
+              {...staggerItem}
+              className={index === 0 ? 'md:col-span-2 lg:col-span-2' : undefined}
+            >
               <Link to={`/catalogo?categoria=${encodeURIComponent(cat.slug || cat.name)}`} className="block h-full">
-                <CategoryCard cat={cat} />
+                <CategoryCard cat={cat} featured={index === 0} />
               </Link>
             </motion.div>
           ))}
@@ -38,26 +42,31 @@ export default function CategoriesSection() {
   );
 }
 
-function CategoryCard({ cat }) {
+function CategoryCard({ cat, featured = false }) {
   return (
     <motion.div
       whileHover={{ y: -6 }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
-      className="group relative overflow-hidden rounded-2xl bg-white cursor-pointer h-full"
-      style={{ minHeight: '340px' }}
+      className="group relative h-full cursor-pointer overflow-hidden rounded-[28px] bg-white shadow-[0_1px_2px_rgba(0,0,0,.04)] transition-shadow duration-300 hover:shadow-[0_16px_40px_rgba(0,0,0,.12)]"
+      style={{ minHeight: featured ? '360px' : '340px' }}
     >
       <div className="absolute inset-0">
-        <Image src={cat.image} alt={cat.name} className="w-full h-full transition-transform duration-500 group-hover:scale-105" fittingType="fill" />
+        <Image src={cat.image} alt={cat.name} className="w-full h-full transition-transform duration-700 ease-out group-hover:scale-[1.06]" fittingType="fill" />
       </div>
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent group-hover:from-black/80 transition-all duration-300" />
-      <div className="absolute bottom-0 left-0 p-6">
-        <h3 className="text-2xl font-bold text-white mb-1">{cat.name}</h3>
-        <p className="text-white/70 text-sm font-medium">{cat.count}</p>
-      </div>
-      <div className="absolute top-5 right-5 w-9 h-9 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M3 8h10M8 3l5 5-5 5" />
-        </svg>
+      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent transition-all duration-300 group-hover:from-black/85" />
+      <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-6">
+        <div>
+          <p className="mb-2 inline-flex rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/90 backdrop-blur-sm">{cat.count}</p>
+          <h3 className={`font-bold text-white mb-0 ${featured ? 'text-3xl sm:text-4xl tracking-[-0.02em]' : 'text-2xl'}`}>{cat.name}</h3>
+        </div>
+        <span
+          aria-hidden="true"
+          className="grid h-11 w-11 shrink-0 translate-x-2 place-items-center rounded-full bg-white/90 text-[#1d1d1f] opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 8h10M8 3l5 5-5 5" />
+          </svg>
+        </span>
       </div>
     </motion.div>
   );

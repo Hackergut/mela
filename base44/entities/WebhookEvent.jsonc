@@ -1,0 +1,77 @@
+{
+  "name": "WebhookEvent",
+  "type": "object",
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "title": "ID evento Stripe"
+    },
+    "event_type": {
+      "type": "string",
+      "title": "Tipo evento"
+    },
+    "session_id": {
+      "type": "string",
+      "title": "Checkout session"
+    },
+    "order_id": {
+      "type": "string",
+      "title": "Ordine"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "processed",
+        "duplicate",
+        "ignored",
+        "mismatch"
+      ],
+      "default": "processed",
+      "title": "Stato lavorazione"
+    },
+    "effects_pending": {
+      "type": "boolean",
+      "default": false,
+      "title": "Effetti secondari da riconciliare"
+    },
+    "effects_errors": {
+      "type": "string",
+      "title": "Errori effetti secondari"
+    },
+    "reconciled_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Data riconciliazione"
+    },
+    "processed_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Data elaborazione"
+    }
+  },
+  "required": [
+    "event_id"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

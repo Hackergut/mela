@@ -12,6 +12,7 @@ const MAIN_SETTING_KEYS = [
   'free_shipping_threshold',
   'shipping_flat_rate',
   'shipping_countries',
+  'bundle_discount_percent',
 ];
 const SECRET_SETTING_KEYS = ['shopify_access_token'];
 
@@ -129,18 +130,99 @@ function aggregateProduct(rawProduct, variants) {
   };
 }
 
+// Best-effort, in-memory rate limiting for the shared admin password.
+// Serverless isolates can reset at any moment, so this blunts brute force
+// rather than guaranteeing a global budget; strong passwords remain a must.
+const AUTH_MAX_FAILURES = 5;
+const AUTH_LOCKOUT_MS = 10 * 60 * 1000;
+const AUTH_MAX_TRACKED_CLIENTS = 5000;
+/** @type {Map<string, { count: number, lockedUntil: number, firstFailure: number }>} */
+const authFailures = new Map();
+
+function getClientKey(req) {
+  const forwarded = String(req.headers?.get?.('x-forwarded-for') || '');
+  const ip = forwarded.split(',')[0].trim() || String(req.headers?.get?.('cf-connecting-ip') || '').trim();
+  return ip || 'unknown';
+}
+
+// Constant-time comparison so response latency does not leak how many
+// characters of the password an attacker guessed correctly.
+function timingSafeEquals(actual, expected) {
+  const encoder = new TextEncoder();
+  const a = encoder.encode(String(actual ?? ''));
+  const b = encoder.encode(String(expected ?? ''));
+  let diff = a.length ^ b.length;
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    diff |= (a[i] || 0) ^ (b[i] || 0);
+  }
+  return diff === 0;
+}
+
+function checkAuthRateLimit(key) {
+  const now = Date.now();
+  const entry = authFailures.get(key);
+  if (!entry) return { allowed: true };
+  if (entry.lockedUntil > now) {
+    return { allowed: false, retryAfterSec: Math.ceil((entry.lockedUntil - now) / 1000) };
+  }
+  if (now - entry.firstFailure > AUTH_LOCKOUT_MS) authFailures.delete(key);
+  return { allowed: true };
+}
+
+function recordAuthFailure(key) {
+  const now = Date.now();
+  if (authFailures.size >= AUTH_MAX_TRACKED_CLIENTS) {
+    for (const [k, entry] of authFailures) {
+      if (entry.lockedUntil <= now) authFailures.delete(k);
+    }
+    if (authFailures.size >= AUTH_MAX_TRACKED_CLIENTS) authFailures.clear();
+  }
+  const entry = authFailures.get(key);
+  if (!entry || now - entry.firstFailure > AUTH_LOCKOUT_MS) {
+    authFailures.set(key, { count: 1, lockedUntil: 0, firstFailure: now });
+    return;
+  }
+  entry.count += 1;
+  if (entry.count >= AUTH_MAX_FAILURES) entry.lockedUntil = now + AUTH_LOCKOUT_MS;
+}
+
+function clearAuthFailures(key) {
+  authFailures.delete(key);
+}
+
 export default async function(req) {
   try {
     const body = await req.json();
     const { password, operation, resource, payload } = body;
 
+    const clientKey = getClientKey(req);
+    const rateLimit = checkAuthRateLimit(clientKey);
+    if (!rateLimit.allowed) {
+      const minutes = Math.max(1, Math.ceil(rateLimit.retryAfterSec / 60));
+      return Response.json(
+        { error: `Troppi tentativi falliti. Riprova tra ${minutes} minuti.` },
+        { status: 429, headers: { 'Retry-After': String(rateLimit.retryAfterSec) } },
+      );
+    }
+
     const adminPassword = secrets.get('ADMIN_PASSWORD');
     const superPassword = secrets.get('SUPER_ADMIN_PASSWORD');
-    const isSuperAdmin = Boolean(superPassword) && password === superPassword;
-    const isAdmin = password === adminPassword;
+    if (!adminPassword && !superPassword) {
+      return Response.json(
+        {
+          error:
+            'Accesso admin non configurato: imposta i secret ADMIN_PASSWORD e SUPER_ADMIN_PASSWORD in Base44 (Impostazioni → Secrets, oppure `base44 secrets set ADMIN_PASSWORD=…`) e riprova.',
+        },
+        { status: 503 },
+      );
+    }
+    const isSuperAdmin = Boolean(superPassword) && timingSafeEquals(password, superPassword);
+    const isAdmin = Boolean(adminPassword) && timingSafeEquals(password, adminPassword);
     if (!password || (!isAdmin && !isSuperAdmin)) {
+      recordAuthFailure(clientKey);
       return Response.json({ error: 'Password non valida' }, { status: 401 });
     }
+    clearAuthFailures(clientKey);
     const canManageSettings = isSuperAdmin || !superPassword;
 
     const base44 = createClientFromRequest(req);
@@ -157,6 +239,7 @@ export default async function(req) {
       setting: base44.asServiceRole.entities.Setting,
       receipt: base44.asServiceRole.entities.Receipt,
       return: base44.asServiceRole.entities.Return,
+      webhook_event: base44.asServiceRole.entities.WebhookEvent,
     };
     const res = resource || 'product';
     const db = dbMap[res];
@@ -166,6 +249,7 @@ export default async function(req) {
       product: '-sort_order', product_variant: 'sort_order', category: 'sort_order', asset: '-created_date',
       order: '-created_date', discount: '-created_date', customer: '-created_date', user: '-created_date',
       notification: '-created_date', setting: 'key', receipt: '-created_date', return: '-created_date',
+      webhook_event: '-created_date',
     };
 
     const normalizeDiscountData = async (input, currentId = '') => {
@@ -586,27 +670,123 @@ export default async function(req) {
         const publishable = secrets.get('STRIPE_PUBLISHABLE_KEY');
         const keySet = Boolean(stripeKey);
         const isTest = stripeKey ? stripeKey.startsWith('sk_test') || stripeKey.startsWith('rk_test') : false;
+        // Checkout redirects require PUBLIC_APP_URL in production: without it
+        // create-checkout-session refuses non-localhost origins (503).
+        let publicAppUrl = null;
+        try {
+          const parsed = new URL(String(secrets.get('PUBLIC_APP_URL') || ''));
+          const isLocal = parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1';
+          if (parsed.protocol === 'https:' || (isLocal && parsed.protocol === 'http:')) publicAppUrl = parsed.origin;
+        } catch { /* invalid or missing PUBLIC_APP_URL */ }
         let account = null;
         if (stripeKey) {
           try {
             const stripe = new Stripe(stripeKey);
+            // Identify which Stripe account the keys belong to: essential when
+            // rotating or switching accounts, since the dashboard may show a
+            // different one than the deployed functions actually use.
+            const accountApi = /** @type {any} */ (stripe.accounts);
+            const accountInfo = typeof accountApi.retrieveSelf === 'function'
+              ? await accountApi.retrieveSelf()
+              : await accountApi.retrieve();
             const balance = await stripe.balance.retrieve();
             account = {
+              id: String(accountInfo?.id || ''),
+              business_name: String(accountInfo?.settings?.dashboard?.display_name || accountInfo?.business_profile?.name || ''),
+              country: String(accountInfo?.country || ''),
+              payouts_enabled: Boolean(accountInfo?.payouts_enabled),
               available_eur: balance.available.find(item => item.currency === 'eur')?.amount ?? null,
               pending_eur: balance.pending.find(item => item.currency === 'eur')?.amount ?? null,
             };
           } catch (error) {
-            console.error('Stripe balance check failed:', error);
-            account = { error: 'Impossibile leggere il saldo Stripe' };
+            console.error('Stripe account/balance check failed:', error);
+            account = { error: 'Impossibile leggere l’account Stripe: chiave non valida o insufficiente' };
           }
         }
         return Response.json({
           stripeKeySet: keySet,
           publishableKeySet: Boolean(publishable),
           webhookSecretSet: Boolean(webhookSecret),
+          publicAppUrl,
           mode: keySet ? (isTest ? 'test' : 'live') : null,
           currency: 'eur',
           account,
+        });
+      }
+      case 'reconcile_order': {
+        // Reconciliation for paid orders whose webhook side effects failed
+        // (ledger `effects_pending`). Recomputable aggregates are recalculated
+        // from the orders table, which makes the operation idempotent; stock
+        // is intentionally not touched because the initial stock is unknown.
+        const orderId = String(payload?.id || '').trim();
+        if (!orderId) return Response.json({ error: 'ID ordine mancante' }, { status: 400 });
+        const order = await dbMap.order.get(orderId).catch(() => null);
+        if (!order) return Response.json({ error: 'Ordine non trovato' }, { status: 404 });
+        if (order.status !== 'paid') {
+          return Response.json({ error: 'La riconciliazione è disponibile solo per ordini pagati' }, { status: 409 });
+        }
+        const paidOrders = (await dbMap.order.list('-created_date', MAX_BULK_ITEMS))
+          .filter(candidate => candidate.status === 'paid' || candidate.status === 'shipped' || candidate.status === 'delivered');
+        const report = { customer_synced: false, discount_synced: false, ledger_cleared: 0, stock_check_required: false };
+
+        const email = String(order.customer_email || '').trim().toLowerCase();
+        if (email) {
+          const mine = paidOrders.filter(candidate => String(candidate.customer_email || '').trim().toLowerCase() === email);
+          const totalSpent = mine.reduce((sum, candidate) => sum + Math.max(0, integer(candidate.total_cents)), 0);
+          const existing = await dbMap.customer.filter({ email });
+          if (existing[0]) {
+            await dbMap.customer.update(existing[0].id, {
+              orders_count: mine.length,
+              total_spent: totalSpent,
+              name: existing[0].name || order.customer_name || email.split('@')[0],
+            });
+          } else {
+            await dbMap.customer.create({
+              name: order.customer_name || email.split('@')[0],
+              email,
+              orders_count: mine.length,
+              total_spent: totalSpent,
+            });
+          }
+          report.customer_synced = true;
+        }
+
+        const code = String(order.discount_code || '').trim().toUpperCase();
+        if (code) {
+          const usedBy = paidOrders.filter(candidate => String(candidate.discount_code || '').trim().toUpperCase() === code);
+          const discounts = await dbMap.discount.filter({ code });
+          if (discounts[0]) {
+            await dbMap.discount.update(discounts[0].id, { usage_count: usedBy.length });
+            report.discount_synced = true;
+          }
+        }
+
+        const ledger = dbMap.webhook_event;
+        const events = await ledger.filter({ order_id: orderId }).catch(() => []);
+        for (const item of events) {
+          if (!item.effects_pending) continue;
+          report.stock_check_required = report.stock_check_required || /stock/i.test(String(item.effects_errors || ''));
+          await ledger.update(item.id, { effects_pending: false, reconciled_at: new Date().toISOString() }).catch(() => {});
+          report.ledger_cleared++;
+        }
+
+        return Response.json({ report });
+      }
+      case 'list_more': {
+        // Cursor pagination beyond the first page: the client passes the
+        // created_date of the last loaded row and receives up to `limit`
+        // older rows plus the next cursor. Works for any time-sorted
+        // resource (orders, notifications, customers, …).
+        const limit = Math.min(Math.max(integer(payload?.limit, 50), 1), 250);
+        const before = String(payload?.before || '').trim();
+        if (before && Number.isNaN(new Date(before).getTime())) {
+          return Response.json({ error: 'Cursore non valido' }, { status: 400 });
+        }
+        const filter = before ? { created_date: { $lt: before } } : {};
+        const items = await db.filter(filter, sortMap[res] || '-created_date', limit);
+        return Response.json({
+          items,
+          nextBefore: items.length === limit ? String(items[items.length - 1]?.created_date || '') : null,
         });
       }
       default:

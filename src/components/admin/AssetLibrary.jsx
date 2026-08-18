@@ -45,7 +45,7 @@ export default function AssetLibrary({ password }) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <p className="text-sm text-[#6e6e73]">{assets.length} asset nella libreria</p>
         <div className="flex gap-2">
           <div className="relative">

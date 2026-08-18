@@ -25,6 +25,7 @@ const normalizeStoredCart = (items) => items
 export function StoreProvider({ children }) {
   const [cart, setCart] = useState(() => normalizeStoredCart(readStorage('tm_cart', [])));
   const [wishlist, setWishlist] = useState(() => readStorage('tm_wishlist', []));
+  const [recentIds, setRecentIds] = useState(() => readStorage('tm_recent', []));
 
   useEffect(() => {
     try { localStorage.setItem('tm_cart', JSON.stringify(cart)); } catch { /* storage unavailable */ }
@@ -32,6 +33,9 @@ export function StoreProvider({ children }) {
   useEffect(() => {
     try { localStorage.setItem('tm_wishlist', JSON.stringify(wishlist)); } catch { /* storage unavailable */ }
   }, [wishlist]);
+  useEffect(() => {
+    try { localStorage.setItem('tm_recent', JSON.stringify(recentIds)); } catch { /* storage unavailable */ }
+  }, [recentIds]);
 
   const addToCart = useCallback((product, variant = product?.default_variant, quantity = 1) => {
     if (!product) return;
@@ -94,6 +98,13 @@ export function StoreProvider({ children }) {
 
   const isInWishlist = useCallback((id) => wishlist.some(item => item.id === id), [wishlist]);
 
+  // Recently viewed products keep the newest first, deduplicated, capped at 8.
+  // Only ids are persisted; consumers hydrate them from the catalog query.
+  const recordProductView = useCallback((product) => {
+    if (!product?.id) return;
+    setRecentIds(prev => [String(product.id), ...prev.map(id => String(id)).filter(id => id !== String(product.id))].slice(0, 8));
+  }, []);
+
   const value = useMemo(() => ({
     cart,
     wishlist,
@@ -104,9 +115,11 @@ export function StoreProvider({ children }) {
     syncCatalog,
     toggleWishlist,
     isInWishlist,
+    recordProductView,
+    recentlyViewedIds: recentIds,
     cartCount: cart.reduce((sum, item) => sum + (item.qty || 1), 0),
     wishlistCount: wishlist.length,
-  }), [cart, wishlist, addToCart, removeFromCart, updateQty, clearCart, syncCatalog, toggleWishlist, isInWishlist]);
+  }), [cart, wishlist, addToCart, removeFromCart, updateQty, clearCart, syncCatalog, toggleWishlist, isInWishlist, recordProductView, recentIds]);
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }

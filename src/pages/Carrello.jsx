@@ -83,9 +83,11 @@ export default function Carrello() {
       <Navbar />
       {payment && (
         <div className={payment === 'success' ? 'bg-[#eaf7ed]' : 'bg-[#fff4e5]'}>
-          <div className="mx-auto flex max-w-6xl items-center gap-3 px-6 py-3 text-sm font-medium">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-6 py-3 text-sm font-medium">
             {payment === 'success' ? <Check size={18} className="text-[#248a3d]" /> : <X size={18} className="text-[#b45309]" />}
-            {payment === 'success' ? 'Pagamento completato. Grazie per il tuo ordine.' : 'Pagamento annullato. I prodotti sono ancora nel carrello.'}
+            {payment === 'success'
+              ? <>Pagamento completato. Grazie per il tuo ordine. <Link to="/traccia-ordine" className="font-semibold text-[#0066cc] hover:underline">Traccia la spedizione →</Link></>
+              : 'Pagamento annullato. I prodotti sono ancora nel carrello.'}
           </div>
         </div>
       )}

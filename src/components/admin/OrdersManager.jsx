@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
-import { ChevronDown, Loader2, MapPin, Package, Search } from 'lucide-react';
+import { ChevronDown, Loader2, MapPin, Package, RefreshCw, Search } from 'lucide-react';
 import { useBulkSelect, BulkActionBar, SelectAllCheckbox, RowCheckbox } from '@/lib/bulkSelect';
 
 const fmt = (c) => '€' + ((c || 0) / 100).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -14,16 +14,59 @@ export default function OrdersManager({ password }) {
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [expandedId, setExpandedId] = useState('');
+  const [reconciling, setReconciling] = useState('');
+  const [reconcileMsg, setReconcileMsg] = useState(null);
+  const [nextBefore, setNextBefore] = useState(null);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
       const res = await base44.functions.invoke('admin-cms', { password, operation: 'list', resource: 'order' });
-      setOrders(res.data.items || []);
+      const items = res.data.items || [];
+      setOrders(items);
+      // The base list caps at 500 rows: keep a cursor when there may be more.
+      setNextBefore(items.length >= 500 && items[items.length - 1]?.created_date ? items[items.length - 1].created_date : null);
     } finally { setLoading(false); }
   }, [password]);
 
+  const loadMore = async () => {
+    if (!nextBefore || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const res = await base44.functions.invoke('admin-cms', { password, operation: 'list_more', resource: 'order', payload: { before: nextBefore, limit: 50 } });
+      const items = res.data.items || [];
+      setOrders(prev => [...prev, ...items]);
+      setNextBefore(res.data.nextBefore || null);
+    } catch (error) {
+      console.error('orders load more failed:', error);
+    } finally { setLoadingMore(false); }
+  };
+
   useEffect(() => { load(); }, [load]);
+
+  const reconcile = async (order) => {
+    setReconciling(order.id);
+    setReconcileMsg(null);
+    try {
+      const res = await base44.functions.invoke('admin-cms', { password, operation: 'reconcile_order', payload: { id: order.id } });
+      const report = res.data?.report || {};
+      const parts = [];
+      if (report.customer_synced) parts.push('cliente allineato');
+      if (report.discount_synced) parts.push('sconto allineato');
+      if (report.ledger_cleared) parts.push(`${report.ledger_cleared} eventi riconciliati`);
+      setReconcileMsg({
+        ok: true,
+        text: report.stock_check_required
+          ? `Riconciliato (${parts.join(', ')}) — attenzione: era fallito il decremento stock, verifica manualmente l'inventario.`
+          : `Riconciliato: ${parts.join(', ') || 'nessuna azione necessaria'}.`,
+      });
+    } catch (error) {
+      setReconcileMsg({ ok: false, text: error?.response?.data?.error || error.message || 'Riconciliazione non riuscita' });
+    } finally {
+      setReconciling('');
+    }
+  };
 
   const updateStatus = async (id, status) => {
     await base44.functions.invoke('admin-cms', { password, operation: 'update', resource: 'order', payload: { id, status } });
@@ -59,19 +102,25 @@ export default function OrdersManager({ password }) {
         <BulkActionBar count={bulk.selectedIds.length} onBulkDelete={bulkDelete} onClear={bulk.clear} />
       </div>
 
+      {reconcileMsg && (
+        <p role="status" className={`mb-3 rounded-xl px-4 py-3 text-sm ${reconcileMsg.ok ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'}`}>
+          {reconcileMsg.text}
+        </p>
+      )}
+
       {loading ? <div className="flex justify-center py-20"><Loader2 className="animate-spin text-[#0071E3]" size={28} /></div> :
         filtered.length === 0 ? <p className="text-center text-[#6e6e73] py-20">Nessun ordine.</p> : (
           <div className="bg-white rounded-2xl overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[760px]">
               <thead>
                 <tr className="border-b border-gray-100 text-left text-xs text-[#6e6e73] uppercase">
-                  <th className="p-3 w-10"><SelectAllCheckbox checked={bulk.allSelected} indeterminate={bulk.someSelected} onChange={bulk.toggleAll} /></th>
-                  <th className="p-3">Ordine</th>
-                  <th className="p-3">Cliente</th>
-                  <th className="p-3">Data</th>
-                  <th className="p-3">Sconto</th>
-                  <th className="p-3">Totale</th>
-                  <th className="p-3">Stato</th>
+                  <th scope="col" className="p-3 w-10"><SelectAllCheckbox checked={bulk.allSelected} indeterminate={bulk.someSelected} onChange={bulk.toggleAll} /></th>
+                  <th scope="col" className="p-3">Ordine</th>
+                  <th scope="col" className="p-3">Cliente</th>
+                  <th scope="col" className="p-3">Data</th>
+                  <th scope="col" className="p-3">Sconto</th>
+                  <th scope="col" className="p-3">Totale</th>
+                  <th scope="col" className="p-3">Stato</th>
                 </tr>
               </thead>
               <tbody>
@@ -99,6 +148,7 @@ export default function OrdersManager({ password }) {
                         <td className="p-3">
                           <select
                             value={o.status}
+                            aria-label={`Stato ordine ${o.order_number}`}
                             onChange={e => updateStatus(o.id, e.target.value)}
                             className={`cursor-pointer rounded-full border-0 px-2 py-1 text-xs font-semibold ${BADGE[o.status] || ''}`}
                           >
@@ -143,6 +193,21 @@ export default function OrdersManager({ password }) {
                                   <div className="flex justify-between"><dt className="text-[#6e6e73]">Spedizione</dt><dd>{fmt(o.shipping_cents)}</dd></div>
                                   <div className="flex justify-between border-t border-gray-200 pt-2 font-semibold"><dt>Totale</dt><dd>{fmt(o.total_cents)}</dd></div>
                                 </dl>
+                                {['paid', 'shipped', 'delivered'].includes(o.status) && (
+                                  <div className="rounded-xl bg-white p-4">
+                                    <button
+                                      onClick={() => reconcile(o)}
+                                      disabled={reconciling === o.id}
+                                      className="inline-flex items-center gap-2 rounded-full bg-[#f5f5f7] px-4 py-2 text-xs font-semibold text-[#1d1d1f] transition hover:bg-[#e8e8ed] disabled:opacity-50"
+                                    >
+                                      <RefreshCw size={13} className={reconciling === o.id ? 'animate-spin' : ''} />
+                                      {reconciling === o.id ? 'Riconciliazione…' : 'Riconcilia effetti (cliente/sconto)'}
+                                    </button>
+                                    <p className="mt-2 text-[11px] leading-relaxed text-[#86868b]">
+                                      Ricalcola totali cliente e utilizzi sconto dagli ordini pagati; chiude gli eventi webhook in sospeso.
+                                    </p>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </td>
@@ -155,6 +220,19 @@ export default function OrdersManager({ password }) {
             </table>
           </div>
         )}
+
+      {!loading && nextBefore && (
+        <div className="mt-4 text-center">
+          <button
+            onClick={loadMore}
+            disabled={loadingMore}
+            className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-6 py-2.5 text-sm font-semibold text-[#1d1d1f] transition hover:border-[#86868b] disabled:opacity-50"
+          >
+            {loadingMore ? <Loader2 size={15} className="animate-spin" /> : null}
+            {loadingMore ? 'Caricamento…' : 'Carica ordini meno recenti'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

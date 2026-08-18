@@ -2,11 +2,12 @@ import { lazy, Suspense } from 'react';
 import { Toaster } from '@/components/ui/toaster';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClientInstance } from '@/lib/query-client';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import { AuthProvider } from '@/lib/AuthContext';
 import { StoreProvider } from '@/lib/StoreContext';
 import ScrollToTop from '@/components/ScrollToTop';
 import AppErrorBoundary from '@/lib/AppErrorBoundary';
+import SupportChatButton from '@/components/SupportChatButton';
 
 // Each route is downloaded only when visited. In particular, the sizeable
 // admin dashboard (charts and PDF tooling) never enters the storefront bundle.
@@ -15,6 +16,9 @@ const Catalogo = lazy(() => import('@/pages/Catalogo'));
 const SchedaProdotto = lazy(() => import('@/pages/SchedaProdotto'));
 const Carrello = lazy(() => import('@/pages/Carrello'));
 const Preferiti = lazy(() => import('@/pages/Preferiti'));
+const Ordine = lazy(() => import('@/pages/Ordine'));
+const TracciaOrdine = lazy(() => import('@/pages/TracciaOrdine'));
+const InfoLegali = lazy(() => import('@/pages/InfoLegali'));
 const Login = lazy(() => import('@/pages/Login'));
 const Register = lazy(() => import('@/pages/Register'));
 const ForgotPassword = lazy(() => import('@/pages/ForgotPassword'));
@@ -30,6 +34,14 @@ const LoadingScreen = () => (
   </div>
 );
 
+// The WhatsApp chat button floats on every storefront page but stays out of
+// the admin console, which has its own dedicated interface.
+const SupportChatGate = () => {
+  const { pathname } = useLocation();
+  if (pathname.startsWith('/admin')) return null;
+  return <SupportChatButton />;
+};
+
 const StorefrontRoutes = () => {
   // Authentication resolves in the background. Public Store routes remain
   // usable even when Base44 has no active user session.
@@ -41,6 +53,9 @@ const StorefrontRoutes = () => {
         <Route path="/scheda-prodotto" element={<SchedaProdotto />} />
         <Route path="/carrello" element={<Carrello />} />
         <Route path="/preferiti" element={<Preferiti />} />
+        <Route path="/ordine" element={<Ordine />} />
+        <Route path="/traccia-ordine" element={<TracciaOrdine />} />
+        <Route path="/informazioni-legali" element={<InfoLegali />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -58,11 +73,12 @@ export default function App() {
     <AppErrorBoundary>
       <AuthProvider>
         <QueryClientProvider client={queryClientInstance}>
-          <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <Router>
             <ScrollToTop />
             <StoreProvider>
               <StorefrontRoutes />
             </StoreProvider>
+            <SupportChatGate />
           </Router>
           <Toaster />
         </QueryClientProvider>

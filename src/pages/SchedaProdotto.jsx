@@ -5,10 +5,12 @@ import { ArrowLeft, Check, Heart, Loader2, ShieldCheck, ShoppingBag, X } from 'l
 import PromoBanner from '@/components/PromoBanner';
 import Navbar from '@/components/Navbar';
 import FooterSection from '@/components/FooterSection';
+import ProductCard from '@/components/ProductCard';
 import { Image } from '@/components/ui/image';
 import { base44 } from '@/api/base44Client';
 import { useCatalog } from '@/lib/useProducts';
 import { formatPriceCents, variantOptionGroups } from '@/lib/catalog';
+import { bundleDiscountPercent, bundleTotals, relatedProducts, selectBundleAccessories } from '@/lib/orders';
 import { useStore } from '@/lib/StoreContext';
 
 const optionLabel = (variant) => Object.values(variant?.option_values || {}).filter(Boolean).join(' · ');
@@ -17,12 +19,15 @@ export default function SchedaProdotto() {
   const [params] = useSearchParams();
   const id = params.get('id');
   const payment = params.get('payment');
-  const { products, loading } = useCatalog();
-  const { addToCart, toggleWishlist, isInWishlist } = useStore();
+  const { products, settings, loading } = useCatalog();
+  const { addToCart, toggleWishlist, isInWishlist, recordProductView, recentlyViewedIds } = useStore();
   const [selectedVariantId, setSelectedVariantId] = useState('');
   const [selectedImage, setSelectedImage] = useState('');
   const [buying, setBuying] = useState(false);
   const [checkoutError, setCheckoutError] = useState('');
+  const [bundleSelection, setBundleSelection] = useState(null);
+  const [buyingBundle, setBuyingBundle] = useState(false);
+  const [bundleError, setBundleError] = useState('');
   const [added, setAdded] = useState(false);
 
   const product = products.find(item => String(item.id) === String(id));
@@ -40,6 +45,8 @@ export default function SchedaProdotto() {
     const initial = product.default_variant || activeVariants[0];
     setSelectedVariantId(String(initial?.id || ''));
     setSelectedImage(initial?.image || product.image || '');
+    setBundleSelection(null);
+    recordProductView(product);
   }, [product?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -62,6 +69,49 @@ export default function SchedaProdotto() {
       key === optionName || !variant.option_values?.[key] || variant.option_values[key] === selected,
     );
   });
+
+  // Bundle: suggested accessories for the current selection. The discount is
+  // a display hint — the server revalidates ids, prices and stock at checkout.
+  const bundlePercent = bundleDiscountPercent(settings);
+  const accessories = selectBundleAccessories(products, product, {
+    maxMainCents: selectedVariant?.price_cents ?? product.price_cents,
+  });
+  const selectedAccessoryIds = bundleSelection ?? accessories.map(accessory => String(accessory.id));
+  const selectedAccessories = accessories.filter(accessory => selectedAccessoryIds.includes(String(accessory.id)));
+  const bundleSummary = bundleTotals({
+    mainCents: selectedVariant?.price_cents ?? product.price_cents,
+    accessories: selectedAccessories.map(accessory => ({ price_cents: accessory.price_cents })),
+    percent: bundlePercent,
+  });
+
+  const toggleAccessory = (id) => {
+    setBundleSelection(prev => {
+      const current = prev ?? accessories.map(accessory => String(accessory.id));
+      return current.includes(id) ? current.filter(item => item !== id) : [...current, id];
+    });
+  };
+
+  const handleBuyBundle = async () => {
+    if (!product || !selectedVariant || selectedVariant.stock <= 0 || selectedAccessories.length === 0) return;
+    setBuyingBundle(true);
+    setBundleError('');
+    try {
+      const response = await base44.functions.invoke('create-checkout-session', {
+        productId: product.id,
+        variantId: selectedVariant.legacy ? '' : selectedVariant.id,
+        quantity: 1,
+        bundle_accessories: selectedAccessories.map(accessory => ({
+          productId: accessory.id,
+          variantId: accessory.default_variant && !accessory.default_variant.legacy ? accessory.default_variant.id : '',
+        })),
+      });
+      if (!response.data?.url) throw new Error(response.data?.error || 'Checkout non disponibile.');
+      window.location.href = response.data.url;
+    } catch (error) {
+      setBundleError(error?.response?.data?.error || error.message || 'Impossibile avviare il checkout.');
+      setBuyingBundle(false);
+    }
+  };
 
   const handleAdd = () => {
     if (!product || !selectedVariant || selectedVariant.stock <= 0) return;
@@ -114,6 +164,11 @@ export default function SchedaProdotto() {
   const inWishlist = isInWishlist(product.id);
   const stock = Number(selectedVariant?.stock || 0);
   const price = formatPriceCents(selectedVariant?.price_cents ?? product.price_cents);
+  const related = relatedProducts(products, product, { limit: 4 });
+  const recent = recentlyViewedIds
+    .map(recentId => products.find(item => String(item.id) === String(recentId)))
+    .filter(item => item && String(item.id) !== String(product.id))
+    .slice(0, 4);
 
   return (
     <div className="min-h-screen bg-white text-[#1d1d1f]">
@@ -133,6 +188,20 @@ export default function SchedaProdotto() {
 
       <main>
         <div className="mx-auto max-w-7xl px-5 pb-24 pt-6 sm:px-8 lg:px-10">
+          <nav aria-label="Percorso di navigazione" className="mb-5 flex flex-wrap items-center gap-1.5 text-xs text-[#6e6e73]">
+            <Link to="/" className="rounded px-1 py-0.5 hover:text-[#1d1d1f]">Home</Link>
+            <span aria-hidden="true">/</span>
+            <Link to="/catalogo" className="rounded px-1 py-0.5 hover:text-[#1d1d1f]">Catalogo</Link>
+            {product.category && (
+              <>
+                <span aria-hidden="true">/</span>
+                <Link to={`/catalogo?categoria=${encodeURIComponent(product.category)}`} className="rounded px-1 py-0.5 hover:text-[#1d1d1f]">{product.category}</Link>
+              </>
+            )}
+            <span aria-hidden="true">/</span>
+            <span aria-current="page" className="px-1 py-0.5 font-medium text-[#1d1d1f]">{product.name}</span>
+          </nav>
+
           <Link to="/catalogo" className="mb-6 inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm text-[#6e6e73] transition-colors hover:bg-[#f5f5f7] hover:text-[#1d1d1f]">
             <ArrowLeft size={16} /> Catalogo
           </Link>
@@ -218,6 +287,71 @@ export default function SchedaProdotto() {
                 <Heart size={17} fill={inWishlist ? 'currentColor' : 'none'} /> {inWishlist ? 'Nei preferiti' : 'Aggiungi ai preferiti'}
               </button>
 
+              {accessories.length > 0 && (
+                <section aria-labelledby="bundle-title" className="mt-8 rounded-3xl border border-[#d2d2d7] p-4 sm:p-5">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <h2 id="bundle-title" className="text-lg font-semibold tracking-tight">Completa il setup.</h2>
+                    {bundlePercent > 0 && (
+                      <span className="rounded-full bg-[#eaf7ed] px-3 py-1 text-xs font-semibold text-[#248a3d]">−{bundlePercent}% sugli accessori</span>
+                    )}
+                  </div>
+                  <p className="mt-1 text-xs text-[#6e6e73]">Aggiungi quello che serve: lo sconto si applica in fase di pagamento.</p>
+                  <ul className="mt-4 space-y-2.5">
+                    {accessories.map(accessory => {
+                      const checked = selectedAccessoryIds.includes(String(accessory.id));
+                      const discounted = bundlePercent > 0 ? Math.max(50, Math.round(accessory.price_cents * (100 - bundlePercent) / 100)) : accessory.price_cents;
+                      return (
+                        <li key={accessory.id}>
+                          <label className={`flex cursor-pointer items-center gap-3 rounded-2xl border p-2.5 transition-colors ${checked ? 'border-[#0071e3] bg-[#f5f5f7]' : 'border-[#d2d2d7] hover:border-[#86868b]'}`}>
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => toggleAccessory(String(accessory.id))}
+                              className="h-4 w-4 shrink-0 accent-[#0071e3]"
+                              aria-label={`Includi ${accessory.name} nel bundle`}
+                            />
+                            <span className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-xl bg-white">
+                              <Image src={accessory.image} alt="" fittingType="fit" className="h-full w-full" />
+                            </span>
+                            <span className="min-w-0 flex-1">
+                              <span className="block truncate text-sm font-medium text-[#1d1d1f]">{accessory.name}</span>
+                              <span className="block truncate text-xs text-[#6e6e73]">{optionLabel(accessory.default_variant) || 'Configurazione standard'}</span>
+                            </span>
+                            <span className="shrink-0 text-right">
+                              {checked && bundlePercent > 0 && discounted < accessory.price_cents && (
+                                <span className="block text-xs text-[#86868b] line-through">{formatPriceCents(accessory.price_cents)}</span>
+                              )}
+                              <span className={`block text-sm font-semibold ${checked && bundlePercent > 0 ? 'text-[#248a3d]' : 'text-[#1d1d1f]'}`}>
+                                {formatPriceCents(checked && bundlePercent > 0 ? discounted : accessory.price_cents)}
+                              </span>
+                            </span>
+                          </label>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-[#d2d2d7] pt-4">
+                    <div>
+                      <p className="text-xs text-[#6e6e73]">Totale bundle</p>
+                      <p className="text-lg font-semibold tracking-tight">{formatPriceCents(bundleSummary.totalCents)}</p>
+                    </div>
+                    {bundleSummary.savingsCents > 0 && (
+                      <p className="rounded-full bg-[#eaf7ed] px-3 py-1.5 text-xs font-semibold text-[#248a3d]">
+                        Risparmi {formatPriceCents(bundleSummary.savingsCents)}
+                      </p>
+                    )}
+                  </div>
+                  {bundleError && <div role="alert" className="mt-3 rounded-2xl bg-[#fff2f2] px-4 py-3 text-sm text-[#b42318]">{bundleError}</div>}
+                  <button
+                    onClick={handleBuyBundle}
+                    disabled={buyingBundle || selectedAccessories.length === 0 || stock <= 0}
+                    className="mt-3 min-h-12 w-full rounded-full bg-[#1d1d1f] px-8 text-sm font-semibold text-white transition hover:bg-[#424245] disabled:cursor-not-allowed disabled:opacity-45"
+                  >
+                    {buyingBundle ? <span className="inline-flex items-center gap-2"><Loader2 size={17} className="animate-spin" /> Apertura checkout</span> : `Acquista il bundle (${selectedAccessories.length + 1} articoli)`}
+                  </button>
+                </section>
+              )}
+
               <div className="mt-8 border-y border-[#d2d2d7]">
                 <InfoRow icon={ShieldCheck} title="Pagamento sicuro" text="Prezzo e disponibilità sono verificati sul server prima del checkout Stripe." />
               </div>
@@ -234,6 +368,25 @@ export default function SchedaProdotto() {
               )}
             </section>
           </div>
+
+          {related.length > 0 && (
+            <section aria-labelledby="related-products" className="mt-16 border-t border-[#d2d2d7] pt-10">
+              <h2 id="related-products" className="text-2xl font-semibold tracking-tight sm:text-3xl">Potrebbero interessarti.</h2>
+              <p className="mt-2 text-sm text-[#6e6e73]">Altri prodotti{product.category ? ` di ${product.category}` : ''} selezionati per te.</p>
+              <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
+                {related.map(item => <ProductCard key={item.id} product={item} />)}
+              </div>
+            </section>
+          )}
+
+          {recent.length > 0 && (
+            <section aria-labelledby="recent-products" className="mt-14 border-t border-[#d2d2d7] pt-10">
+              <h2 id="recent-products" className="text-2xl font-semibold tracking-tight sm:text-3xl">Visti di recente.</h2>
+              <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
+                {recent.map(item => <ProductCard key={item.id} product={item} />)}
+              </div>
+            </section>
+          )}
         </div>
       </main>
       <FooterSection />
