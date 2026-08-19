@@ -24,6 +24,7 @@ const FUNCTIONS = {
   "admin-cms": { type: "action", path: "adminCms:default" },
   "create-checkout-session": { type: "action", path: "createCheckout:default" },
   "shopify-sync": { type: "action", path: "shopifySync:default" },
+  "shopify-storefront": { type: "action", path: "shopifyStorefront:default" },
   "integration-hub": { type: "action", path: "integrationHub:default" },
   "order-lookup": { type: "action", path: "orderLookup:default" },
 };

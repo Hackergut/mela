@@ -53,10 +53,10 @@ export default action({
   handler: async (ctx, args) => {
     try {
       const requestOrigin = parseOrigin(process.env.PUBLIC_APP_URL);
-      if (!requestOrigin) return jfail("Checkout non configurato", 503);
 
-      const stripeKey = process.env.STRIPE_SECRET_KEY;
-      if (!stripeKey) return jfail("Checkout non configurato", 503);
+      const shopifyDomain = String(process.env.SHOPIFY_STORE_DOMAIN || process.env.SHOPIFY_SHOP_DOMAIN || "").trim();
+      const shopifyStorefront = String(process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN || "").trim();
+      const shopifyEnabled = Boolean(shopifyDomain && shopifyStorefront);
 
       // Normalise lines.
       const rawLines = Array.isArray(args.items) && args.items.length
@@ -80,6 +80,46 @@ export default action({
       const accessories = Array.isArray(args.bundle_accessories)
         ? args.bundle_accessories.slice(0, MAX_ACCESSORIES).map((a) => ({ productId: String(a.productId || "").trim(), variantId: String(a.variantId || "").trim() })).filter((a) => a.productId)
         : [];
+
+      const shopifyLines = [
+        ...lines.filter((line) => String(line.variantId || "").startsWith("gid://shopify/ProductVariant/")),
+        ...accessories
+          .filter((line) => String(line.variantId || "").startsWith("gid://shopify/ProductVariant/"))
+          .map((line) => ({ productId: line.productId, variantId: line.variantId, quantity: 1 })),
+      ];
+
+      if (shopifyEnabled && shopifyLines.length) {
+        const domain = shopifyDomain.replace(/^https?:\/\//, "").split("/")[0];
+        const input = {
+          lines: shopifyLines.map((line) => ({
+            merchandiseId: line.variantId,
+            quantity: Math.max(1, Number(line.quantity) || 1),
+          })),
+        };
+        const code = String(args.discountCode || "").trim();
+        if (code) input.discountCodes = [code];
+        const response = await fetch(`https://${domain}/api/2025-01/graphql.json`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Shopify-Storefront-Access-Token": shopifyStorefront,
+          },
+          body: JSON.stringify({
+            query: `mutation CartCreate($input: CartInput) { cartCreate(input: $input) { cart { id checkoutUrl } userErrors { message } } }`,
+            variables: { input },
+          }),
+        });
+        const body = await response.json().catch(() => ({}));
+        const error = body?.errors?.[0]?.message || body?.data?.cartCreate?.userErrors?.[0]?.message;
+        if (error) return jfail(error, 400);
+        const checkoutUrl = body?.data?.cartCreate?.cart?.checkoutUrl;
+        if (!checkoutUrl) return jfail("Checkout Shopify non disponibile", 502);
+        return json({ url: checkoutUrl, provider: "shopify" });
+      }
+
+      if (!requestOrigin) return jfail("Checkout non configurato", 503);
+      const stripeKey = process.env.STRIPE_SECRET_KEY;
+      if (!stripeKey) return jfail("Checkout non configurato", 503);
 
       // Load shipping config.
       const settingsList = await ctx.runQuery(internal._crud.listAll, { table: "settings" });

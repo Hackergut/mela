@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { hydrateProducts } from "@/lib/catalog";
 import { buildFallbackCatalog } from "@/lib/fallbackCatalog";
+import { loadShopifyCatalog } from "@/lib/shopify/storefront";
 
 export const CATALOG_QUERY_KEY = ["catalog", "public"];
 const EMPTY = { products: [], variants: [], categories: [], settings: {} };
@@ -25,16 +26,24 @@ function shapeCatalog(raw) {
     .filter((category) => category.status == null || category.status === "active")
     .map((category) => ({
       ...category,
-      product_count: counts.get(String(category.id)) || counts.get(String(category.name)) || 0,
+      product_count: counts.get(String(category.id)) || counts.get(String(category.name)) || category.product_count || 0,
     }))
     .sort((a, b) => (Number(a.sort_order) || 0) - (Number(b.sort_order) || 0));
   return { products, variants: Array.isArray(rawVariants) ? rawVariants : [], categories, settings };
 }
 
-// Catalogue loader. Calls the Convex `catalog` action through the adapter.
-// Any failure (unconfigured URL, empty deployment, network error) falls back to
-// the built-in demo catalogue, so the storefront never shows an error page.
+// Catalogue loader. Prefers a live Shopify Storefront catalogue when the
+// store is connected, then Convex, then the built-in demo snapshot.
 export async function fetchCatalog() {
+  try {
+    const shopify = await loadShopifyCatalog({ first: 50 });
+    if (shopify && Array.isArray(shopify.products)) {
+      return shopify;
+    }
+  } catch (error) {
+    console.warn("Catalogo Shopify non disponibile:", error?.message);
+  }
+
   try {
     const response = await base44.functions.invoke("catalog", {});
     const data = response?.data;
@@ -61,6 +70,7 @@ export function useCatalog() {
     variants: data.variants ?? [],
     categories: data.categories ?? [],
     settings: data.settings ?? {},
+    source: data.source || (data.settings?.shopify_enabled ? "shopify" : "local"),
     loading: query.isPending,
     refreshing: query.isFetching && !query.isPending,
     error: query.error,
@@ -80,5 +90,6 @@ export function useProducts() {
     reload: catalog.reload,
     configured: catalog.configured,
     ready: catalog.ready,
+    source: catalog.source,
   };
 }

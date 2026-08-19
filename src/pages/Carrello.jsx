@@ -9,6 +9,7 @@ import { useStore } from '@/lib/StoreContext';
 import { formatPriceCents, parsePriceCents } from '@/lib/catalog';
 import { base44 } from '@/api/base44Client';
 import { useCatalog } from '@/lib/useProducts';
+import { shopifyCheckoutUrl } from '@/lib/shopify/storefront';
 import tracking from '@/lib/tracking';
 
 const linePrice = (item) => Number.isSafeInteger(item.price_cents) ? item.price_cents : parsePriceCents(item.price);
@@ -32,11 +33,13 @@ export default function Carrello() {
   const {
     products,
     settings,
+    source: catalogSource,
     loading: catalogLoading,
     error: catalogError,
     configured: catalogConfigured,
     ready: catalogReady,
   } = useCatalog();
+  const shopifyCheckout = settings.shopify_enabled || catalogSource === 'shopify';
   const [params] = useSearchParams();
   const payment = params.get('payment');
   const [discountCode, setDiscountCode] = useState('');
@@ -106,12 +109,23 @@ export default function Carrello() {
       try {
         sessionStorage.setItem('tm_checkout_snapshot', JSON.stringify({ lines: checkoutLines, coupon: discountCode.trim(), at: Date.now() }));
       } catch { /* noop */ }
+      const checkoutItems = cart.map(item => ({
+        productId: item.product_id || item.id,
+        variantId: item.variant_id || '',
+        quantity: item.qty || 1,
+      }));
+      if (shopifyCheckout) {
+        const missingVariant = checkoutItems.find((item) => !String(item.variantId).startsWith('gid://shopify/ProductVariant/'));
+        if (missingVariant) throw new Error('Una variante non è collegata a Shopify. Rimuovila e aggiungila di nuovo.');
+        const url = await shopifyCheckoutUrl(
+          checkoutItems.map((item) => ({ merchandiseId: item.variantId, quantity: item.quantity })),
+          discountCode.trim(),
+        );
+        window.location.href = url;
+        return;
+      }
       const response = await base44.functions.invoke('create-checkout-session', {
-        items: cart.map(item => ({
-          productId: item.product_id || item.id,
-          variantId: item.variant_id || '',
-          quantity: item.qty || 1,
-        })),
+        items: checkoutItems,
         discountCode: discountCode.trim(),
       });
       if (!response.data?.url) throw new Error(response.data?.error || 'Checkout non disponibile.');
@@ -247,7 +261,9 @@ export default function Carrello() {
                   ? <span className="inline-flex items-center gap-2"><Loader2 size={17} className="animate-spin" /> Apertura checkout</span>
                   : catalogLoading ? 'Verifica del carrello…' : 'Vai al pagamento'}
               </button>
-              <p className="mt-4 text-center text-xs text-[#86868b]">Pagamento gestito in sicurezza da Stripe</p>
+              <p className="mt-4 text-center text-xs text-[#86868b]">
+                {shopifyCheckout ? 'Pagamento gestito in sicurezza da Shopify Checkout' : 'Pagamento gestito in sicurezza da Stripe'}
+              </p>
             </aside>
           </div>
         )}

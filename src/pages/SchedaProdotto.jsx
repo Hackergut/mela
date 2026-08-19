@@ -9,6 +9,7 @@ import ProductCard from '@/components/ProductCard';
 import { Image } from '@/components/ui/image';
 import { base44 } from '@/api/base44Client';
 import { useCatalog } from '@/lib/useProducts';
+import { shopifyCheckoutUrl } from '@/lib/shopify/storefront';
 import { formatPriceCents, variantOptionGroups } from '@/lib/catalog';
 import { bundleDiscountPercent, bundleTotals, relatedProducts, selectBundleAccessories } from '@/lib/orders';
 import { useStore } from '@/lib/StoreContext';
@@ -28,7 +29,8 @@ export default function SchedaProdotto() {
   const [params] = useSearchParams();
   const id = params.get('id');
   const payment = params.get('payment');
-  const { products, settings, loading } = useCatalog();
+  const { products, settings, source: catalogSource, loading } = useCatalog();
+  const shopifyCheckout = Boolean(settings.shopify_enabled || catalogSource === 'shopify');
   const { addToCart, toggleWishlist, isInWishlist, recordProductView, recentlyViewedIds } = useStore();
   const [selectedVariantId, setSelectedVariantId] = useState('');
   const [selectedImage, setSelectedImage] = useState('');
@@ -101,6 +103,17 @@ export default function SchedaProdotto() {
     });
   };
 
+  const startShopifyCheckout = async (entries, coupon = '') => {
+    const lines = entries
+      .map((entry) => ({
+        merchandiseId: entry.variant?.legacy ? '' : String(entry.variant?.id || ''),
+        quantity: entry.qty || 1,
+      }))
+      .filter((line) => line.merchandiseId.startsWith('gid://shopify/ProductVariant/'));
+    if (lines.length !== entries.length) throw new Error('Una variante non è collegata a Shopify.');
+    return shopifyCheckoutUrl(lines, coupon);
+  };
+
   const handleBuyBundle = async () => {
     if (!product || !selectedVariant || selectedVariant.stock <= 0 || selectedAccessories.length === 0) return;
     setBuyingBundle(true);
@@ -112,6 +125,10 @@ export default function SchedaProdotto() {
     tracking.beginCheckout(checkoutLines);
     persistCheckoutSnapshot(checkoutLines);
     try {
+      if (shopifyCheckout) {
+        window.location.href = await startShopifyCheckout(checkoutLines);
+        return;
+      }
       const response = await base44.functions.invoke('create-checkout-session', {
         productId: product.id,
         variantId: selectedVariant.legacy ? '' : selectedVariant.id,
@@ -145,6 +162,10 @@ export default function SchedaProdotto() {
     tracking.beginCheckout(checkoutLines);
     persistCheckoutSnapshot(checkoutLines);
     try {
+      if (shopifyCheckout) {
+        window.location.href = await startShopifyCheckout(checkoutLines);
+        return;
+      }
       const response = await base44.functions.invoke('create-checkout-session', {
         productId: product.id,
         variantId: selectedVariant.legacy ? '' : selectedVariant.id,
@@ -373,7 +394,7 @@ export default function SchedaProdotto() {
               )}
 
               <div className="mt-8 border-y border-[#d2d2d7]">
-                <InfoRow icon={ShieldCheck} title="Pagamento sicuro" text="Prezzo e disponibilità sono verificati sul server prima del checkout Stripe." />
+                <InfoRow icon={ShieldCheck} title="Pagamento sicuro" text={shopifyCheckout ? 'Prezzo e disponibilità sono verificati da Shopify Checkout.' : 'Prezzo e disponibilità sono verificati sul server prima del checkout Stripe.'} />
               </div>
 
               {Object.keys(product.specs || {}).length > 0 && (
