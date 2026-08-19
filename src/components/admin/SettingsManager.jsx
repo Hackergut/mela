@@ -177,7 +177,7 @@ export default function SettingsManager({ password, isSuperAdmin }) {
               <p className="font-semibold text-amber-800 mb-1">Collegare un account Stripe (guida completa: <code>STRIPE_SETUP.md</code>)</p>
               1. Su <strong>Vercel → Settings → Environment Variables</strong> imposta <code>STRIPE_SECRET_KEY</code>, <code>STRIPE_WEBHOOK_SECRET</code> e (opzionale) <code>STRIPE_PUBLISHABLE_KEY</code>. Convex non è più obbligatorio per pagare.<br />
               2. Su Stripe → Webhook registra <code>https://tuo-dominio/api/stripe-webhook</code> con <code>checkout.session.completed</code> e <code>checkout.session.expired</code>.<br />
-              3. In test usa la carta 4242. Per Google OAuth aggiungi anche <code>VITE_GOOGLE_CLIENT_ID</code> (Client ID Web) e gli origin autorizzati.
+              3. In test usa la carta 4242. Per Google OAuth configura <code>AUTH_GOOGLE_ID</code>, <code>AUTH_GOOGLE_SECRET</code> e <code>SITE_URL</code> nel deployment Convex.
             </div>
           </>
         )}

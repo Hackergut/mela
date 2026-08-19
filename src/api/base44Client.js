@@ -1,19 +1,16 @@
 // @ts-nocheck
-// Backend client. Commerce and auth no longer require Convex: Stripe goes
-// through /api/* and accounts through the local/Google session. Convex remains
-// an optional CMS when VITE_CONVEX_URL is set.
+// Backend client. Commerce uses /api/*; Google authentication is handled by
+// Convex Auth in AuthContext, so OAuth secrets remain on the Convex backend.
 
 import { invoke, convexConfigured, api, convex } from "./functions";
 import {
   clearSession,
   loginAccount,
-  loginGoogleProfile,
   readSession,
   registerAccount,
   requestPasswordReset,
   resetPasswordWithToken,
 } from "@/lib/auth/accounts";
-import { requestGoogleProfile } from "@/lib/auth/google";
 
 /** @type {any} */
 const auth = {
@@ -53,8 +50,7 @@ const auth = {
   },
   async loginWithProvider(provider) {
     if (provider !== "google") throw new Error("Provider non supportato");
-    const profile = await requestGoogleProfile();
-    return loginGoogleProfile(profile);
+    throw new Error("Usa il pulsante Google nella pagina di accesso: l'accesso è gestito da Convex Auth.");
   },
   isAuthenticated: async () => Boolean(readSession()),
 };

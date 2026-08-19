@@ -120,7 +120,6 @@ Copia il **Signing secret** (`whsec_...`) e impostalo come
 - **Immagini**: le immagini demo sono URL assoluti storici e funzionano. Per
   caricare file nuovi usa lo storage Convex (`ctx.storage`).
 - **Account cliente**: l'autenticazione dei clienti non è attiva; l'admin usa la
-  password condivisa. Per gli account cliente si può attivare Convex Auth in un
-  secondo momento (lo schema `users` è predisposto).
+  password condivisa. Gli account Google usano Convex Auth; vedi `CONVEX_AUTH_GOOGLE.md`.
 - Se `VITE_CONVEX_URL` non è impostato, il sito mostra comunque il catalogo
   integrato (44 prodotti) in modalità demo.

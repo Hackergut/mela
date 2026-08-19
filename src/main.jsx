@@ -2,7 +2,8 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from '@/App.jsx'
 import '@/index.css'
-import { ConvexProvider, ConvexReactClient } from 'convex/react'
+import { ConvexReactClient } from 'convex/react'
+import { ConvexAuthProvider } from '@convex-dev/auth/react'
 
 const convexUrl = import.meta.env.VITE_CONVEX_URL || ''
 // Always create a client when configured; the provider enables the reactive
@@ -13,11 +14,11 @@ const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(
   <React.StrictMode>
     {convex ? (
-      <ConvexProvider client={convex}>
-        <App />
-      </ConvexProvider>
+      <ConvexAuthProvider client={convex}>
+        <App convexAuthEnabled />
+      </ConvexAuthProvider>
     ) : (
-      <App />
+      <App convexAuthEnabled={false} />
     )}
   </React.StrictMode>,
 )

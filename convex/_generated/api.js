@@ -26,6 +26,7 @@ const spec = {
   shopifySync: "shopifySync:default",
   shopifyStorefront: "shopifyStorefront:default",
   orderLookup: "orderLookup:default",
+  currentUser: { get: "currentUser:get" },
 };
 
 const internalSpec = {

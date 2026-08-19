@@ -6,6 +6,7 @@
 import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
 import { internal } from "./_generated/api";
+import { auth } from "./auth";
 
 const integer = (value) => { const n = Number(value); return Number.isSafeInteger(n) ? n : 0; };
 
@@ -186,6 +187,7 @@ const stripeWebhook = httpAction(async (ctx, request) => {
 const health = httpAction(async () => new Response(JSON.stringify({ ok: true, service: "techmania-convex" }), { headers: { "Content-Type": "application/json" } }));
 
 const http = httpRouter();
+auth.addHttpRoutes(http);
 http.route({ path: "/stripe-webhook", method: "POST", handler: stripeWebhook });
 http.route({ path: "/health", method: "GET", handler: health });
 export default http;

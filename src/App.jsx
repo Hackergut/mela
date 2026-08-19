@@ -69,10 +69,10 @@ const StorefrontRoutes = () => {
   );
 };
 
-export default function App() {
+export default function App({ convexAuthEnabled = false }) {
   return (
     <AppErrorBoundary>
-      <AuthProvider>
+      <AuthProvider convexAuthEnabled={convexAuthEnabled}>
         <QueryClientProvider client={queryClientInstance}>
           <Router>
             <IntegrationBoot />
