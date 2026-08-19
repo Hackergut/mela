@@ -175,9 +175,9 @@ export default function SettingsManager({ password, isSuperAdmin }) {
 
             <div className="mt-4 p-3 bg-amber-50 rounded-xl text-xs text-amber-700 leading-relaxed">
               <p className="font-semibold text-amber-800 mb-1">Collegare un account Stripe (guida completa: <code>STRIPE_SETUP.md</code>)</p>
-              1. Imposta i secret in <strong>Dashboard → Integrations → Stripe</strong> oppure con la CLI (<code>base44 secrets set STRIPE_SECRET_KEY=… STRIPE_WEBHOOK_SECRET=… STRIPE_PUBLISHABLE_KEY=… PUBLIC_APP_URL=https://tuo-dominio</code>).<br />
-              2. Su Stripe (Sviluppatori → Webhook) registra l'endpoint <code>https://tuo-dominio/apps/&lt;APP_ID&gt;/functions/stripe-webhook</code> con gli eventi <code>checkout.session.completed</code> e <code>checkout.session.expired</code>, poi copia il <code>whsec_…</code> in <code>STRIPE_WEBHOOK_SECRET</code>.<br />
-              3. In modalità test paga con la carta 4242; per andare live sostituisci le chiavi <code>sk_live_…</code>/<code>pk_live_…</code> e ricrea il webhook in modalità live. Senza <code>PUBLIC_APP_URL</code> il checkout in produzione risponde «Checkout non configurato».
+              1. Su <strong>Vercel → Settings → Environment Variables</strong> imposta <code>STRIPE_SECRET_KEY</code>, <code>STRIPE_WEBHOOK_SECRET</code> e (opzionale) <code>STRIPE_PUBLISHABLE_KEY</code>. Convex non è più obbligatorio per pagare.<br />
+              2. Su Stripe → Webhook registra <code>https://tuo-dominio/api/stripe-webhook</code> con <code>checkout.session.completed</code> e <code>checkout.session.expired</code>.<br />
+              3. In test usa la carta 4242. Per Google OAuth aggiungi anche <code>VITE_GOOGLE_CLIENT_ID</code> (Client ID Web) e gli origin autorizzati.
             </div>
           </>
         )}

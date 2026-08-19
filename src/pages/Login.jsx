@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,13 +15,14 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const returnTo = safeReturnTo();
+  const { login, loginWithGoogle, googleConfigured } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
     try {
-      await base44.auth.loginViaEmailPassword(email, password);
+      await login(email, password);
       window.location.href = returnTo;
     } catch (err) {
       setError(err.message || "Email o password non validi");
@@ -30,8 +31,16 @@ export default function Login() {
     }
   };
 
-  const handleGoogle = () => {
-    base44.auth.loginWithProvider("google", returnTo);
+  const handleGoogle = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      await loginWithGoogle();
+      window.location.href = returnTo;
+    } catch (err) {
+      setError(err.message || "Accesso Google non riuscito");
+      setLoading(false);
+    }
   };
 
   return (
@@ -53,12 +62,19 @@ export default function Login() {
     >
       <Button
         variant="outline"
-        className="w-full h-12 text-sm font-medium mb-6"
+        className="w-full h-12 text-sm font-medium mb-2"
         onClick={handleGoogle}
+        disabled={loading}
       >
         <GoogleIcon className="w-5 h-5 mr-2" />
         Continua con Google
       </Button>
+      {!googleConfigured && (
+        <p className="mb-4 text-center text-[11px] leading-5 text-muted-foreground">
+          Per attivare Google imposta <code>VITE_GOOGLE_CLIENT_ID</code> su Vercel
+          (Client ID Web da Google Cloud → OAuth).
+        </p>
+      )}
 
       <div className="relative mb-6">
         <div className="absolute inset-0 flex items-center">

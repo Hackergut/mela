@@ -3,7 +3,7 @@
 // uses this snapshot so the site is never empty. The shape matches what the
 // Convex `catalog` action returns, so the rest of the app is unchanged.
 
-import { PRODUCT_CATALOG } from "./productCatalog";
+import { PRODUCT_CATALOG } from "./productCatalog.js";
 
 const slugify = (s) =>
   String(s || "")

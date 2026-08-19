@@ -1,58 +1,109 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  clearSession,
+  loginAccount,
+  loginGoogleProfile,
+  readSession,
+  registerAccount,
+  requestPasswordReset,
+  resetPasswordWithToken,
+} from '@/lib/auth/accounts';
+import { isGoogleAuthConfigured, requestGoogleProfile } from '@/lib/auth/google';
 
-// After the Base44 → Convex migration there is no app-bootstrap network call
-// and no built-in customer session on the storefront. Customer accounts can be
-// added later via Convex Auth; the admin console uses its own shared password.
-// This provider keeps the same useAuth() shape consumed across the app so no
-// call sites need to change, without any Base44 runtime dependency.
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user] = useState(null);
-  const [isAuthenticated] = useState(false);
-  const [isLoadingAuth] = useState(false);
-  const [isLoadingPublicSettings] = useState(false);
-  const [authError] = useState(null);
-  const [authChecked] = useState(true);
-  const [appPublicSettings] = useState({});
+  const [user, setUser] = useState(() => (typeof window === 'undefined' ? null : readSession()));
+  const [isLoadingAuth, setIsLoadingAuth] = useState(false);
+  const [authError, setAuthError] = useState(null);
 
-  const checkUserAuth = useCallback(async () => null, []);
-  const checkAppState = useCallback(async () => {}, []);
-
-  const logout = useCallback((shouldRedirect = true) => {
-    base44.auth.logout(shouldRedirect ? window.location.href : undefined);
+  useEffect(() => {
+    const sync = () => setUser(readSession());
+    window.addEventListener('storage', sync);
+    window.addEventListener('tm-auth', sync);
+    return () => {
+      window.removeEventListener('storage', sync);
+      window.removeEventListener('tm-auth', sync);
+    };
   }, []);
 
-  const navigateToLogin = useCallback(() => {
-    base44.auth.redirectToLogin(window.location.href);
+  const login = useCallback(async (email, password) => {
+    setIsLoadingAuth(true);
+    setAuthError(null);
+    try {
+      const next = await loginAccount({ email, password });
+      setUser(next);
+      return next;
+    } catch (error) {
+      setAuthError(error.message);
+      throw error;
+    } finally {
+      setIsLoadingAuth(false);
+    }
+  }, []);
+
+  const register = useCallback(async ({ email, password, name }) => {
+    setIsLoadingAuth(true);
+    setAuthError(null);
+    try {
+      const next = await registerAccount({ email, password, name });
+      setUser(next);
+      return next;
+    } catch (error) {
+      setAuthError(error.message);
+      throw error;
+    } finally {
+      setIsLoadingAuth(false);
+    }
+  }, []);
+
+  const loginWithGoogle = useCallback(async () => {
+    setIsLoadingAuth(true);
+    setAuthError(null);
+    try {
+      const profile = await requestGoogleProfile();
+      const next = loginGoogleProfile(profile);
+      setUser(next);
+      return next;
+    } catch (error) {
+      setAuthError(error.message);
+      throw error;
+    } finally {
+      setIsLoadingAuth(false);
+    }
+  }, []);
+
+  const logout = useCallback((shouldRedirect = true) => {
+    clearSession();
+    setUser(null);
+    if (shouldRedirect && typeof window !== 'undefined') window.location.href = '/';
+  }, []);
+
+  const navigateToLogin = useCallback((returnTo) => {
+    const target = returnTo || (typeof window !== 'undefined' ? window.location.href : '/');
+    const path = target.startsWith('http') ? new URL(target).pathname + new URL(target).search : target;
+    window.location.href = `/login?returnTo=${encodeURIComponent(path || '/')}`;
   }, []);
 
   const value = useMemo(() => ({
     user,
-    isAuthenticated,
+    isAuthenticated: Boolean(user),
     isLoadingAuth,
-    isLoadingPublicSettings,
+    isLoadingPublicSettings: false,
     authError,
-    appPublicSettings,
-    authChecked,
+    appPublicSettings: {},
+    authChecked: true,
+    googleConfigured: isGoogleAuthConfigured(),
+    login,
+    register,
+    loginWithGoogle,
+    requestPasswordReset,
+    resetPasswordWithToken,
     logout,
     navigateToLogin,
-    checkUserAuth,
-    checkAppState,
-  }), [
-    user,
-    isAuthenticated,
-    isLoadingAuth,
-    isLoadingPublicSettings,
-    authError,
-    appPublicSettings,
-    authChecked,
-    logout,
-    navigateToLogin,
-    checkUserAuth,
-    checkAppState,
-  ]);
+    checkUserAuth: async () => readSession(),
+    checkAppState: async () => {},
+  }), [user, isLoadingAuth, authError, login, register, loginWithGoogle, logout, navigateToLogin]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

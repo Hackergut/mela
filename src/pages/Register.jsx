@@ -1,14 +1,12 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { UserPlus, Mail, Lock, Loader2 } from "lucide-react";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
-import { toast } from "@/components/ui/use-toast";
 import { safeReturnTo } from "@/lib/authReturnTo";
 
 export default function Register() {
@@ -17,8 +15,7 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showOtp, setShowOtp] = useState(false);
-  const [otpCode, setOtpCode] = useState("");
+  const { register, loginWithGoogle, googleConfigured } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,8 +26,8 @@ export default function Register() {
     }
     setLoading(true);
     try {
-      await base44.auth.register({ email, password });
-      setShowOtp(true);
+      await register({ email, password });
+      window.location.href = safeReturnTo();
     } catch (err) {
       setError(err.message || "Registrazione fallita");
     } finally {
@@ -38,92 +35,17 @@ export default function Register() {
     }
   };
 
-  const handleVerify = async () => {
+  const handleGoogle = async () => {
     setError("");
     setLoading(true);
     try {
-      const result = await base44.auth.verifyOtp({ email, otpCode });
-      if (result?.access_token) {
-        base44.auth.setToken(result.access_token);
-      }
+      await loginWithGoogle();
       window.location.href = safeReturnTo();
     } catch (err) {
-      setError(err.message || "Codice di verifica non valido");
-    } finally {
+      setError(err.message || "Accesso Google non riuscito");
       setLoading(false);
     }
   };
-
-  const handleResend = async () => {
-    setError("");
-    try {
-      await base44.auth.resendOtp(email);
-      toast({
-        title: "Codice inviato",
-        description: "Controlla la tua email per il nuovo codice.",
-      });
-    } catch (err) {
-      setError(err.message || "Impossibile reinviare il codice");
-    }
-  };
-
-  const handleGoogle = () => {
-    base44.auth.loginWithProvider("google", safeReturnTo());
-  };
-
-  if (showOtp) {
-    return (
-      <AuthLayout
-        icon={Mail}
-        title="Verifica la tua email"
-        subtitle={`Abbiamo inviato un codice a ${email}`}
-      >
-        {error && (
-          <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-            {error}
-          </div>
-        )}
-        <div className="flex justify-center mb-6">
-          <InputOTP
-            maxLength={6}
-            value={otpCode}
-            onChange={setOtpCode}
-            autoFocus
-            autoComplete="one-time-code"
-          >
-            <InputOTPGroup>
-              <InputOTPSlot index={0} />
-              <InputOTPSlot index={1} />
-              <InputOTPSlot index={2} />
-              <InputOTPSlot index={3} />
-              <InputOTPSlot index={4} />
-              <InputOTPSlot index={5} />
-            </InputOTPGroup>
-          </InputOTP>
-        </div>
-        <Button
-          className="w-full h-12 font-medium"
-          onClick={handleVerify}
-          disabled={loading || otpCode.length < 6}
-        >
-          {loading ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Verifica in corso...
-            </>
-          ) : (
-            "Verifica"
-          )}
-        </Button>
-        <p className="text-center text-sm text-muted-foreground mt-4">
-          Non hai ricevuto il codice?{" "}
-          <button onClick={handleResend} className="text-primary font-medium hover:underline">
-            Reinvia
-          </button>
-        </p>
-      </AuthLayout>
-    );
-  }
 
   return (
     <AuthLayout
@@ -144,12 +66,18 @@ export default function Register() {
     >
       <Button
         variant="outline"
-        className="w-full h-12 text-sm font-medium mb-6"
+        className="w-full h-12 text-sm font-medium mb-2"
         onClick={handleGoogle}
+        disabled={loading}
       >
         <GoogleIcon className="w-5 h-5 mr-2" />
         Continua con Google
       </Button>
+      {!googleConfigured && (
+        <p className="mb-4 text-center text-[11px] leading-5 text-muted-foreground">
+          Per attivare Google imposta <code>VITE_GOOGLE_CLIENT_ID</code> su Vercel.
+        </p>
+      )}
 
       <div className="relative mb-6">
         <div className="absolute inset-0 flex items-center">

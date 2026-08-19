@@ -1,24 +1,16 @@
 // @ts-nocheck
-// Convex function invoker used by the compatibility adapter
-// (base44Client.js). It routes the legacy `base44.functions.invoke(name, args)`
-// calls to real Convex actions. When the generated `convex/_generated/api`
-// module is available (it is committed as stubs and replaced by `npx convex
-// dev`/`convex deploy`), those references are used directly so the client
-// validates argument/return types.
+// Routes legacy `base44.functions.invoke(name, args)` calls.
+// Checkout, order lookup and Stripe status hit local Vercel `/api` routes
+// first so the store works without Convex. Convex remains optional for CMS.
 
 import { convex, convexConfigured } from "./convexClient";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../convex/_generated/api";
 
-// One-off HTTP client for imperative action calls outside React (admin
-// screens, event handlers, effects).
 const httpClient = convexConfigured
   ? new ConvexHttpClient(import.meta.env.VITE_CONVEX_URL)
   : null;
 
-// Legacy function name → { type, udf path }.
-// `catalog` is a public Convex QUERY (not an action); everything else is an
-// action. Calling a query through httpClient.action() produces a server error.
 const FUNCTIONS = {
   catalog: { type: "query", path: "catalog:default" },
   "admin-cms": { type: "action", path: "adminCms:default" },
@@ -32,26 +24,58 @@ const FUNCTIONS = {
 function refFor(functionName) {
   const entry = FUNCTIONS[functionName];
   if (!entry) {
-    throw Object.assign(new Error(`Funzione "${functionName}" non trovata su Convex`), { status: 404 });
+    throw Object.assign(new Error(`Funzione "${functionName}" non trovata`), { status: 404 });
   }
   const moduleName = entry.path.split(":")[0];
-  // Prefer the generated function reference when available (typed), otherwise
-  // fall back to the path string accepted by ConvexHttpClient.
   const generated = api?.[moduleName]?.default;
   return { ...entry, ref: generated || entry.path };
 }
 
-/**
- * Invoke a Convex action. Resolves to { data, status } just like the old
- * Base44 SDK. Actions that return a serialized Response are unwrapped.
- */
-export async function invoke(functionName, args = {}) {
-  if (!convexConfigured || !httpClient) {
-    throw Object.assign(
-      new Error("Convex non è configurato. Imposta VITE_CONVEX_URL."),
-      { status: 503 },
-    );
+function fail(message, status = 500, data = {}) {
+  throw Object.assign(new Error(message), { status, response: { data: { error: message, ...data } } });
+}
+
+function localSpec(functionName, args = {}) {
+  if (functionName === "create-checkout-session") {
+    return { url: "/api/create-checkout-session", init: { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(args) } };
   }
+  if (functionName === "catalog" && args.operation === "order_lookup") {
+    const params = new URLSearchParams();
+    if (args.session_id) params.set("session_id", args.session_id);
+    if (args.order_number) params.set("order_number", args.order_number);
+    if (args.email) params.set("email", args.email);
+    return { url: `/api/order?${params}`, init: { method: "GET" } };
+  }
+  if (functionName === "order-lookup") {
+    const params = new URLSearchParams();
+    if (args.session_id) params.set("session_id", args.session_id);
+    if (args.order_number) params.set("order_number", args.order_number);
+    if (args.email) params.set("email", args.email);
+    return { url: `/api/order?${params}`, init: { method: "GET" } };
+  }
+  if (functionName === "admin-cms" && args.operation === "payment_status") {
+    return { url: "/api/stripe-status", init: { method: "GET" } };
+  }
+  return null;
+}
+
+async function invokeLocal(functionName, args) {
+  const spec = localSpec(functionName, args);
+  if (!spec) return null;
+  let response;
+  try {
+    response = await fetch(spec.url, spec.init);
+  } catch {
+    return null;
+  }
+  const data = await response.json().catch(() => ({}));
+  if (response.status === 404 && data.error && /Cannot find|not found/i.test(String(data.error))) return null;
+  if (!response.ok) fail(data.error || "Richiesta non riuscita", response.status, data);
+  return { data, status: response.status };
+}
+
+async function invokeConvex(functionName, args) {
+  if (!convexConfigured || !httpClient) return null;
   const { ref, type } = refFor(functionName);
   let result;
   try {
@@ -60,32 +84,49 @@ export async function invoke(functionName, args = {}) {
       : await httpClient.action(ref, args);
   } catch (error) {
     const data = error?.data || { error: error?.message || "Richiesta non riuscita" };
-    throw Object.assign(new Error(data.error || error?.message || "Richiesta non riuscita"), {
-      status: error?.code === "ConvexError" ? 400 : 500,
-      response: { data },
-    });
+    fail(data.error || error?.message || "Richiesta non riuscita", error?.code === "ConvexError" ? 400 : 500, data);
   }
-  // New-style action result: { __ok, status, ...data }
   if (result && typeof result === "object" && "__ok" in result) {
     const { __ok, status, ...data } = result;
-    if (!__ok) {
-      throw Object.assign(new Error(data.error || "Richiesta non riuscita"), {
-        status: status || 400,
-        response: { data },
-      });
-    }
+    if (!__ok) fail(data.error || "Richiesta non riuscita", status || 400, data);
     return { data, status: status || 200 };
   }
-  // Some actions may still return a serialized Response (legacy http shapes).
   if (result && typeof result === "object" && "body" in result && "status" in result && typeof result.body === "string") {
     let data = {};
     try { data = JSON.parse(result.body); } catch { data = result.body; }
     return { data, status: result.status };
   }
   if (result && typeof result === "object" && "error" in result && !("ok" in result)) {
-    throw Object.assign(new Error(result.error), { response: { data: result }, status: result.status || 400 });
+    fail(result.error, result.status || 400, result);
   }
   return { data: result };
+}
+
+export async function invoke(functionName, args = {}) {
+  const localFirst = Boolean(localSpec(functionName, args));
+  if (localFirst) {
+    try {
+      const local = await invokeLocal(functionName, args);
+      if (local) return local;
+    } catch (error) {
+      if (convexConfigured && (error.status === 503 || error.status >= 500)) {
+        const convex = await invokeConvex(functionName, args);
+        if (convex) return convex;
+      }
+      throw error;
+    }
+  }
+  const convex = await invokeConvex(functionName, args);
+  if (convex) return convex;
+  if (!localFirst) {
+    fail(
+      convexConfigured
+        ? "Richiesta Convex non riuscita"
+        : "Questa funzione richiede Convex. Per pagamenti usa Stripe su Vercel (STRIPE_SECRET_KEY).",
+      503,
+    );
+  }
+  fail("Checkout non disponibile. Imposta STRIPE_SECRET_KEY su Vercel oppure VITE_CONVEX_URL.", 503);
 }
 
 export { convex, convexConfigured, api };
