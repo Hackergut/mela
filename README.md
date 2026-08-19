@@ -62,10 +62,11 @@ npm run build
 Configure backend secrets in Base44 rather than committing them to this repository:
 
 - `ADMIN_PASSWORD` and, optionally, `SUPER_ADMIN_PASSWORD` protect CMS operations.
-- `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` enable checkout and signed webhook processing.
-- `PUBLIC_APP_URL` is required for production checkout redirects (for example, `https://shop.example.com`).
+- `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` on **Vercel** enable checkout (`/api/create-checkout-session`) without Convex. See **[STRIPE_SETUP.md](./STRIPE_SETUP.md)**.
+- `VITE_GOOGLE_CLIENT_ID` enables «Continua con Google» (Client ID Web, origin autorizzati).
+- `PUBLIC_APP_URL` is optional for production checkout redirects; the request origin is used when absent.
 - `BASE44_APP_ID` is included in Stripe checkout metadata.
-- `SHOPIFY_SHOP_DOMAIN` and `SHOPIFY_ACCESS_TOKEN` are the preferred way to configure Shopify. The admin UI remains available as a compatibility fallback, but runtime secrets avoid persisting the access token as an entity setting.
+- `SHOPIFY_STORE_DOMAIN` and `SHOPIFY_STOREFRONT_ACCESS_TOKEN` power the live storefront (catalog + Shopify Checkout). `SHOPIFY_SHOP_DOMAIN` and `SHOPIFY_ACCESS_TOKEN` remain the Admin API credentials for syncing products, orders and customers. See **[SHOPIFY.md](./SHOPIFY.md)**. The admin **Shopify** tab is a compatibility fallback if you prefer not to set Convex secrets.
 
 ## Integrazioni (Hub stile Shopify)
 

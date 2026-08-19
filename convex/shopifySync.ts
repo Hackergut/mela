@@ -35,6 +35,23 @@ async function graphql(domain, token, query, variables = {}) {
   return body.data;
 }
 
+const eurosToCents = (raw) => {
+  const n = Number.parseFloat(String(raw ?? "").replace(",", "."));
+  return Number.isFinite(n) && n >= 0 ? Math.round(n * 100) : 0;
+};
+const slugify = (value) => String(value || "")
+  .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  .toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 96);
+
+const mapProductStatus = (status) => {
+  const value = String(status || "").toUpperCase();
+  if (value === "ACTIVE") return "active";
+  if (value === "DRAFT") return "withdrawn";
+  return "discontinued";
+};
+
+const PRODUCTS_Q = `query Sync($first:Int!,$after:String){products(first:$first,after:$after){pageInfo{hasNextPage endCursor}nodes{id title handle description status productType vendor tags updatedAt featuredImage{url} images(first:12){nodes{url}} variants(first:100){nodes{id title sku price compareAtPrice inventoryQuantity selectedOptions{name value} image{url}}}}}}`;
+
 const mapStatus = (o) => {
   if (o.canceledAt) return "cancelled";
   if (o.financialStatus === "REFUNDED") return "refunded";
@@ -89,13 +106,151 @@ async function setSetting(ctx, key, value, label) {
 }
 
 async function resolve(ctx, payload) {
-  const [domainSetting, tokenSetting] = await Promise.all([
+  const [domainSetting, tokenSetting, storefrontSetting] = await Promise.all([
     getSetting(ctx, "shopify_shop_domain"),
     getSetting(ctx, "shopify_access_token"),
+    getSetting(ctx, "shopify_storefront_access_token"),
   ]);
   return {
-    domain: normalizeDomain(payload?.shop_domain || process.env.SHOPIFY_SHOP_DOMAIN || domainSetting),
+    domain: normalizeDomain(payload?.shop_domain || process.env.SHOPIFY_STORE_DOMAIN || process.env.SHOPIFY_SHOP_DOMAIN || domainSetting),
     token: String(payload?.access_token || process.env.SHOPIFY_ACCESS_TOKEN || tokenSetting || "").trim(),
+    storefrontToken: String(payload?.storefront_access_token || process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN || storefrontSetting || "").trim(),
+  };
+}
+
+async function syncProducts(ctx, domain, token) {
+  const fetched = [];
+  let after = null;
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const data = await graphql(domain, token, PRODUCTS_Q, { first: PAGE_SIZE, after });
+    const conn = data?.products;
+    if (!conn) throw new Error("Risposta Shopify prodotti inattesa");
+    fetched.push(...(conn.nodes || []));
+    if (!conn.pageInfo?.hasNextPage) break;
+    after = conn.pageInfo.endCursor;
+  }
+
+  const existingProducts = await ctx.runQuery(internal._crud.listAll, { table: "products" });
+  const existingVariants = await ctx.runQuery(internal._crud.listAll, { table: "product_variants" });
+  const existingCategories = await ctx.runQuery(internal._crud.listAll, { table: "categories" });
+  const productByShopify = new Map(existingProducts.map((product) => [String(product.shopify_product_id || ""), product]));
+  const variantByShopify = new Map(existingVariants.map((variant) => [String(variant.shopify_variant_id || ""), variant]));
+  const categoryByName = new Map(existingCategories.map((category) => [String(category.name || "").toLowerCase(), category]));
+
+  let created = 0;
+  let updated = 0;
+  let variantsCreated = 0;
+  let variantsUpdated = 0;
+  const now = new Date().toISOString();
+
+  for (const node of fetched) {
+    const typeName = String(node.productType || "Store").trim() || "Store";
+    let category = categoryByName.get(typeName.toLowerCase());
+    if (!category) {
+      const categoryId = await ctx.runMutation(internal._crud.createOne, {
+        table: "categories",
+        data: {
+          name: typeName,
+          slug: slugify(typeName),
+          description: `Prodotti ${typeName}`,
+          status: "active",
+          featured: false,
+          image: node.featuredImage?.url || "",
+          sort_order: categoryByName.size * 10,
+          created_date: now,
+          updated_date: now,
+        },
+      });
+      category = { id: categoryId, name: typeName };
+      categoryByName.set(typeName.toLowerCase(), category);
+    }
+
+    const images = [...new Set([node.featuredImage?.url, ...(node.images?.nodes || []).map((image) => image.url)].filter(Boolean))];
+    const firstVariant = node.variants?.nodes?.[0];
+    const priceCents = eurosToCents(firstVariant?.price);
+    const payload = {
+      name: node.title || "Prodotto",
+      slug: node.handle || slugify(node.title),
+      subtitle: node.vendor || "",
+      brand: node.vendor || "",
+      family: typeName,
+      sku: firstVariant?.sku || "",
+      price: firstVariant?.price ? `€${firstVariant.price}` : "",
+      price_cents: priceCents,
+      stock: (node.variants?.nodes || []).reduce((sum, variant) => sum + Math.max(0, Number(variant.inventoryQuantity) || 0), 0),
+      status: mapProductStatus(node.status),
+      category: typeName,
+      category_id: category.id,
+      description: node.description || "",
+      image: images[0] || "",
+      images,
+      featured: Array.isArray(node.tags) && node.tags.some((tag) => String(tag).toLowerCase() === "featured"),
+      source: "shopify",
+      shopify_product_id: node.id,
+      synced_at: now,
+      updated_date: now,
+    };
+
+    const current = productByShopify.get(node.id);
+    let productId = current?.id;
+    if (current) {
+      await ctx.runMutation(internal._crud.updateOne, { table: "products", id: current.id, data: payload });
+      updated += 1;
+    } else {
+      productId = await ctx.runMutation(internal._crud.createOne, {
+        table: "products",
+        data: { ...payload, created_date: now },
+      });
+      created += 1;
+    }
+
+    (node.variants?.nodes || []).forEach((variant, index) => {
+      variant.__index = index;
+    });
+    for (const variant of node.variants?.nodes || []) {
+      const optionValues = Object.fromEntries(
+        (variant.selectedOptions || [])
+          .map((option) => [String(option.name || "").trim(), String(option.value || "").trim()])
+          .filter(([name, value]) => name && value && value !== "Default Title"),
+      );
+      const variantPayload = {
+        product_id: productId,
+        title: variant.title && variant.title !== "Default Title" ? variant.title : "Standard",
+        sku: String(variant.sku || "").trim() || `${node.handle || "sku"}-${variant.__index + 1}`,
+        option_values: optionValues,
+        price_cents: eurosToCents(variant.price),
+        compare_at_cents: eurosToCents(variant.compareAtPrice),
+        stock: Math.max(0, Number(variant.inventoryQuantity) || 0),
+        image: variant.image?.url || images[0] || "",
+        images: [variant.image?.url, images[0]].filter(Boolean),
+        status: "active",
+        is_default: variant.__index === 0,
+        sort_order: variant.__index,
+        shopify_product_id: node.id,
+        shopify_variant_id: variant.id,
+        synced_at: now,
+        updated_date: now,
+      };
+      const existingVariant = variantByShopify.get(variant.id);
+      if (existingVariant) {
+        await ctx.runMutation(internal._crud.updateOne, { table: "product_variants", id: existingVariant.id, data: variantPayload });
+        variantsUpdated += 1;
+      } else {
+        await ctx.runMutation(internal._crud.createOne, {
+          table: "product_variants",
+          data: { ...variantPayload, created_date: now },
+        });
+        variantsCreated += 1;
+      }
+    }
+  }
+
+  return {
+    fetched: fetched.length,
+    created,
+    updated,
+    variants_created: variantsCreated,
+    variants_updated: variantsUpdated,
   };
 }
 
@@ -153,15 +308,34 @@ export default action({
     try {
       switch (args.operation) {
         case "status": {
-          const { domain, token } = await resolve(ctx, payload);
-          return json({ configured: !!domain && !!token, domain, has_token: !!token, orders_checkpoint: await getSetting(ctx, "shopify_orders_checkpoint"), customers_checkpoint: await getSetting(ctx, "shopify_customers_checkpoint") });
+          const { domain, token, storefrontToken } = await resolve(ctx, payload);
+          return json({
+            configured: !!domain && !!token,
+            storefront_configured: !!domain && !!storefrontToken,
+            domain,
+            has_token: !!token,
+            has_storefront_token: !!storefrontToken,
+            orders_checkpoint: await getSetting(ctx, "shopify_orders_checkpoint"),
+            customers_checkpoint: await getSetting(ctx, "shopify_customers_checkpoint"),
+          });
         }
         case "save_creds": {
           const domain = normalizeDomain(payload.shop_domain);
           const token = String(payload.access_token || "").trim();
-          if (!domain || !token || token.length > 512) return jfail("Dominio o token non validi", 400);
+          const storefrontToken = String(payload.storefront_access_token || "").trim();
+          if (!domain || domain.length > 128) return jfail("Dominio non valido", 400);
           await setSetting(ctx, "shopify_shop_domain", domain, "Shopify Dominio");
-          await setSetting(ctx, "shopify_access_token", token, "Shopify Token");
+          if (token) {
+            if (token.length > 512) return jfail("Token Admin non valido", 400);
+            await setSetting(ctx, "shopify_access_token", token, "Shopify Token");
+          }
+          if (storefrontToken) {
+            if (storefrontToken.length > 512) return jfail("Token Storefront non valido", 400);
+            await setSetting(ctx, "shopify_storefront_access_token", storefrontToken, "Shopify Storefront Token");
+          }
+          if (!token && !storefrontToken && !(await getSetting(ctx, "shopify_access_token")) && !(await getSetting(ctx, "shopify_storefront_access_token"))) {
+            return jfail("Inserisci almeno un token", 400);
+          }
           return json({ ok: true });
         }
         case "test": {

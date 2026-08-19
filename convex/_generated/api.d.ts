@@ -11,6 +11,7 @@ import type * as createCheckout from "../createCheckout";
 import type * as integrationHub from "../integrationHub";
 import type * as orderLookup from "../orderLookup";
 import type * as shopifySync from "../shopifySync";
+import type * as shopifyStorefront from "../shopifyStorefront";
 import type * as _crud from "../_crud";
 declare const fullApi: ApiFromModules<{
   adminCms: typeof adminCms;
@@ -19,6 +20,7 @@ declare const fullApi: ApiFromModules<{
   integrationHub: typeof integrationHub;
   orderLookup: typeof orderLookup;
   shopifySync: typeof shopifySync;
+  shopifyStorefront: typeof shopifyStorefront;
   _crud: typeof _crud;
 }>;
 export declare const api: FilterApi<typeof fullApi, FunctionReference<any, "public">>;

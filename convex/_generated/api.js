@@ -24,6 +24,7 @@ const spec = {
   createCheckout: "createCheckout:default",
   integrationHub: "integrationHub:default",
   shopifySync: "shopifySync:default",
+  shopifyStorefront: "shopifyStorefront:default",
   orderLookup: "orderLookup:default",
 };
 

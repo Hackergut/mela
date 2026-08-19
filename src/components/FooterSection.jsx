@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, ShoppingBag } from 'lucide-react';
+import { Mail } from 'lucide-react';
 import { useCatalog } from '@/lib/useProducts';
 import { COMPANY, SUPPORT_EMAIL, whatsappLink, WhatsAppIcon } from '@/lib/contact';
 

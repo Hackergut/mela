@@ -20,7 +20,7 @@ export const MAIN_SETTING_KEYS = [
   "shipping_countries",
   "bundle_discount_percent",
 ];
-export const SECRET_SETTING_KEYS = ["shopify_access_token"];
+export const SECRET_SETTING_KEYS = ["shopify_access_token", "shopify_storefront_access_token"];
 
 export const SORT_DESC_PREFIX = "-";
 
@@ -200,12 +200,18 @@ export async function publicSettings(ctx) {
     const amount = Number(String(raw ?? "").trim().replace(",", "."));
     return Number.isFinite(amount) && amount >= 0 ? Math.round(amount * 100) : 0;
   };
+  const shopifyEnabled = Boolean(
+    values.shopify_storefront_access_token
+      || process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN,
+  );
   return {
     store_name: String(values.store_name || ""),
     currency: String(values.store_currency || "EUR").toUpperCase(),
     free_shipping_threshold_cents: toCents(values.free_shipping_threshold),
     shipping_flat_rate_cents: toCents(values.shipping_flat_rate),
     bundle_discount_percent: Math.min(15, Math.max(0, Math.trunc(Number(values.bundle_discount_percent) || 0))),
+    shopify_enabled: shopifyEnabled,
+    commerce_provider: shopifyEnabled ? "shopify" : "stripe",
   };
 }
 

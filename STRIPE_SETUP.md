@@ -1,9 +1,7 @@
 # Pagamenti Stripe — setup (techmania.pro)
 
-Il backend è già pronto: la funzione `createCheckout` crea una sessione Stripe
-Checkout, `http.ts` riceve il webhook firmato, aggiorna l'ordine, decrementa lo
-stock, crea clienti/notifiche e spedisce i webhook di automazione. Manca solo la
-configurazione di 3 chiavi e dell'endpoint webhook.
+Il checkout Stripe **non dipende più da Convex**. Le funzioni Vercel in `api/`
+creano la sessione, verificano il webhook e recuperano l'ordine da Stripe.
 
 ## Cosa ho già fatto io (codice)
 - Checkout server-side in EUR con creazione ordine `pending` e aggiornamento a
@@ -27,7 +25,7 @@ Apri https://dashboard.stripe.com/test/apikeys (assicurati che l'interruttore
 1. Vai su https://dashboard.stripe.com/test/webhooks → **Aggiungi endpoint**.
 2. **URL dell'endpoint**:
    ```
-   https://acoustic-flamingo-875.convex.site/stripe-webhook
+   https://tuo-dominio/api/stripe-webhook
    ```
 3. **Eventi da ascoltare** → aggiungi:
    - `checkout.session.completed`
@@ -35,19 +33,18 @@ Apri https://dashboard.stripe.com/test/apikeys (assicurati che l'interruttore
 4. Salva, poi clicca sul webhook creato → **Rivela** il
    **Segreto di firma** (`whsec_...`). Copialo.
 
-### 3. Inserisci i secret in Convex
-Sono variabili d'ambiente **lato server** (non vanno su Vercel).
-Dashboard Convex → progetto `acoustic-flamingo-875` (ambiente **production**)
-→ **Settings → Environment Variables** → aggiungi:
+### 3. Inserisci i secret su Vercel
+Vercel → progetto → **Settings → Environment Variables** (Production + Preview):
 
 | Name | Value |
 |---|---|
-| `ADMIN_PASSWORD` | password per accedere all'admin |
-| `SUPER_ADMIN_PASSWORD` | password per i settaggi principali |
-| `PUBLIC_APP_URL` | `https://techmania.pro` |
-| `STRIPE_SECRET_KEY` | `sk_test_...` |
-| `STRIPE_PUBLISHABLE_KEY` | `pk_test_51U57MaJPrsrxAt5rCQaEPmTuc4X9PCjO89gTqpGQ6KeXeY6mKdQtSTyZqePQJ80eErFXKqSGK5HrbEaHcWZKrpJK00iY8NpMCJ` |
+| `STRIPE_SECRET_KEY` | `sk_test_...` (o `sk_live_...`) |
 | `STRIPE_WEBHOOK_SECRET` | `whsec_...` |
+| `STRIPE_PUBLISHABLE_KEY` | `pk_test_...` / `pk_live_...` |
+| `VITE_GOOGLE_CLIENT_ID` | Client ID Web Google (OAuth) |
+| `PUBLIC_APP_URL` | `https://techmania.pro` (opzionale: si usa l'origine della richiesta) |
+
+Poi **Redeploy**. Non serve Convex per pagare o per accedere con email/Google.
 
 ### 4. Carica i prodotti (se non l'hai fatto)
 Convex → **Functions** → `seed` → `default` → Arguments `{}` → **Run**.
