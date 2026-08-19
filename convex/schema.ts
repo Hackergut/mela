@@ -4,11 +4,13 @@
 // v.any() to preserve the original shape without a migration tax.
 
 import { defineSchema, defineTable } from "convex/server";
+import { authTables } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 
 const json = v.any();
 
 export default defineSchema({
+  ...authTables,
   products: defineTable({
     name: v.string(),
     slug: v.optional(v.string()),
@@ -150,12 +152,19 @@ export default defineSchema({
   })
     .index("by_created", ["created_date"]),
 
+  // Extend Convex Auth's user record with the legacy storefront fields while
+  // preserving the indexes and fields required by the auth library.
   users: defineTable({
-    email: v.optional(v.string()),
-    role: v.optional(v.string()),
     name: v.optional(v.string()),
+    image: v.optional(v.string()),
+    email: v.optional(v.string()),
+    emailVerificationTime: v.optional(v.number()),
+    phone: v.optional(v.string()),
+    phoneVerificationTime: v.optional(v.number()),
+    isAnonymous: v.optional(v.boolean()),
+    role: v.optional(v.string()),
     created_date: v.optional(v.string()),
-  }),
+  }).index("email", ["email"]).index("phone", ["phone"]),
 
   notifications: defineTable({
     type: v.optional(v.string()),

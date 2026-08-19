@@ -59,11 +59,11 @@ npm run build
 
 ## Runtime Secrets
 
-Configure backend secrets in Base44 rather than committing them to this repository:
+Configure backend secrets in their respective deployment (Convex or Vercel) rather than committing them to this repository:
 
 - `ADMIN_PASSWORD` and, optionally, `SUPER_ADMIN_PASSWORD` protect CMS operations.
 - `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` on **Vercel** enable checkout (`/api/create-checkout-session`) without Convex. See **[STRIPE_SETUP.md](./STRIPE_SETUP.md)**.
-- `VITE_GOOGLE_CLIENT_ID` enables «Continua con Google» (Client ID Web, origin autorizzati).
+- `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET` enable «Continua con Google» and must be set on the Convex deployment. `SITE_URL` must be the public app URL. See **[CONVEX_AUTH_GOOGLE.md](./CONVEX_AUTH_GOOGLE.md)**.
 - `PUBLIC_APP_URL` is optional for production checkout redirects; the request origin is used when absent.
 - `BASE44_APP_ID` is included in Stripe checkout metadata.
 - `SHOPIFY_STORE_DOMAIN` and `SHOPIFY_STOREFRONT_ACCESS_TOKEN` power the live storefront (catalog + Shopify Checkout). `SHOPIFY_SHOP_DOMAIN` and `SHOPIFY_ACCESS_TOKEN` remain the Admin API credentials for syncing products, orders and customers. See **[SHOPIFY.md](./SHOPIFY.md)**. The admin **Shopify** tab is a compatibility fallback if you prefer not to set Convex secrets.

@@ -41,10 +41,9 @@ Vercel → progetto → **Settings → Environment Variables** (Production + Pre
 | `STRIPE_SECRET_KEY` | `sk_test_...` (o `sk_live_...`) |
 | `STRIPE_WEBHOOK_SECRET` | `whsec_...` |
 | `STRIPE_PUBLISHABLE_KEY` | `pk_test_...` / `pk_live_...` |
-| `VITE_GOOGLE_CLIENT_ID` | Client ID Web Google (OAuth) |
 | `PUBLIC_APP_URL` | `https://techmania.pro` (opzionale: si usa l'origine della richiesta) |
 
-Poi **Redeploy**. Non serve Convex per pagare o per accedere con email/Google.
+Poi **Redeploy**. Per Google OAuth usa invece la configurazione Convex descritta in **[CONVEX_AUTH_GOOGLE.md](./CONVEX_AUTH_GOOGLE.md)**.
 
 ### 4. Carica i prodotti (se non l'hai fatto)
 Convex → **Functions** → `seed` → `default` → Arguments `{}` → **Run**.

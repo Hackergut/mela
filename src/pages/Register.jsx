@@ -39,7 +39,7 @@ export default function Register() {
     setError("");
     setLoading(true);
     try {
-      await loginWithGoogle();
+      await loginWithGoogle(safeReturnTo());
       window.location.href = safeReturnTo();
     } catch (err) {
       setError(err.message || "Accesso Google non riuscito");
@@ -75,7 +75,7 @@ export default function Register() {
       </Button>
       {!googleConfigured && (
         <p className="mb-4 text-center text-[11px] leading-5 text-muted-foreground">
-          Per attivare Google imposta <code>VITE_GOOGLE_CLIENT_ID</code> su Vercel.
+          Google OAuth viene configurato nel deployment Convex con <code>AUTH_GOOGLE_ID</code> e <code>AUTH_GOOGLE_SECRET</code>.
         </p>
       )}
 
