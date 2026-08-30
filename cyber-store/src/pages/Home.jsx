@@ -1,345 +1,181 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Smartphone, Watch, Camera, Headphones, Laptop, Gamepad2, ArrowRight, ShieldCheck, Truck, RefreshCw, Headphones as HeadphonesIcon } from 'lucide-react';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { ShoppingBag, ArrowRight, Shield, Zap, Sparkles, Star } from 'lucide-react';
+import { useStore } from '../context/StoreContext';
 import ProductCard from '../components/ProductCard';
-import { products, categories } from '../data/products';
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState('Novità');
-  const navigate = useNavigate();
+  const { productsList } = useStore();
 
-  const filteredProducts = products.filter(p => {
-    if (activeTab === 'Novità') return p.isNew;
-    if (activeTab === 'Più Venduti') return p.isBestseller;
-    if (activeTab === 'In Evidenza') return p.isFeatured;
-    return true;
-  }).slice(0, 8);
-
-  const getCategoryIcon = (iconName) => {
-    switch (iconName) {
-      case 'Smartphone': return <Smartphone className="w-8 h-8" />;
-      case 'Watch': return <Watch className="w-8 h-8" />;
-      case 'Camera': return <Camera className="w-8 h-8" />;
-      case 'Headphones': return <Headphones className="w-8 h-8" />;
-      case 'Laptop': return <Laptop className="w-8 h-8" />;
-      case 'Gamepad2': return <Gamepad2 className="w-8 h-8" />;
-      default: return <Smartphone className="w-8 h-8" />;
-    }
-  };
+  const featuredProducts = productsList.filter(p => p.badge === 'Bestseller' || p.badge === 'Nuovo').slice(0, 4);
+  const discountProducts = productsList.filter(p => p.originalPrice).slice(0, 4);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="space-y-16 pb-20">
       
-      {/* HERO SECTION */}
-      <section className="bg-black text-white relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 flex flex-col md:flex-row items-center justify-between gap-12">
+      {/* Hero Banner Section */}
+      <section className="bg-black text-white min-h-[600px] flex items-center relative overflow-hidden py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center z-10">
           
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
-            className="space-y-6 max-w-xl text-center md:text-left z-10"
+            transition={{ duration: 0.6 }}
+            className="space-y-6"
           >
-            <span className="text-gray-400 uppercase tracking-widest text-xs font-bold bg-gray-900 px-3 py-1.5 rounded-full inline-block border border-gray-800">
-              Oltre Ogni Limite
-            </span>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md text-xs font-semibold text-gray-300">
+              <Sparkles className="w-3.5 h-3.5 text-yellow-400" />
+              <span>Sconti Estivi TechMania Fino al 15% OFF • Codice: TECHMANIA10</span>
+            </div>
+
             <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-none text-white">
-              IPHONE 15 PRO
+              IPHONE 15 PRO <br />
+              <span className="text-gray-400">TITANIO NATURALE</span>
             </h1>
-            <p className="text-gray-400 text-base sm:text-lg leading-relaxed">
-              Creato per cambiare tutto in meglio. Design in titanio aerospaziale, chip A17 Pro, tasto Azione personalizzabile e fotocamera Pro da 48MP.
+
+            <p className="text-base text-gray-400 max-w-md leading-relaxed">
+              Incontra la nuova era della tecnologia mobile con il chip A17 Pro ultra-veloce, design in titanio di grado aerospaziale e fotocamera principale da 48 MP.
             </p>
-            <div className="pt-2">
-              <Link to="/products/iphone-15-pro-max">
-                <motion.div
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.96 }}
-                  className="inline-flex items-center justify-center bg-white text-black font-bold px-8 py-4 rounded-xl hover:bg-gray-200 transition-all text-sm tracking-wide shadow-lg group cursor-pointer"
-                >
-                  <span>Acquista Ora</span>
-                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                </motion.div>
+
+            <div className="flex flex-wrap items-center gap-4 pt-2">
+              <Link
+                to="/products/iphone-15-pro-max"
+                className="px-8 py-4 bg-white text-black font-extrabold rounded-2xl hover:bg-gray-200 transition-all transform hover:-translate-y-0.5 shadow-xl flex items-center gap-2 text-sm"
+              >
+                <span>Acquista Ora</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link
+                to="/products"
+                className="px-8 py-4 border border-gray-700 text-white font-extrabold rounded-2xl hover:bg-white/10 transition-all text-sm"
+              >
+                Esplora Catalogo
               </Link>
             </div>
           </motion.div>
 
+          {/* Hero Image */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.1, ease: 'easeOut' }}
-            className="relative w-full max-w-md md:max-w-lg flex items-center justify-center"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="relative flex justify-center items-center"
           >
-            <div className="absolute w-72 h-72 sm:w-96 sm:h-96 bg-gray-800/50 rounded-full blur-3xl -z-10" />
-            <motion.img
-              animate={{ y: [0, -10, 0] }}
-              transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
-              src="/assets/iphone-image-2619-2264.png"
-              alt="iPhone 15 Pro Max"
-              className="max-h-[420px] object-contain drop-shadow-2xl"
+            <div className="w-80 h-80 sm:w-96 sm:h-96 rounded-full bg-gradient-to-tr from-gray-800 to-gray-900 absolute opacity-50 blur-3xl" />
+            <img
+              src="/assets/Iphone15pro.png"
+              alt="iPhone 15 Pro Max TechMania"
+              className="relative z-10 max-h-[480px] object-contain drop-shadow-[0_20px_50px_rgba(255,255,255,0.15)] hover:scale-105 transition-transform duration-500"
             />
           </motion.div>
 
         </div>
       </section>
 
-      {/* FEATURED BANNER GRID */}
-      <section className="py-12 bg-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            
-            {/* Tile 1: PlayStation 5 */}
-            <motion.div
-              whileHover={{ y: -4 }}
-              transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-              className="bg-white rounded-2xl p-6 flex flex-col justify-between h-80 relative overflow-hidden group border border-gray-200 shadow-sm hover:shadow-md"
-            >
-              <div>
-                <span className="text-xs font-bold text-gray-400 uppercase">Gaming</span>
-                <h3 className="text-xl font-extrabold text-black mt-1">PlayStation 5 Slim</h3>
-                <p className="text-xs text-gray-500 mt-1">Potenza di nuova generazione</p>
-              </div>
-              <img
-                src="/assets/playstation-2619-2204.png"
-                alt="PS5"
-                className="w-36 h-36 object-contain absolute right-2 bottom-4 group-hover:scale-110 transition-transform duration-300"
-              />
-              <Link to="/products/playstation-5-slim" className="text-xs font-bold text-black flex items-center gap-1 hover:underline z-10 mt-auto">
-                Scopri PlayStation <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </motion.div>
-
-            {/* Tile 2: AirPods Max */}
-            <motion.div
-              whileHover={{ y: -4 }}
-              transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-              className="bg-white rounded-2xl p-6 flex flex-col justify-between h-80 relative overflow-hidden group border border-gray-200 shadow-sm hover:shadow-md"
-            >
-              <div>
-                <span className="text-xs font-bold text-gray-400 uppercase">Audio</span>
-                <h3 className="text-xl font-extrabold text-black mt-1">AirPods Max</h3>
-                <p className="text-xs text-gray-500 mt-1">Audio ad altissima fedeltà</p>
-              </div>
-              <img
-                src="/assets/hero-gnfk5g59t0qe-xlarge-2x-1-2619-2194.png"
-                alt="AirPods Max"
-                className="w-36 h-36 object-contain absolute right-2 bottom-4 group-hover:scale-110 transition-transform duration-300"
-              />
-              <Link to="/products/airpods-max" className="text-xs font-bold text-black flex items-center gap-1 hover:underline z-10 mt-auto">
-                Scopri AirPods <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </motion.div>
-
-            {/* Tile 3: Apple Vision Pro */}
-            <motion.div
-              whileHover={{ y: -4 }}
-              transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-              className="bg-black text-white rounded-2xl p-6 flex flex-col justify-between h-80 relative overflow-hidden group shadow-sm hover:shadow-md"
-            >
-              <div>
-                <span className="text-xs font-bold text-gray-400 uppercase">Calcolo Spaziale</span>
-                <h3 className="text-xl font-extrabold text-white mt-1">Apple Vision Pro</h3>
-                <p className="text-xs text-gray-400 mt-1">Benvenuti nel futuro spaziale</p>
-              </div>
-              <img
-                src="/assets/image-61-2619-1982.png"
-                alt="Vision Pro"
-                className="w-36 h-36 object-contain absolute right-2 bottom-4 group-hover:scale-110 transition-transform duration-300"
-              />
-              <Link to="/products/apple-vision-pro" className="text-xs font-bold text-white flex items-center gap-1 hover:underline z-10 mt-auto">
-                Esplora Vision Pro <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </motion.div>
-
-            {/* Tile 4: MacBook Pro */}
-            <motion.div
-              whileHover={{ y: -4 }}
-              transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-              className="bg-white rounded-2xl p-6 flex flex-col justify-between h-80 relative overflow-hidden group border border-gray-200 shadow-sm hover:shadow-md"
-            >
-              <div>
-                <span className="text-xs font-bold text-gray-400 uppercase">Computer</span>
-                <h3 className="text-xl font-extrabold text-black mt-1">MacBook Pro 16"</h3>
-                <p className="text-xs text-gray-500 mt-1">Potenza straordinaria M3 Max</p>
-              </div>
-              <img
-                src="/assets/banner-2-2619-2128.png"
-                alt="MacBook Pro"
-                className="w-36 h-36 object-contain absolute right-2 bottom-4 group-hover:scale-110 transition-transform duration-300"
-              />
-              <Link to="/products/macbook-pro-16-m3" className="text-xs font-bold text-black flex items-center gap-1 hover:underline z-10 mt-auto">
-                Scopri MacBook <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </motion.div>
-
+      {/* Category Grid Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-2xl font-black text-black tracking-tight">Categorie Popolari</h2>
+            <p className="text-xs text-gray-500">Trova rapidamente i migliori dispositivi per le tue esigenze</p>
           </div>
+          <Link to="/products" className="text-xs font-bold text-black hover:underline flex items-center gap-1">
+            Vedi tutte <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
-      </section>
 
-      {/* BROWSE BY CATEGORY */}
-      <section className="py-16 bg-white border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-black text-black tracking-tight">Esplora per Categoria</h2>
-            <Link to="/products" className="text-sm font-bold text-black hover:underline flex items-center gap-1">
-              Vedi Tutte <ArrowRight className="w-4 h-4" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+          {[
+            { name: 'Smartphone', img: '/assets/Iphone15pro.png', count: '12 Modelli', category: 'Smartphones' },
+            { name: 'Cuffie & Audio', img: '/assets/airpodsmax.png', count: '8 Modelli', category: 'Audio' },
+            { name: 'Console & Gaming', img: '/assets/ps5.png', count: '5 Modelli', category: 'Gaming' },
+            { name: 'Smartwatch', img: '/assets/applewatch.png', count: '6 Modelli', category: 'Wearables' },
+          ].map((cat, idx) => (
+            <Link
+              key={idx}
+              to={`/products?category=${encodeURIComponent(cat.category)}`}
+              className="group bg-gray-50 hover:bg-black hover:text-white p-6 rounded-3xl transition-all duration-300 border border-gray-100 flex flex-col items-center text-center space-y-4 shadow-sm hover:shadow-2xl"
+            >
+              <div className="w-28 h-28 flex items-center justify-center">
+                <img src={cat.img} alt={cat.name} className="max-h-24 object-contain group-hover:scale-110 transition-transform duration-300" />
+              </div>
+              <div>
+                <h3 className="font-extrabold text-sm text-black group-hover:text-white">{cat.name}</h3>
+                <p className="text-[11px] text-gray-400 group-hover:text-gray-300">{cat.count}</p>
+              </div>
             </Link>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-            {categories.slice(0, 6).map((cat) => (
-              <motion.button
-                key={cat.id}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigate(`/products?category=${cat.id}`)}
-                className="bg-gray-100 hover:bg-black hover:text-white text-black p-6 rounded-2xl flex flex-col items-center justify-center text-center gap-3 transition-colors duration-300 group cursor-pointer shadow-sm"
-              >
-                <div className="p-3 bg-white text-black rounded-xl group-hover:bg-gray-800 group-hover:text-white transition-colors">
-                  {getCategoryIcon(cat.icon)}
-                </div>
-                <span className="text-sm font-bold">{cat.name}</span>
-              </motion.button>
-            ))}
-          </div>
+          ))}
         </div>
       </section>
 
-      {/* PRODUCTS TAB GRID */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          {/* Tabs */}
-          <div className="flex items-center gap-8 border-b border-gray-200 pb-4 mb-8 overflow-x-auto">
-            {['Novità', 'Più Venduti', 'In Evidenza'].map((tab) => {
-              const isActive = activeTab === tab;
-              return (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`relative text-base font-bold whitespace-nowrap transition-colors pb-2 -mb-4 ${
-                    isActive ? 'text-black' : 'text-gray-400 hover:text-gray-700'
-                  }`}
-                >
-                  <span>{tab}</span>
-                  {isActive && (
-                    <motion.div
-                      layoutId="activeHomeTab"
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-black rounded-full"
-                      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                    />
-                  )}
-                </button>
-              );
-            })}
+      {/* Featured Products Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-2xl font-black text-black tracking-tight">Prodotti In Evidenza</h2>
+            <p className="text-xs text-gray-500">I dispositivi più acquistati e amati dai clienti TechMania</p>
           </div>
+          <Link to="/products" className="text-xs font-bold text-black hover:underline flex items-center gap-1">
+            Sfoglia tutti <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
 
-          {/* Grid with AnimatePresence */}
-          <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <AnimatePresence mode="popLayout">
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </AnimatePresence>
-          </motion.div>
-
-          <div className="text-center mt-12">
-            <Link to="/products">
-              <motion.div
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.96 }}
-                className="inline-flex items-center justify-center bg-black text-white font-bold px-8 py-3.5 rounded-xl hover:bg-gray-800 transition-colors text-sm shadow-md cursor-pointer"
-              >
-                Vedi Tutti i Prodotti
-              </motion.div>
-            </Link>
-          </div>
-
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {featuredProducts.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
         </div>
       </section>
 
-      {/* PROMO BANNER */}
-      <section className="bg-black text-white py-20 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
-          <div className="space-y-4 max-w-lg z-10">
-            <span className="text-xs font-bold uppercase tracking-widest text-red-500 bg-red-950/60 px-3 py-1 rounded-full border border-red-800">
-              Offerta a Tempo Limitato
+      {/* Promotional Banner */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-gray-100 rounded-3xl p-8 sm:p-12 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center border border-gray-200 relative overflow-hidden">
+          <div className="space-y-4 z-10">
+            <span className="px-3 py-1 bg-black text-white text-[10px] font-black uppercase tracking-wider rounded-full">
+              Sconto Esclusivo TechMania
             </span>
-            <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white">
-              Sconti Estivi Fino al 15% OFF
-            </h2>
-            <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
-              Usa il codice sconto <span className="font-bold text-white bg-gray-800 px-2 py-0.5 rounded">CYBER10</span> al checkout per risparmiare subito su tutti i gadget e accessori.
+            <h3 className="text-3xl sm:text-4xl font-black text-black tracking-tight">
+              PlayStation 5 Slim Digital Edition
+            </h3>
+            <p className="text-xs sm:text-sm text-gray-600 leading-relaxed max-w-md">
+              Vivi il gioco senza limiti. Grafica 4K a 120 FPS, SSD ad altissima velocità e feedback aptico avanzato DualSense.
             </p>
-            <div>
-              <Link to="/products">
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="inline-block bg-white text-black font-bold px-8 py-3.5 rounded-xl hover:bg-gray-200 transition-colors text-sm shadow-lg cursor-pointer"
-                >
-                  Acquista in Offerta
-                </motion.div>
+            <div className="pt-2 flex items-center gap-4">
+              <span className="text-3xl font-black text-black">$449.00</span>
+              <span className="text-sm font-bold text-gray-400 line-through">$499.00</span>
+              <Link
+                to="/products/playstation-5-digital"
+                className="ml-auto px-6 py-3 bg-black text-white font-bold rounded-2xl hover:bg-gray-800 transition-colors text-xs flex items-center gap-2"
+              >
+                <span>Acquista Ora</span>
+                <ShoppingBag className="w-4 h-4" />
               </Link>
             </div>
           </div>
 
-          <div className="relative z-10">
-            <motion.img
-              whileHover={{ scale: 1.03 }}
-              transition={{ type: 'spring', stiffness: 300 }}
-              src="/assets/hero-gnfk5g59t0qe-xlarge-2x-1-2619-2194.png"
-              alt="Offerta Cuffie"
-              className="w-72 sm:w-96 object-contain rounded-2xl shadow-2xl"
-            />
+          <div className="flex justify-center items-center z-10">
+            <img src="/assets/ps5.png" alt="PlayStation 5 TechMania" className="max-h-72 object-contain hover:scale-105 transition-transform duration-500" />
           </div>
         </div>
       </section>
 
-      {/* VALUE PROPOSITION BADGES */}
-      <section className="py-12 bg-gray-50 border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-white rounded-xl shadow-sm text-black border border-gray-200">
-                <Truck className="w-6 h-6" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-black">Spedizione Gratuita</h4>
-                <p className="text-xs text-gray-500">Consegna gratuita su ordini superiori a $100</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-white rounded-xl shadow-sm text-black border border-gray-200">
-                <ShieldCheck className="w-6 h-6" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-black">Garanzia 1 Anno</h4>
-                <p className="text-xs text-gray-500">Prodotti originali garantiti al 100%</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-white rounded-xl shadow-sm text-black border border-gray-200">
-                <RefreshCw className="w-6 h-6" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-black">Reso Entro 30 Giorni</h4>
-                <p className="text-xs text-gray-500">Soddisfatti o rimborsati senza complicazioni</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-white rounded-xl shadow-sm text-black border border-gray-200">
-                <HeadphonesIcon className="w-6 h-6" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-black">Assistenza 24/7</h4>
-                <p className="text-xs text-gray-500">Team di supporto dedicato sempre disponibile</p>
-              </div>
-            </div>
+      {/* Special Deals Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-2xl font-black text-black tracking-tight">Offerte e Sconti</h2>
+            <p className="text-xs text-gray-500">Risparmia subito sui migliori prodotti tecnologici dell'anno</p>
           </div>
+          <Link to="/products" className="text-xs font-bold text-black hover:underline flex items-center gap-1">
+            Vedi Offerte <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {discountProducts.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
         </div>
       </section>
 

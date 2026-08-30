@@ -31,7 +31,7 @@ export default function CheckoutAddress() {
     {
       id: 'addr-2',
       tag: 'UFFICIO',
-      name: 'Mario Rossi (Cyber Corp)',
+      name: 'Mario Rossi (TechMania Corp)',
       street: 'Corso Vittorio Emanuele 45',
       city: 'Milano',
       state: 'MI',

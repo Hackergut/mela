@@ -76,7 +76,7 @@ export default function ShoppingCart() {
                   const prod = products.find(p => p.id === item.id) || {
                     name: 'Prodotto Tech',
                     image: '/assets/iphone-image-2619-2264.png',
-                    brand: 'Cyber'
+                    brand: 'TechMania'
                   };
 
                   return (
@@ -176,7 +176,7 @@ export default function ShoppingCart() {
                 <div className="relative flex-1">
                   <input
                     type="text"
-                    placeholder="es. CYBER10"
+                    placeholder="es. TECHMANIA10"
                     value={inputCode}
                     onChange={(e) => setInputCode(e.target.value)}
                     className="w-full bg-white border border-gray-200 text-xs font-semibold text-black placeholder-gray-400 rounded-xl pl-8 pr-3 py-3 focus:outline-none focus:ring-2 focus:ring-black uppercase"

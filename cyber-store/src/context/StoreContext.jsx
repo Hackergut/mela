@@ -1,14 +1,24 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { products } from '../data/products';
+import { products as initialProducts } from '../data/products';
 
 const StoreContext = createContext(null);
 
 export const StoreProvider = ({ children }) => {
+  // Products storage from backend/localStorage or default catalog
+  const [productsList, setProductsList] = useState(() => {
+    try {
+      const saved = localStorage.getItem('techmania_products');
+      return saved ? JSON.parse(saved) : initialProducts;
+    } catch {
+      return initialProducts;
+    }
+  });
+
   // Cart state stored in localStorage
   const [cart, setCart] = useState(() => {
     try {
-      const saved = localStorage.getItem('cyber_cart');
+      const saved = localStorage.getItem('techmania_cart');
       return saved ? JSON.parse(saved) : [
         { id: 'iphone-15-pro-max', color: 'Titanio Naturale', storage: '256GB', quantity: 1, price: 1199 },
         { id: 'airpods-max', color: 'Grigio Spaziale', storage: null, quantity: 1, price: 549 },
@@ -21,10 +31,20 @@ export const StoreProvider = ({ children }) => {
   // Wishlist state
   const [wishlist, setWishlist] = useState(() => {
     try {
-      const saved = localStorage.getItem('cyber_wishlist');
+      const saved = localStorage.getItem('techmania_wishlist');
       return saved ? JSON.parse(saved) : ['iphone-15-pro-max', 'macbook-pro-16-m3', 'sony-wh1000xm5'];
     } catch {
       return [];
+    }
+  });
+
+  // Auth User State
+  const [user, setUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('techmania_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
     }
   });
 
@@ -38,7 +58,7 @@ export const StoreProvider = ({ children }) => {
 
   useEffect(() => {
     try {
-      localStorage.setItem('cyber_cart', JSON.stringify(cart));
+      localStorage.setItem('techmania_cart', JSON.stringify(cart));
     } catch (e) {
       console.error(e);
     }
@@ -46,11 +66,31 @@ export const StoreProvider = ({ children }) => {
 
   useEffect(() => {
     try {
-      localStorage.setItem('cyber_wishlist', JSON.stringify(wishlist));
+      localStorage.setItem('techmania_wishlist', JSON.stringify(wishlist));
     } catch (e) {
       console.error(e);
     }
   }, [wishlist]);
+
+  useEffect(() => {
+    try {
+      if (user) {
+        localStorage.setItem('techmania_user', JSON.stringify(user));
+      } else {
+        localStorage.removeItem('techmania_user');
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('techmania_products', JSON.stringify(productsList));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [productsList]);
 
   const showToast = (message, type = 'info') => {
     if (type === 'success') {
@@ -62,8 +102,51 @@ export const StoreProvider = ({ children }) => {
     }
   };
 
+  // Auth Functions
+  const loginUser = (email, password) => {
+    const name = email.split('@')[0];
+    const newUser = {
+      id: `usr_${Date.now()}`,
+      email,
+      name: name.charAt(0).toUpperCase() + name.slice(1),
+      token: `token_${Math.random().toString(36).substr(2)}`,
+    };
+    setUser(newUser);
+    toast.success(`Benvenuto su TechMania, ${newUser.name}!`);
+    return newUser;
+  };
+
+  const registerUser = (name, email, password) => {
+    const newUser = {
+      id: `usr_${Date.now()}`,
+      email,
+      name,
+      token: `token_${Math.random().toString(36).substr(2)}`,
+    };
+    setUser(newUser);
+    toast.success(`Account TechMania creato con successo! Benvenuto ${name}!`);
+    return newUser;
+  };
+
+  const logoutUser = () => {
+    setUser(null);
+    toast.info('Scollegato dal tuo account TechMania');
+  };
+
+  // Product Management
+  const addCustomProduct = (newProd) => {
+    const created = {
+      ...newProd,
+      id: newProd.id || `prod_${Date.now()}`,
+      rating: newProd.rating || 5.0,
+      reviewCount: newProd.reviewCount || 1,
+    };
+    setProductsList(prev => [created, ...prev]);
+    toast.success(`Prodotto "${created.name}" salvato nel catalogo TechMania!`);
+  };
+
   const addToCart = (productId, color, storage, quantity = 1) => {
-    const product = products.find(p => p.id === productId);
+    const product = productsList.find(p => p.id === productId);
     if (!product) return;
 
     const selectedColor = color || (product.colors && product.colors[0]?.name) || 'Standard';
@@ -91,13 +174,13 @@ export const StoreProvider = ({ children }) => {
       }
     });
 
-    toast.success(`Aggiunto "${product.name}" al carrello`, {
+    toast.success(`Aggiunto "${product.name}" al carrello TechMania`, {
       description: `${selectedColor}${selectedStorage ? ` • ${selectedStorage}` : ''}`,
     });
   };
 
   const removeFromCart = (productId, color, storage) => {
-    const product = products.find(p => p.id === productId);
+    const product = productsList.find(p => p.id === productId);
     setCart(prev => prev.filter(
       item => !(item.id === productId && item.color === color && item.storage === storage)
     ));
@@ -119,7 +202,7 @@ export const StoreProvider = ({ children }) => {
   };
 
   const toggleWishlist = (productId) => {
-    const product = products.find(p => p.id === productId);
+    const product = productsList.find(p => p.id === productId);
     setWishlist(prev => {
       const exists = prev.includes(productId);
       if (exists) {
@@ -134,19 +217,59 @@ export const StoreProvider = ({ children }) => {
 
   const applyPromoCode = (code) => {
     const cleanCode = code.trim().toUpperCase();
-    if (cleanCode === 'CYBER10' || cleanCode === 'DISCOUNT10') {
+    if (cleanCode === 'TECHMANIA10' || cleanCode === 'CYBER10' || cleanCode === 'DISCOUNT10') {
       setPromoCode(cleanCode);
       setDiscountPercent(10);
-      toast.success('Codice promo CYBER10 applicato! Sconto 10%');
+      toast.success('Codice promo TECHMANIA10 applicato! Sconto 10%');
       return { success: true, message: 'Sconto del 10% applicato!' };
-    } else if (cleanCode === 'CYBER20') {
+    } else if (cleanCode === 'TECHMANIA20' || cleanCode === 'CYBER20') {
       setPromoCode(cleanCode);
       setDiscountPercent(20);
-      toast.success('Codice promo CYBER20 applicato! Sconto 20%');
+      toast.success('Codice promo TECHMANIA20 applicato! Sconto 20%');
       return { success: true, message: 'Sconto del 20% applicato!' };
     } else {
-      toast.error('Codice promo non valido. Prova CYBER10');
-      return { success: false, message: 'Codice non valido. Prova "CYBER10"' };
+      toast.error('Codice promo non valido. Prova TECHMANIA10');
+      return { success: false, message: 'Codice non valido. Prova "TECHMANIA10"' };
+    }
+  };
+
+  // Stripe Checkout API Session Creation
+  const createStripeCheckoutSession = async (shippingFee = 0) => {
+    try {
+      const orderItems = cart.map(item => {
+        const prod = productsList.find(p => p.id === item.id);
+        return {
+          product_id: item.id,
+          name: prod?.name || item.id,
+          qty: item.quantity,
+          price_cents: Math.round(item.price * 100),
+          image: prod?.image || '',
+        };
+      });
+
+      const payload = {
+        orderItems,
+        shippingCents: Math.round(shippingFee * 100),
+        discountPercent,
+      };
+
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.url) {
+          window.location.href = data.url;
+          return { success: true, url: data.url };
+        }
+      }
+      return { success: false, fallback: true };
+    } catch (err) {
+      console.warn('Stripe endpoint error, proceeding with demo checkout fallback:', err);
+      return { success: false, fallback: true };
     }
   };
 
@@ -159,8 +282,14 @@ export const StoreProvider = ({ children }) => {
   return (
     <StoreContext.Provider
       value={{
+        productsList,
+        addCustomProduct,
         cart,
         wishlist,
+        user,
+        loginUser,
+        registerUser,
+        logoutUser,
         addToCart,
         removeFromCart,
         updateQuantity,
@@ -175,6 +304,7 @@ export const StoreProvider = ({ children }) => {
         setSelectedAddressId,
         selectedShippingId,
         setSelectedShippingId,
+        createStripeCheckoutSession,
         showToast,
       }}
     >
