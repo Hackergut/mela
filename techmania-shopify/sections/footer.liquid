@@ -1,0 +1,76 @@
+<footer class="tm-footer">
+  <div class="container-tm">
+    <div class="tm-footer-grid">
+      
+      <!-- Column 1: Brand -->
+      <div class="space-y-4">
+        <div class="flex items-center gap-2">
+          <span class="w-8 h-8 rounded-xl bg-white text-black flex items-center justify-center font-black text-sm">T</span>
+          <span class="text-xl font-black text-white">TechMania</span>
+        </div>
+        <p class="text-xs text-gray-400 leading-relaxed max-w-xs">
+          La destinazione e-commerce premium per prodotti Apple, console Next-Gen e dispositivi tech di ultima generazione.
+        </p>
+      </div>
+
+      <!-- Column 2: Catalogo -->
+      <div>
+        <h4 class="tm-footer-heading">Catalogo</h4>
+        <ul class="tm-footer-links">
+          <li><a href="/collections/smartphones" class="tm-footer-link">iPhone & Smartphone</a></li>
+          <li><a href="/collections/computers" class="tm-footer-link">MacBook & PC</a></li>
+          <li><a href="/collections/gaming" class="tm-footer-link">PlayStation 5 & Gaming</a></li>
+          <li><a href="/collections/headphones" class="tm-footer-link">AirPods & Audio</a></li>
+        </ul>
+      </div>
+
+      <!-- Column 3: Assistenza -->
+      <div>
+        <h4 class="tm-footer-heading">Servizio Clienti</h4>
+        <ul class="tm-footer-links">
+          <li><a href="/pages/traccia-ordine" class="tm-footer-link">Traccia il tuo Ordine</a></li>
+          <li><a href="/pages/spedizioni" class="tm-footer-link">Info Spedizioni</a></li>
+          <li><a href="/pages/resi-e-rimborsi" class="tm-footer-link">Resi e Rimborsi</a></li>
+          <li><a href="/pages/garanzia" class="tm-footer-link">Garanzia 24 Mesi</a></li>
+        </ul>
+      </div>
+
+      <!-- Column 4: Newsletter -->
+      <div>
+        <h4 class="tm-footer-heading">Newsletter</h4>
+        <p class="text-xs text-gray-400 mb-4">Iscriviti per ricevere sconti esclusivi e anteprime sui nuovi prodotti Apple.</p>
+        <form action="{{ routes.account_url }}" method="post" class="space-y-2">
+          <input
+            type="email"
+            name="contact[email]"
+            placeholder="La tua email..."
+            required
+            class="w-full bg-white/10 text-white text-xs px-4 py-3 rounded-xl border border-white/10 focus:outline-none focus:border-white"
+          >
+          <button type="submit" class="w-full bg-white text-black font-extrabold text-xs py-3 rounded-xl hover:bg-gray-200 transition-colors">
+            Iscriviti Ora
+          </button>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
+      <p>&copy; {{ 'now' | date: "%Y" }} TechMania Inc. Tutti i diritti riservati.</p>
+      <div class="flex gap-6">
+        <a href="/policies/privacy-policy" class="hover:text-gray-300">Privacy Policy</a>
+        <a href="/policies/terms-of-service" class="hover:text-gray-300">Termini di Servizio</a>
+        <a href="/policies/legal-notice" class="hover:text-gray-300">Note Legali</a>
+      </div>
+    </div>
+
+  </div>
+</footer>
+
+{% schema %}
+{
+  "name": "Footer TechMania",
+  "settings": []
+}
+{% endschema %}

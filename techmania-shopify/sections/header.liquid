@@ -1,0 +1,70 @@
+<header class="tm-header">
+  <div class="container-tm">
+    <div class="tm-header-inner">
+      
+      <!-- Brand Logo -->
+      <a href="{{ routes.root_url }}" class="tm-logo">
+        <span class="w-8 h-8 rounded-xl bg-white text-black flex items-center justify-center font-black text-sm">T</span>
+        <span>TechMania</span>
+      </a>
+
+      <!-- Search Bar -->
+      <form action="{{ routes.search_url }}" method="get" role="search" class="tm-search-form hidden md:block">
+        <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input
+          type="search"
+          name="q"
+          placeholder="Cerca iPhone, MacBook, PS5, AirPods..."
+          class="tm-search-input"
+          value="{{ search.terms | escape }}"
+        >
+      </form>
+
+      <!-- Navigation Links -->
+      <nav class="hidden lg:flex items-center gap-6">
+        <a href="{{ routes.root_url }}" class="tm-nav-link">Home</a>
+        <a href="/collections/all" class="tm-nav-link">Prodotti</a>
+        <a href="/collections/smartphones" class="tm-nav-link">Smartphone</a>
+        <a href="/collections/computers" class="tm-nav-link">Computer</a>
+        <a href="/collections/gaming" class="tm-nav-link">Gaming</a>
+      </nav>
+
+      <!-- User Actions -->
+      <div class="flex items-center gap-4">
+        {%- if shop.customer_accounts_enabled -%}
+          <a href="{% if customer %}{{ routes.account_url }}{% else %}{{ routes.account_login_url }}{% endif %}" class="text-gray-300 hover:text-white p-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          </a>
+        {%- endif -%}
+
+        <!-- Cart Trigger Button -->
+        <button data-cart-drawer-trigger class="relative p-2.5 bg-white/10 hover:bg-white/20 rounded-full transition-colors flex items-center gap-2 text-white">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+          <span class="text-xs font-bold">{{ cart.item_count }}</span>
+        </button>
+
+        <!-- Mobile Menu Toggle Button -->
+        <button data-mobile-menu-btn class="lg:hidden p-2 text-gray-300 hover:text-white">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Mobile Dropdown Menu -->
+    <div data-mobile-menu class="hidden lg:hidden py-4 border-t border-white/10 space-y-3">
+      <a href="{{ routes.root_url }}" class="block text-sm font-bold text-gray-200 hover:text-white">Home</a>
+      <a href="/collections/all" class="block text-sm font-bold text-gray-200 hover:text-white">Tutti i Prodotti</a>
+      <a href="/collections/smartphones" class="block text-sm font-bold text-gray-200 hover:text-white">Smartphone</a>
+      <a href="/collections/computers" class="block text-sm font-bold text-gray-200 hover:text-white">Computer</a>
+      <a href="/collections/gaming" class="block text-sm font-bold text-gray-200 hover:text-white">Gaming</a>
+    </div>
+  </div>
+</header>
+
+{% schema %}
+{
+  "name": "Header TechMania",
+  "settings": []
+}
+{% endschema %}

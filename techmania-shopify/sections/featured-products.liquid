@@ -1,0 +1,73 @@
+<section class="py-12 bg-white">
+  <div class="container-tm">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
+      <div>
+        <h2 class="text-2xl font-black text-black tracking-tight">Catalogo in Evidenza</h2>
+        <p class="text-xs text-gray-500 font-semibold mt-1">I dispositivi più richiesti del momento con garanzia e spedizione rapida</p>
+      </div>
+
+      <!-- Tab Buttons -->
+      <div class="flex items-center gap-2 bg-gray-100 p-1 rounded-2xl">
+        <button data-product-tab="novita" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-black text-white">
+          Novità
+        </button>
+        <button data-product-tab="piu-venduti" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-gray-100 text-gray-700">
+          Più Venduti
+        </button>
+        <button data-product-tab="in-evidenza" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-gray-100 text-gray-700">
+          In Evidenza
+        </button>
+      </div>
+    </div>
+
+    {%- assign collection = collections[section.settings.collection] | default: collections.all -%}
+
+    <!-- Tab Content 1: Novità -->
+    <div data-tab-content="novita" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {%- for product in collection.products limit: 8 -%}
+        {% render 'product-card', product: product %}
+      {%- else -%}
+        {%- for i in (1..4) -%}
+          <div class="p-6 bg-gray-50 rounded-2xl text-center space-y-3">
+            <div class="w-full h-40 bg-gray-200 rounded-xl"></div>
+            <div class="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
+            <div class="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
+          </div>
+        {%- endfor -%}
+      {%- endfor -%}
+    </div>
+
+    <!-- Tab Content 2: Più Venduti -->
+    <div data-tab-content="piu-venduti" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 hidden">
+      {%- for product in collection.products limit: 8 offset: 2 -%}
+        {% render 'product-card', product: product %}
+      {%- endfor -%}
+    </div>
+
+    <!-- Tab Content 3: In Evidenza -->
+    <div data-tab-content="in-evidenza" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 hidden">
+      {%- for product in collection.products limit: 8 offset: 4 -%}
+        {% render 'product-card', product: product %}
+      {%- endfor -%}
+    </div>
+
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Featured Products Tabs",
+  "settings": [
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collezione Prodotti"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Featured Products Tabs"
+    }
+  ]
+}
+{% endschema %}

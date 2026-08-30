@@ -1,0 +1,77 @@
+<section class="tm-hero">
+  <div class="container-tm">
+    <div class="tm-hero-grid">
+      
+      <!-- Text Content -->
+      <div>
+        <span class="tm-hero-tag">{{ section.settings.tagline | default: "Oltre Ogni Limite" }}</span>
+        <h1 class="tm-hero-title">{{ section.settings.title | default: "IPHONE 15 PRO" }}</h1>
+        <p class="tm-hero-desc">
+          {{ section.settings.description | default: "Fotocamera di livello professionale, chip A17 Pro ultraveloce e design in titanio di grado aerospaziale." }}
+        </p>
+        <div class="flex items-center gap-4">
+          <a href="{{ section.settings.button_link | default: '/products/iphone-15-pro-max' }}" class="tm-btn-primary">
+            {{ section.settings.button_label | default: "Acquista Ora" }}
+          </a>
+        </div>
+      </div>
+
+      <!-- Hero Image -->
+      <div class="tm-hero-img-container">
+        {%- if section.settings.image != blank -%}
+          <img src="{{ section.settings.image | image_url: width: 800 }}" alt="iPhone 15 Pro" class="tm-hero-img">
+        {%- else -%}
+          <img src="{{ 'iphone-image-2619-2264.png' | asset_url }}" alt="iPhone 15 Pro" class="tm-hero-img">
+        {%- endif -%}
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Hero TechMania",
+  "settings": [
+    {
+      "type": "text",
+      "id": "tagline",
+      "label": "Tagline",
+      "default": "Oltre Ogni Limite"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Titolo",
+      "default": "IPHONE 15 PRO"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Descrizione",
+      "default": "Fotocamera di livello professionale, chip A17 Pro ultraveloce e design in titanio di grado aerospaziale."
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Testo Bottone",
+      "default": "Acquista Ora"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Link Bottone"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Immagine Hero"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero TechMania"
+    }
+  ]
+}
+{% endschema %}

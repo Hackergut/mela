@@ -1,0 +1,39 @@
+<section class="py-12 bg-white">
+  <div class="container-tm">
+    <div class="relative bg-black rounded-3xl p-8 sm:p-12 overflow-hidden text-white flex flex-col md:flex-row items-center justify-between gap-8">
+      
+      <div class="space-y-4 max-w-xl z-10">
+        <span class="text-xs font-black uppercase tracking-widest text-blue-400">Offerta Speciale TechMania</span>
+        <h2 class="text-3xl sm:text-4xl font-black tracking-tight">Passa al nuovo livello di tecnologia.</h2>
+        <p class="text-sm text-gray-300">
+          Approfitta del tasso zero su tutti gli acquisti superiori a 500€ e ricevi la spedizione priority gratuita entro 24 ore.
+        </p>
+        <div class="pt-2">
+          <a href="/collections/all" class="inline-flex items-center gap-2 bg-white text-black font-extrabold text-xs px-6 py-3.5 rounded-full hover:bg-gray-200 transition-all">
+            <span>Scopri Tutte le Offerte</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="w-full md:w-80 flex-shrink-0 z-10 flex justify-center">
+        <img src="{{ 'banner-2-2619-2128.png' | asset_url }}" alt="Promo TechMania" class="max-h-60 object-contain drop-shadow-2xl">
+      </div>
+
+      <!-- Subtle background gradient overlay -->
+      <div class="absolute -right-20 -bottom-20 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Promo Banner TechMania",
+  "settings": [],
+  "presets": [
+    {
+      "name": "Promo Banner TechMania"
+    }
+  ]
+}
+{% endschema %}

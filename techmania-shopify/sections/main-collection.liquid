@@ -1,0 +1,25 @@
+<section class="py-12 bg-white">
+  <div class="container-tm">
+    <div class="mb-8">
+      <h1 class="text-3xl font-black text-black tracking-tight">{{ collection.title | default: "Tutti i Prodotti" }}</h1>
+      {%- if collection.description != blank -%}
+        <p class="text-xs text-gray-500 font-semibold mt-2">{{ collection.description }}</p>
+      {%- endif -%}
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {%- for product in collection.products -%}
+        {% render 'product-card', product: product %}
+      {%- else -%}
+        <p class="col-span-full text-center py-12 text-sm text-gray-500 font-bold">Nessun prodotto trovato in questa collezione.</p>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Collezione Prodotti",
+  "settings": []
+}
+{% endschema %}

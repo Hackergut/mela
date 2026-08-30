@@ -1,0 +1,47 @@
+{
+  "sections": {
+    "hero": {
+      "type": "hero",
+      "settings": {
+        "tagline": "Oltre Ogni Limite",
+        "title": "IPHONE 15 PRO",
+        "description": "Fotocamera di livello professionale, chip A17 Pro ultraveloce e design in titanio di grado aerospaziale.",
+        "button_label": "Acquista Ora",
+        "button_link": "/products/iphone-15-pro-max"
+      }
+    },
+    "featured_grid": {
+      "type": "featured-grid",
+      "settings": {
+        "tile1_link": "/products/playstation-5-slim",
+        "tile2_link": "/products/airpods-max",
+        "tile3_link": "/products/apple-vision-pro",
+        "tile4_link": "/products/macbook-pro-16-m3"
+      }
+    },
+    "category_grid": {
+      "type": "category-grid",
+      "settings": {}
+    },
+    "featured_products": {
+      "type": "featured-products",
+      "settings": {}
+    },
+    "promo_banner": {
+      "type": "promo-banner",
+      "settings": {}
+    },
+    "value_props": {
+      "type": "value-props",
+      "settings": {}
+    }
+  },
+  "order": [
+    "hero",
+    "featured_grid",
+    "category_grid",
+    "featured_products",
+    "promo_banner",
+    "value_props"
+  ]
+}

@@ -1,0 +1,27 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "TechMania Apple OS 2.0 Theme",
+    "theme_version": "1.0.0",
+    "theme_author": "TechMania",
+    "theme_documentation_url": "https://github.com/Hackergut/mela",
+    "theme_support_url": "https://github.com/Hackergut/mela"
+  },
+  {
+    "name": "Colori & Stile",
+    "settings": [
+      {
+        "type": "color",
+        "id": "color_primary",
+        "label": "Colore Primario",
+        "default": "#000000"
+      },
+      {
+        "type": "color",
+        "id": "color_accent",
+        "label": "Colore Accento",
+        "default": "#2563eb"
+      }
+    ]
+  }
+]

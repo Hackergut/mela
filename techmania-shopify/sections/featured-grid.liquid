@@ -1,0 +1,60 @@
+<section class="py-12 bg-white">
+  <div class="container-tm">
+    <div class="tm-featured-grid">
+      
+      <!-- Tile 1: PlayStation 5 Slim -->
+      <a href="{{ section.settings.tile1_link | default: '/products/playstation-5-slim' }}" class="tm-tile">
+        <div>
+          <h3 class="tm-tile-title">PlayStation 5 Slim</h3>
+          <p class="tm-tile-sub">Esperienza di gioco Next-Gen in design ultrasottile.</p>
+        </div>
+        <img src="{{ 'playstation-2619-2204.png' | asset_url }}" alt="PlayStation 5 Slim" class="tm-tile-img">
+      </a>
+
+      <!-- Tile 2: AirPods Max -->
+      <a href="{{ section.settings.tile2_link | default: '/products/airpods-max' }}" class="tm-tile tm-tile-dark">
+        <div>
+          <h3 class="tm-tile-title">AirPods Max</h3>
+          <p class="tm-tile-sub">Audio ad alta fedeltà con cancellazione attiva del rumore.</p>
+        </div>
+        <img src="{{ 'hero-gnfk5g59t0qe-xlarge-2x-1-2619-2194.png' | asset_url }}" alt="AirPods Max" class="tm-tile-img">
+      </a>
+
+      <!-- Tile 3: Apple Vision Pro -->
+      <a href="{{ section.settings.tile3_link | default: '/products/apple-vision-pro' }}" class="tm-tile">
+        <div>
+          <h3 class="tm-tile-title">Apple Vision Pro</h3>
+          <p class="tm-tile-sub">Il primo spatial computer al mondo per realtà immersiva.</p>
+        </div>
+        <img src="{{ 'image-61-2619-1982.png' | asset_url }}" alt="Apple Vision Pro" class="tm-tile-img">
+      </a>
+
+      <!-- Tile 4: MacBook Pro 16" -->
+      <a href="{{ section.settings.tile4_link | default: '/products/macbook-pro-16-m3' }}" class="tm-tile tm-tile-dark">
+        <div>
+          <h3 class="tm-tile-title">MacBook Pro 16"</h3>
+          <p class="tm-tile-sub">Potenza di calcolo estrema con il chip Apple M3 Max.</p>
+        </div>
+        <img src="{{ 'banner-2-2619-2128.png' | asset_url }}" alt="MacBook Pro 16" class="tm-tile-img">
+      </a>
+
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Featured 4-Tile Grid",
+  "settings": [
+    { "type": "url", "id": "tile1_link", "label": "Link Tile 1 (PS5)" },
+    { "type": "url", "id": "tile2_link", "label": "Link Tile 2 (AirPods)" },
+    { "type": "url", "id": "tile3_link", "label": "Link Tile 3 (Vision Pro)" },
+    { "type": "url", "id": "tile4_link", "label": "Link Tile 4 (MacBook)" }
+  ],
+  "presets": [
+    {
+      "name": "Featured 4-Tile Grid"
+    }
+  ]
+}
+{% endschema %}
