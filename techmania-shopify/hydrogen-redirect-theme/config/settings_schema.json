@@ -1,0 +1,34 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "Hydrogen Redirect Theme",
+    "theme_version": "1.0.0",
+    "theme_author": "Shopify / TechMania",
+    "theme_documentation_url": "https://github.com/Shopify/hydrogen-redirect-theme"
+  },
+  {
+    "name": "Storefront",
+    "settings": [
+      {
+        "type": "text",
+        "id": "storefront_hostname",
+        "label": "Storefront Hostname",
+        "placeholder": "techmania.vercel.app or localhost:3000",
+        "info": "Il dominio o URL della tua applicazione Next.js / Headless"
+      },
+      {
+        "type": "checkbox",
+        "id": "integrate_customer_accounts",
+        "label": "Integra con Customer Accounts",
+        "default": true
+      },
+      {
+        "type": "textarea",
+        "id": "custom_redirects",
+        "label": "Custom Redirects",
+        "info": "Formato: /path-shopify > /path-storefront (una regola per riga)",
+        "default": "/account/login > /login\n/account/register > /register\n/account/reset > /reset-password"
+      }
+    ]
+  }
+]

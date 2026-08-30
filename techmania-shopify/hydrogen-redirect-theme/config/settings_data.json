@@ -1,0 +1,7 @@
+{
+  "current": {
+    "storefront_hostname": "localhost:3000",
+    "integrate_customer_accounts": true,
+    "custom_redirects": "/account/login > /login\n/account/register > /register\n/account/reset > /reset-password"
+  }
+}

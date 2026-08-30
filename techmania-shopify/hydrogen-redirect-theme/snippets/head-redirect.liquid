@@ -1,0 +1,55 @@
+{%- comment -%}
+  Shopify Hydrogen Redirect Snippet for Custom Headless Storefronts (Next.js / React)
+{%- endcomment -%}
+
+{%- assign storefront_hostname = settings.storefront_hostname | strip -%}
+
+{%- if storefront_hostname != blank -%}
+  <script>
+    (function() {
+      var storefrontHost = {{ storefront_hostname | json }};
+      var currentPath = window.location.pathname;
+      var currentSearch = window.location.search;
+      var currentHash = window.location.hash;
+
+      // Handle custom redirects
+      var customRedirectsRaw = {{ settings.custom_redirects | default: '' | json }};
+      var redirectMap = {};
+      
+      if (customRedirectsRaw) {
+        var lines = customRedirectsRaw.split('\n');
+        for (var i = 0; i < lines.length; i++) {
+          var parts = lines[i].split('>');
+          if (parts.length === 2) {
+            redirectMap[parts[0].trim()] = parts[1].trim();
+          }
+        }
+      }
+
+      var targetPath = currentPath;
+      if (redirectMap[currentPath]) {
+        targetPath = redirectMap[currentPath];
+      }
+
+      // Check for customer account login status
+      var searchParams = new URLSearchParams(currentSearch);
+      {% if customer %}
+        if ({{ settings.integrate_customer_accounts | json }}) {
+          searchParams.set('logged_in', 'true');
+        }
+      {% endif %}
+
+      var finalSearch = searchParams.toString() ? ('?' + searchParams.toString()) : '';
+      var destinationUrl = 'https://' + storefrontHost.replace(/^https?:\/\//, '') + targetPath + finalSearch + currentHash;
+
+      // Prevent infinite redirect loops if hostname is the same
+      if (window.location.hostname !== storefrontHost) {
+        window.location.replace(destinationUrl);
+      }
+    })();
+  </script>
+
+  <noscript>
+    <meta http-equiv="refresh" content="0;url=https://{{ storefront_hostname }}">
+  </noscript>
+{%- endif -%}

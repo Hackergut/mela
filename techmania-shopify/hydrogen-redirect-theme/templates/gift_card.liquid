@@ -1,0 +1,28 @@
+{% layout none %}
+<!doctype html>
+<html lang="{{ request.locale.iso_code }}">
+  <head>
+    <meta charset="utf-8">
+    <title>Gift Card &ndash; {{ shop.name }}</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <script src="{{ 'vendor/qrcode.js' | shopify_asset_url }}" defer="defer"></script>
+    <style>
+      body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #000; color: #fff; padding: 2rem; text-align: center; }
+      .card { background: #111; border: 1px solid #333; border-radius: 1rem; padding: 2rem; max-width: 400px; margin: 2rem auto; }
+      .code { font-size: 1.5rem; font-weight: bold; letter-spacing: 0.1em; background: #222; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h2>Gift Card TechMania</h2>
+      <p>Valore: {{ gift_card.balance | money }}</p>
+      <div class="code">{{ gift_card.code }}</div>
+      <div id="QrCode" style="margin: 1rem auto; width: 120px;"></div>
+    </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        new QRCode(document.getElementById('QrCode'), { text: '{{ gift_card.qr_identifier }}', width: 120, height: 120 });
+      });
+    </script>
+  </body>
+</html>

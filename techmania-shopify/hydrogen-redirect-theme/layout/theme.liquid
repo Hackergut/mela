@@ -1,0 +1,22 @@
+<!doctype html>
+<html class="no-js" lang="{{ request.locale.iso_code }}">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>{{ page_title }} &ndash; {{ shop.name }}</title>
+
+    {% render 'head-redirect' %}
+
+    {{ content_for_header }}
+  </head>
+  <body style="background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;">
+    <div style="text-align:center;">
+      <h2 style="font-weight:900;">Reindirizzamento a TechMania Storefront in corso...</h2>
+      <p style="color:#9ca3af;font-size:14px;">Verrai reindirizzato automaticamente al nostro nuovo store Next.js.</p>
+    </div>
+    <main role="main" style="display:none;">
+      {{ content_for_layout }}
+    </main>
+  </body>
+</html>
