@@ -53,9 +53,22 @@ export default action({
   handler: async (ctx, args) => {
     try {
       const requestOrigin = parseOrigin(process.env.PUBLIC_APP_URL);
+      const settingsList = await ctx.runQuery(internal._crud.listAll, { table: "settings" });
+      const values = Object.fromEntries(settingsList.map((s) => [s.key, s.value]));
 
-      const shopifyDomain = String(process.env.SHOPIFY_STORE_DOMAIN || process.env.SHOPIFY_SHOP_DOMAIN || "").trim();
-      const shopifyStorefront = String(process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN || "").trim();
+      // Storefront credentials can live in Convex settings (Connected via the
+      // admin Shopify tab) or in runtime env (recommended for deployments).
+      const shopifyDomain = String(
+        process.env.SHOPIFY_STORE_DOMAIN
+          || process.env.SHOPIFY_SHOP_DOMAIN
+          || values.shopify_shop_domain
+          || "",
+      ).trim();
+      const shopifyStorefront = String(
+        process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN
+          || values.shopify_storefront_access_token
+          || "",
+      ).trim();
       const shopifyEnabled = Boolean(shopifyDomain && shopifyStorefront);
 
       // Normalise lines.
@@ -98,7 +111,7 @@ export default action({
         };
         const code = String(args.discountCode || "").trim();
         if (code) input.discountCodes = [code];
-        const response = await fetch(`https://${domain}/api/2025-01/graphql.json`, {
+        const response = await fetch(`https://${domain}/api/2026-07/graphql.json`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -121,9 +134,6 @@ export default action({
       const stripeKey = process.env.STRIPE_SECRET_KEY;
       if (!stripeKey) return jfail("Checkout non configurato", 503);
 
-      // Load shipping config.
-      const settingsList = await ctx.runQuery(internal._crud.listAll, { table: "settings" });
-      const values = Object.fromEntries(settingsList.map((s) => [s.key, s.value]));
       const shipCountries = String(values.shipping_countries || "IT").split(",").map((c) => c.trim().toUpperCase()).filter((c) => COUNTRIES.has(c));
       const bundlePercent = Math.min(15, Math.max(0, Math.trunc(Number(values.bundle_discount_percent) || 0)));
       const flatRate = eurosToCents(values.shipping_flat_rate);

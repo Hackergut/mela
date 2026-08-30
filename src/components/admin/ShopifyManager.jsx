@@ -58,7 +58,7 @@ export default function ShopifyManager({ password }) {
       if (storefrontToken) setHasStorefrontToken(true);
       setAccessToken('');
       setStorefrontToken('');
-      setConfigured(true);
+      setConfigured(Boolean(accessToken || hasToken));
       setStorefrontConfigured(Boolean(storefrontToken || hasStorefrontToken));
       setResult({ saved: true });
     } catch (e) { setError(e.response?.data?.error || e.message); }

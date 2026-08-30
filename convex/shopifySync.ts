@@ -254,8 +254,8 @@ async function syncProducts(ctx, domain, token) {
   };
 }
 
-async function syncOrders(ctx, domain, token) {
-  const since = (await getSetting(ctx, "shopify_orders_checkpoint")) || null;
+async function syncOrders(ctx, domain, token, full = false) {
+  const since = full ? null : ((await getSetting(ctx, "shopify_orders_checkpoint")) || null);
   const fetched = [];
   const newest = await fetchSince(domain, token, ORDERS_Q, "orders", since, (n) => fetched.push(n));
   const existing = await ctx.runQuery(internal._crud.listAll, { table: "orders" });
@@ -273,8 +273,8 @@ async function syncOrders(ctx, domain, token) {
   return { fetched: fetched.length, created: toCreate.length, updated: toUpdate.length, checkpoint: newest, incremental: !!since };
 }
 
-async function syncCustomers(ctx, domain, token) {
-  const since = (await getSetting(ctx, "shopify_customers_checkpoint")) || null;
+async function syncCustomers(ctx, domain, token, full = false) {
+  const since = full ? null : ((await getSetting(ctx, "shopify_customers_checkpoint")) || null);
   const fetched = [];
   const newest = await fetchSince(domain, token, CUSTOMERS_Q, "customers", since, (n) => fetched.push(n));
   const existing = await ctx.runQuery(internal._crud.listAll, { table: "customers" });
@@ -306,6 +306,7 @@ export default action({
     if (auth.error) return { __ok: false, ...auth.error };
     const payload = args.payload || {};
     try {
+      const full = Boolean(payload.full);
       switch (args.operation) {
         case "status": {
           const { domain, token, storefrontToken } = await resolve(ctx, payload);
@@ -344,22 +345,28 @@ export default action({
           const data = await graphql(domain, token, "query { shop { name domain countryCode } }");
           return json({ shop: { name: data.shop?.name, domain: data.shop?.domain, country: data.shop?.countryCode } });
         }
+        case "sync_products": {
+          const { domain, token } = await resolve(ctx, payload);
+          if (!domain || !token) return jfail("Credenziali non configurate", 400);
+          return json(await syncProducts(ctx, domain, token));
+        }
         case "sync_orders": {
           const { domain, token } = await resolve(ctx, payload);
           if (!domain || !token) return jfail("Credenziali non configurate", 400);
-          return json(await syncOrders(ctx, domain, token));
+          return json(await syncOrders(ctx, domain, token, full));
         }
         case "sync_customers": {
           const { domain, token } = await resolve(ctx, payload);
           if (!domain || !token) return jfail("Credenziali non configurate", 400);
-          return json(await syncCustomers(ctx, domain, token));
+          return json(await syncCustomers(ctx, domain, token, full));
         }
         case "sync_all": {
           const { domain, token } = await resolve(ctx, payload);
           if (!domain || !token) return jfail("Credenziali non configurate", 400);
-          const orders = await syncOrders(ctx, domain, token);
-          const customers = await syncCustomers(ctx, domain, token);
-          return json({ orders, customers });
+          const products = await syncProducts(ctx, domain, token);
+          const orders = await syncOrders(ctx, domain, token, full);
+          const customers = await syncCustomers(ctx, domain, token, full);
+          return json({ products, orders, customers });
         }
         default: return jfail("Operazione non valida", 400);
       }

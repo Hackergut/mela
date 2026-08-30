@@ -9,7 +9,7 @@ import {
   UPDATE_CART_MUTATION,
 } from "./queries.js";
 
-const API_VERSION = "2025-01";
+const API_VERSION = "2026-07";
 
 export function normalizeStoreDomain(value) {
   const raw = String(value || "").trim().toLowerCase();
