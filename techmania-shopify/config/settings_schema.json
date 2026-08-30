@@ -1,7 +1,11 @@
 [
   {
     "name": "theme_info",
+<<<<<<< HEAD
     "theme_name": "TechMania Apple OS 2.0 Theme",
+=======
+    "theme_name": "TechMania Theme",
+>>>>>>> e2047a1 (feat: add populate-shopify-products script and fix settings_schema name length)
     "theme_version": "1.0.0",
     "theme_author": "TechMania",
     "theme_documentation_url": "https://github.com/Hackergut/mela",

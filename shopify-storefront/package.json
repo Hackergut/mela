@@ -7,7 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+<<<<<<< HEAD
     "sync": "node scripts/shopify-product-sync.js"
+=======
+    "sync": "node scripts/shopify-product-sync.js",
+    "populate": "node scripts/populate-shopify-products.js"
+>>>>>>> e2047a1 (feat: add populate-shopify-products script and fix settings_schema name length)
   },
   "dependencies": {
     "clsx": "^2.1.1",
