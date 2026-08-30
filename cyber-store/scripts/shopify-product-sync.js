@@ -85,6 +85,12 @@ async function syncShopifyProducts() {
 
     if (result.errors) {
       console.error('❌ Shopify GraphQL Errors:', result.errors);
+      if (result.errors.some(e => e.extensions?.code === 'UNAUTHORIZED')) {
+        console.log('\n💡 Suggerimento: Il token Storefront per techmania-9imzke20.myshopify.com non ha ancora i permessi abilitati.');
+        console.log('   1. Apri Shopify Admin -> Impostazioni -> Canali di vendita -> Headless (o Sviluppa App)');
+        console.log('   2. Crea uno Storefront o un Token di accesso Storefront');
+        console.log('   3. Copia il token ed incollalo in .env.local come SHOPIFY_STOREFRONT_ACCESS_TOKEN=...\n');
+      }
       process.exit(1);
     }
 
