@@ -1,0 +1,25 @@
+# Shopify App Configuration for techmania-sync
+name = "techmania-sync"
+client_id = "c062fbc8b37ef049751e1be5a971d468"
+application_url = "https://techmania-9imzke20.myshopify.com"
+embedded = true
+handle = "techmania-sync"
+
+[access_scopes]
+scopes = "write_products,read_products,write_metaobjects,write_metaobject_definitions"
+
+[access.admin]
+direct_api_mode = "online"
+
+[auth]
+redirect_urls = [
+  "https://techmania-9imzke20.myshopify.com/api/auth/callback",
+  "http://localhost:3000/api/auth/callback"
+]
+
+[webhooks]
+api_version = "2025-01"
+
+[build]
+automatically_update_urls_on_dev = true
+dev_store_url = "techmania-9imzke20.myshopify.com"
