@@ -85,13 +85,14 @@ export default function SchedaProdotto() {
   // Bundle: suggested accessories for the current selection. The discount is
   // a display hint — the server revalidates ids, prices and stock at checkout.
   const bundlePercent = bundleDiscountPercent(settings);
+  const mainCents = selectedVariant?.price_cents ?? product?.price_cents ?? 0;
   const accessories = selectBundleAccessories(products, product, {
-    maxMainCents: selectedVariant?.price_cents ?? product.price_cents,
+    maxMainCents: mainCents,
   });
   const selectedAccessoryIds = bundleSelection ?? accessories.map(accessory => String(accessory.id));
   const selectedAccessories = accessories.filter(accessory => selectedAccessoryIds.includes(String(accessory.id)));
   const bundleSummary = bundleTotals({
-    mainCents: selectedVariant?.price_cents ?? product.price_cents,
+    mainCents,
     accessories: selectedAccessories.map(accessory => ({ price_cents: accessory.price_cents })),
     percent: bundlePercent,
   });

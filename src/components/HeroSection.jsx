@@ -42,7 +42,7 @@ export default function HeroSection() {
           {hero.secondary && (
             <Tile
               eyebrow="Performance"
-              title={hero.secondary.name.replace(/^Apple /, '')}
+              title={String(hero.secondary.name || '').replace(/^Apple /, '')}
               subtitle="Potenza Apple silicon."
               image="/brand/hero-wearable.svg"
               href={`/scheda-prodotto?id=${hero.secondary.id}`}
@@ -54,7 +54,7 @@ export default function HeroSection() {
             <Tile
               dark
               eyebrow="Wearable"
-              title={hero.tertiary.name.replace(/^Apple /, '')}
+              title={String(hero.tertiary.name || '').replace(/^Apple /, '')}
               subtitle="Tecnologia da polso."
               image={img(hero.tertiary)}
               href={`/scheda-prodotto?id=${hero.tertiary.id}`}
