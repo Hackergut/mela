@@ -7,7 +7,7 @@ import { action } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
 
-const API_VERSION = "2025-01";
+const API_VERSION = "2026-07";
 
 function normalizeDomain(value) {
   const raw = String(value || "").trim().toLowerCase();

@@ -2,7 +2,7 @@
 
 Il design Apple di TechMania resta su Vite + React. Il commercio (catalogo, varianti, checkout) può girare sulla **Storefront API** di Shopify, con lo stesso GraphQL della guida Next.js.
 
-Non abbiamo riscritto l'app in Next.js: avremmo perso admin, integrazioni e il layout attuale. Il client GraphQL è lo stesso (`api/2025-01/graphql.json`).
+Non abbiamo riscritto l'app in Next.js: avremmo perso admin, integrazioni e il layout attuale. Il client GraphQL è lo stesso (`api/2026-07/graphql.json`).
 
 ## Cosa succede quando Shopify è collegato
 

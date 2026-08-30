@@ -240,7 +240,7 @@ export default function Carrello() {
                 <div className="flex justify-between text-[#6e6e73]"><span>Subtotale</span><span>{formatPriceCents(subtotal)}</span></div>
                 <div className="flex justify-between text-[#6e6e73]">
                   <span>Spedizione</span>
-                  <span>{catalogLoading ? 'Calcolo…' : !catalogReady ? '—' : shipping > 0 ? formatPriceCents(shipping) : 'Gratuita'}</span>
+                  <span>{catalogLoading ? 'Calcolo…' : !catalogReady ? '—' : shipping > 0 ? formatPriceCents(shipping) : shopifyCheckout ? 'Calcolata in checkout' : 'Gratuita'}</span>
                 </div>
                 {catalogReady && shipping > 0 && freeShippingThreshold > 0 && (
                   <p className="text-xs leading-5 text-[#86868b]">Gratuita da {formatPriceCents(freeShippingThreshold)}.</p>
@@ -252,7 +252,7 @@ export default function Carrello() {
               </div>
               <div className="mt-5 flex items-end justify-between border-t border-[#d2d2d7] pt-5">
                 <span className="font-semibold">Totale stimato</span>
-                <span className="text-2xl font-semibold tracking-tight">{catalogReady ? formatPriceCents(estimatedTotal) : '—'}</span>
+                <span className="text-2xl font-semibold tracking-tight">{catalogReady ? (shopifyCheckout ? 'In checkout' : formatPriceCents(estimatedTotal)) : '—'}</span>
               </div>
               <p className="mt-2 text-xs leading-5 text-[#6e6e73]">Sconto, disponibilità e totale definitivo vengono verificati sul server prima del pagamento.</p>
               {error && <div role="alert" className="mt-4 rounded-xl bg-[#fff2f2] p-3 text-xs leading-5 text-[#b42318]">{error}</div>}

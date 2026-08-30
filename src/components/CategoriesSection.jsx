@@ -72,7 +72,7 @@ function CategoryCard({ cat, featured = false }) {
           <Image
             src={cat.image}
             alt={cat.name}
-            className="h-full w-full object-contain p-8 transition-transform duration-[900ms] ease-out group-hover:scale-[1.06]"
+            className="h-full w-full object-contain p-8 transition-transform duration-1000 ease-out group-hover:scale-[1.06]"
             fittingType="fit"
             quality={85}
           />

@@ -39,7 +39,7 @@ export default function Catalogo() {
     if (search.trim()) {
       const q = search.toLowerCase();
       result = result.filter(p =>
-        p.name.toLowerCase().includes(q) ||
+        String(p.name || '').toLowerCase().includes(q) ||
         (p.description || '').toLowerCase().includes(q) ||
         (p.category || '').toLowerCase().includes(q)
       );
@@ -50,7 +50,7 @@ export default function Catalogo() {
     } else if (sortBy === 'price-desc') {
       result.sort((a, b) => (b.price_cents || 0) - (a.price_cents || 0));
     } else if (sortBy === 'name') {
-      result.sort((a, b) => a.name.localeCompare(b.name));
+      result.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
     }
 
     return result;

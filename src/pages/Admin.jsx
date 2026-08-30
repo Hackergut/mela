@@ -114,7 +114,7 @@ export default function Admin() {
   if (!authed) return <AdminLogin onLogin={handleLogin} />;
 
   const categories = categoryEntities;
-  const filtered = search ? products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || (p.category || '').toLowerCase().includes(search.toLowerCase()) || (p.sku || '').toLowerCase().includes(search.toLowerCase())) : products;
+  const filtered = search ? products.filter(p => String(p.name || '').toLowerCase().includes(search.toLowerCase()) || (p.category || '').toLowerCase().includes(search.toLowerCase()) || (p.sku || '').toLowerCase().includes(search.toLowerCase())) : products;
 
   const selectedIds = Object.keys(selected).filter(id => selected[id]);
   const filteredIds = filtered.map(p => p.id);
