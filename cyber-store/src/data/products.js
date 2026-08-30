@@ -37,12 +37,12 @@ export const products = [
     isNew: true,
     isBestseller: true,
     isFeatured: true,
-    image: '/images/iphone-image-2619-2264.png',
+    image: '/assets/iphone-image-2619-2264.png',
     images: [
-      '/images/iphone-image-2619-2264.png',
-      '/images/iphone-14-pro-1-I2619-1866-378-3037.png',
-      '/images/iphone-14-pro-1-I2619-1867-378-3037.png',
-      '/images/iphone-14-pro-1-I2619-1869-378-3037.png'
+      '/assets/iphone-image-2619-2264.png',
+      '/assets/iphone-14-pro-1-I2619-1866-378-3037.png',
+      '/assets/iphone-14-pro-1-I2619-1867-378-3037.png',
+      '/assets/iphone-14-pro-1-I2619-1869-378-3037.png'
     ],
     colors: [
       { name: 'Natural Titanium', hex: '#BEBDB8' },
@@ -79,11 +79,11 @@ export const products = [
     isNew: false,
     isBestseller: false,
     isFeatured: true,
-    image: '/images/hero-gnfk5g59t0qe-xlarge-2x-1-2619-2194.png',
+    image: '/assets/hero-gnfk5g59t0qe-xlarge-2x-1-2619-2194.png',
     images: [
-      '/images/hero-gnfk5g59t0qe-xlarge-2x-1-2619-2194.png',
-      '/images/image-56-I2619-1813-330-3100-330-3062.png',
-      '/images/image-56-I2619-1815-330-3100-330-3062.png'
+      '/assets/hero-gnfk5g59t0qe-xlarge-2x-1-2619-2194.png',
+      '/assets/image-56-I2619-1813-330-3100-330-3062.png',
+      '/assets/image-56-I2619-1815-330-3100-330-3062.png'
     ],
     colors: [
       { name: 'Space Gray', hex: '#4B4B4D' },
@@ -118,10 +118,10 @@ export const products = [
     isNew: true,
     isBestseller: false,
     isFeatured: false,
-    image: '/images/image-2619-1979.png',
+    image: '/assets/image-2619-1979.png',
     images: [
-      '/images/image-2619-1979.png',
-      '/images/image-57-2619-1981.png'
+      '/assets/image-2619-1979.png',
+      '/assets/image-57-2619-1981.png'
     ],
     colors: [
       { name: 'Midnight', hex: '#232931' },
@@ -156,10 +156,10 @@ export const products = [
     isNew: true,
     isBestseller: true,
     isFeatured: true,
-    image: '/images/banner-2-2619-2128.png',
+    image: '/assets/banner-2-2619-2128.png',
     images: [
-      '/images/banner-2-2619-2128.png',
-      '/images/cover-I2619-2245-601-122.png'
+      '/assets/banner-2-2619-2128.png',
+      '/assets/cover-I2619-2245-601-122.png'
     ],
     colors: [
       { name: 'Space Black', hex: '#2C2C2E' },
@@ -193,10 +193,10 @@ export const products = [
     isNew: false,
     isBestseller: true,
     isFeatured: true,
-    image: '/images/image-[36]-2619-2199.png',
+    image: '/assets/image-36-2619-2199.png',
     images: [
-      '/images/image-36-2619-2199.png',
-      '/images/hero-gnfk5g59t0qe-xlarge-2x-1-2619-2194.png'
+      '/assets/image-36-2619-2199.png',
+      '/assets/hero-gnfk5g59t0qe-xlarge-2x-1-2619-2194.png'
     ],
     colors: [
       { name: 'Black', hex: '#1C1C1C' },
@@ -230,10 +230,10 @@ export const products = [
     isNew: true,
     isBestseller: false,
     isFeatured: true,
-    image: '/images/iphone-14-pro-1-I2619-2070-378-3037.png',
+    image: '/assets/iphone-14-pro-1-I2619-2070-378-3037.png',
     images: [
-      '/images/iphone-14-pro-1-I2619-2070-378-3037.png',
-      '/images/iphone-14-pro-1-I2619-2072-378-3037.png'
+      '/assets/iphone-14-pro-1-I2619-2070-378-3037.png',
+      '/assets/iphone-14-pro-1-I2619-2072-378-3037.png'
     ],
     colors: [
       { name: 'Titanium Gray', hex: '#7E8085' },
@@ -268,10 +268,10 @@ export const products = [
     isNew: false,
     isBestseller: false,
     isFeatured: true,
-    image: '/images/image-64-2640-1488.png',
+    image: '/assets/image-64-2640-1488.png',
     images: [
-      '/images/image-64-2640-1488.png',
-      '/images/image-36-2619-2199.png'
+      '/assets/image-64-2640-1488.png',
+      '/assets/image-36-2619-2199.png'
     ],
     colors: [
       { name: 'Space Gray', hex: '#4B4B4D' },
@@ -305,10 +305,10 @@ export const products = [
     isNew: true,
     isBestseller: true,
     isFeatured: true,
-    image: '/images/playstation-2619-2204.png',
+    image: '/assets/playstation-2619-2204.png',
     images: [
-      '/images/playstation-2619-2204.png',
-      '/images/cover-I2619-2245-601-122.png'
+      '/assets/playstation-2619-2204.png',
+      '/assets/cover-I2619-2245-601-122.png'
     ],
     colors: [
       { name: 'White', hex: '#F0F0F0' }
@@ -341,10 +341,10 @@ export const products = [
     isNew: true,
     isBestseller: false,
     isFeatured: true,
-    image: '/images/image-61-2619-1982.png',
+    image: '/assets/image-61-2619-1982.png',
     images: [
-      '/images/image-61-2619-1982.png',
-      '/images/image-62-2619-1983.png'
+      '/assets/image-61-2619-1982.png',
+      '/assets/image-62-2619-1983.png'
     ],
     colors: [
       { name: 'Solo Knit Band', hex: '#A1A1A1' }
@@ -377,9 +377,9 @@ export const products = [
     isNew: false,
     isBestseller: false,
     isFeatured: true,
-    image: '/images/image-63-2619-1984.png',
+    image: '/assets/image-63-2619-1984.png',
     images: [
-      '/images/image-63-2619-1984.png'
+      '/assets/image-63-2619-1984.png'
     ],
     colors: [
       { name: 'Black', hex: '#1C1C1C' }
@@ -411,9 +411,9 @@ export const products = [
     isNew: true,
     isBestseller: false,
     isFeatured: false,
-    image: '/images/banner-2-2619-2128.png',
+    image: '/assets/banner-2-2619-2128.png',
     images: [
-      '/images/banner-2-2619-2128.png'
+      '/assets/banner-2-2619-2128.png'
     ],
     colors: [
       { name: 'Eclipse Gray', hex: '#323232' },
@@ -447,9 +447,9 @@ export const products = [
     isNew: false,
     isBestseller: false,
     isFeatured: true,
-    image: '/images/hero-gnfk5g59t0qe-xlarge-2x-1-2619-2194.png',
+    image: '/assets/hero-gnfk5g59t0qe-xlarge-2x-1-2619-2194.png',
     images: [
-      '/images/hero-gnfk5g59t0qe-xlarge-2x-1-2619-2194.png'
+      '/assets/hero-gnfk5g59t0qe-xlarge-2x-1-2619-2194.png'
     ],
     colors: [
       { name: 'Black', hex: '#1C1C1C' },
@@ -483,9 +483,9 @@ export const products = [
     isNew: false,
     isBestseller: true,
     isFeatured: false,
-    image: '/images/image-2619-1979.png',
+    image: '/assets/image-2619-1979.png',
     images: [
-      '/images/image-2619-1979.png'
+      '/assets/image-2619-1979.png'
     ],
     colors: [
       { name: 'Black', hex: '#232323' },
@@ -518,9 +518,9 @@ export const products = [
     isNew: true,
     isBestseller: false,
     isFeatured: true,
-    image: '/images/image-63-2619-1984.png',
+    image: '/assets/image-63-2619-1984.png',
     images: [
-      '/images/image-63-2619-1984.png'
+      '/assets/image-63-2619-1984.png'
     ],
     colors: [
       { name: 'Gray', hex: '#8C8C8C' }
@@ -552,9 +552,9 @@ export const products = [
     isNew: false,
     isBestseller: true,
     isFeatured: false,
-    image: '/images/cover-I2619-2245-601-122.png',
+    image: '/assets/cover-I2619-2245-601-122.png',
     images: [
-      '/images/cover-I2619-2245-601-122.png'
+      '/assets/cover-I2619-2245-601-122.png'
     ],
     colors: [
       { name: 'White', hex: '#FFFFFF' },
@@ -588,9 +588,9 @@ export const products = [
     isNew: false,
     isBestseller: true,
     isFeatured: false,
-    image: '/images/image-36-2619-2199.png',
+    image: '/assets/image-36-2619-2199.png',
     images: [
-      '/images/image-36-2619-2199.png'
+      '/assets/image-36-2619-2199.png'
     ],
     colors: [
       { name: 'Graphite', hex: '#383838' },
@@ -623,9 +623,9 @@ export const products = [
     isNew: true,
     isBestseller: false,
     isFeatured: false,
-    image: '/images/image-56-I2619-1813-330-3100-330-3062.png',
+    image: '/assets/image-56-I2619-1813-330-3100-330-3062.png',
     images: [
-      '/images/image-56-I2619-1813-330-3100-330-3062.png'
+      '/assets/image-56-I2619-1813-330-3100-330-3062.png'
     ],
     colors: [
       { name: 'Black', hex: '#1C1C1C' },
@@ -657,9 +657,9 @@ export const products = [
     isNew: false,
     isBestseller: false,
     isFeatured: true,
-    image: '/images/cover-I2619-2245-601-122.png',
+    image: '/assets/cover-I2619-2245-601-122.png',
     images: [
-      '/images/cover-I2619-2245-601-122.png'
+      '/assets/cover-I2619-2245-601-122.png'
     ],
     colors: [
       { name: 'White/Black', hex: '#ECECEC' }
