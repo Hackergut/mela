@@ -28,7 +28,7 @@ function loadEnvLocal() {
         if (trimmed && !trimmed.startsWith('#') && trimmed.includes('=')) {
           const [key, ...vals] = trimmed.split('=');
           const val = vals.join('=').trim().replace(/^["']|["']$/g, '');
-          if (key && val && !process.env[key.trim()]) {
+          if (key && val) {
             process.env[key.trim()] = val;
           }
         }
