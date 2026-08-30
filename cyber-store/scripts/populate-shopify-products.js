@@ -40,7 +40,7 @@ function loadEnvLocal() {
 loadEnvLocal();
 
 const SHOPIFY_DOMAIN = process.env.SHOPIFY_STORE_DOMAIN || 'techmania-9imzke20.myshopify.com';
-const ADMIN_TOKEN = process.env.SHOPIFY_ACCESS_TOKEN || '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';
+const ADMIN_TOKEN = process.env.SHOPIFY_ACCESS_TOKEN || '';
 
 const TECHMANIA_PRODUCTS = [
   {
@@ -149,10 +149,16 @@ async function populateShopifyProducts() {
 
   saveLocalCatalog();
 
-  if (!ADMIN_TOKEN) {
-    console.log('\n⚠️ Rilevato file .env.local senza la variabile SHOPIFY_ACCESS_TOKEN oppure vuoto.');
-    console.log('💡 Per impostare il token direttamente da PowerShell, incolla ed esegui questo comando:');
-    console.log('   $env:SHOPIFY_ACCESS_TOKEN="shpat_il_tuo_token_copiato" ; node scripts/populate-shopify-products.js\n');
+  if (!ADMIN_TOKEN || ADMIN_TOKEN.startsWith('shpss_')) {
+    console.log('\n⚠️ ATTENZIONE: Rilevato token Storefront (shpss_...) oppure vuoto.');
+    console.log('   I token shpss_ permettono solo la lettura dei prodotti dallo Storefront.');
+    console.log('   Per inserire/creare prodotti su Shopify Admin occorre un token Admin API che inizia con shpat_.\n');
+    console.log('💡 Per generare il token Admin API (shpat_...):');
+    console.log('   1. Vai su https://admin.shopify.com/store/techmania-9imzke20/settings/apps');
+    console.log('   2. Clicca su "Sviluppa app" -> "Crea un\'app" -> "TechMania Admin"');
+    console.log('   3. In Configura ambiti API Admin -> seleziona "write_products" -> "Installa app"');
+    console.log('   4. Copia il token "shpat_..." ed esegui in PowerShell:');
+    console.log('      node scripts/set-token.js shpat_il_tuo_token_copiato\n');
     return;
   }
 
