@@ -37,12 +37,12 @@ export const products = [
     isNew: true,
     isBestseller: true,
     isFeatured: true,
-    image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?q=80&w=800&auto=format&fit=crop',
+    image: '/images/iphone-image-2619-2264.png',
     images: [
-      'https://images.unsplash.com/photo-1695048133142-1a20484d2569?q=80&w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1695048133021-01a28a2a89c4?q=80&w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?q=80&w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?q=80&w=800&auto=format&fit=crop'
+      '/images/iphone-image-2619-2264.png',
+      '/images/iphone-14-pro-1-I2619-1866-378-3037.png',
+      '/images/iphone-14-pro-1-I2619-1867-378-3037.png',
+      '/images/iphone-14-pro-1-I2619-1869-378-3037.png'
     ],
     colors: [
       { name: 'Natural Titanium', hex: '#BEBDB8' },
@@ -79,11 +79,11 @@ export const products = [
     isNew: false,
     isBestseller: false,
     isFeatured: true,
-    image: 'https://images.unsplash.com/photo-1613040809024-b4ef7ba99bc3?q=80&w=800&auto=format&fit=crop',
+    image: '/images/hero-gnfk5g59t0qe-xlarge-2x-1-2619-2194.png',
     images: [
-      'https://images.unsplash.com/photo-1613040809024-b4ef7ba99bc3?q=80&w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1546435770-a3e426bf472b?q=80&w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800&auto=format&fit=crop'
+      '/images/hero-gnfk5g59t0qe-xlarge-2x-1-2619-2194.png',
+      '/images/image-56-I2619-1813-330-3100-330-3062.png',
+      '/images/image-56-I2619-1815-330-3100-330-3062.png'
     ],
     colors: [
       { name: 'Space Gray', hex: '#4B4B4D' },
@@ -118,10 +118,10 @@ export const products = [
     isNew: true,
     isBestseller: false,
     isFeatured: false,
-    image: 'https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?q=80&w=800&auto=format&fit=crop',
+    image: '/images/image-2619-1979.png',
     images: [
-      'https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?q=80&w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800&auto=format&fit=crop'
+      '/images/image-2619-1979.png',
+      '/images/image-57-2619-1981.png'
     ],
     colors: [
       { name: 'Midnight', hex: '#232931' },
@@ -156,10 +156,10 @@ export const products = [
     isNew: true,
     isBestseller: true,
     isFeatured: true,
-    image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=800&auto=format&fit=crop',
+    image: '/images/banner-2-2619-2128.png',
     images: [
-      'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?q=80&w=800&auto=format&fit=crop'
+      '/images/banner-2-2619-2128.png',
+      '/images/cover-I2619-2245-601-122.png'
     ],
     colors: [
       { name: 'Space Black', hex: '#2C2C2E' },
@@ -193,10 +193,10 @@ export const products = [
     isNew: false,
     isBestseller: true,
     isFeatured: true,
-    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800&auto=format&fit=crop',
+    image: '/images/image-[36]-2619-2199.png',
     images: [
-      'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1583394838336-acd977736f90?q=80&w=800&auto=format&fit=crop'
+      '/images/image-36-2619-2199.png',
+      '/images/hero-gnfk5g59t0qe-xlarge-2x-1-2619-2194.png'
     ],
     colors: [
       { name: 'Black', hex: '#1C1C1C' },
@@ -230,10 +230,10 @@ export const products = [
     isNew: true,
     isBestseller: false,
     isFeatured: true,
-    image: 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?q=80&w=800&auto=format&fit=crop',
+    image: '/images/iphone-14-pro-1-I2619-2070-378-3037.png',
     images: [
-      'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?q=80&w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1580910051074-3eb694886505?q=80&w=800&auto=format&fit=crop'
+      '/images/iphone-14-pro-1-I2619-2070-378-3037.png',
+      '/images/iphone-14-pro-1-I2619-2072-378-3037.png'
     ],
     colors: [
       { name: 'Titanium Gray', hex: '#7E8085' },
@@ -268,10 +268,10 @@ export const products = [
     isNew: false,
     isBestseller: false,
     isFeatured: true,
-    image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?q=80&w=800&auto=format&fit=crop',
+    image: '/images/image-64-2640-1488.png',
     images: [
-      'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?q=80&w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1561154464-82e9adf32764?q=80&w=800&auto=format&fit=crop'
+      '/images/image-64-2640-1488.png',
+      '/images/image-36-2619-2199.png'
     ],
     colors: [
       { name: 'Space Gray', hex: '#4B4B4D' },
@@ -305,10 +305,10 @@ export const products = [
     isNew: true,
     isBestseller: true,
     isFeatured: true,
-    image: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?q=80&w=800&auto=format&fit=crop',
+    image: '/images/playstation-2619-2204.png',
     images: [
-      'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?q=80&w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=800&auto=format&fit=crop'
+      '/images/playstation-2619-2204.png',
+      '/images/cover-I2619-2245-601-122.png'
     ],
     colors: [
       { name: 'White', hex: '#F0F0F0' }
@@ -341,10 +341,10 @@ export const products = [
     isNew: true,
     isBestseller: false,
     isFeatured: true,
-    image: 'https://images.unsplash.com/photo-1593508512255-86ab42a8e620?q=80&w=800&auto=format&fit=crop',
+    image: '/images/image-61-2619-1982.png',
     images: [
-      'https://images.unsplash.com/photo-1593508512255-86ab42a8e620?q=80&w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1622979135225-d2ba269bc1bd?q=80&w=800&auto=format&fit=crop'
+      '/images/image-61-2619-1982.png',
+      '/images/image-62-2619-1983.png'
     ],
     colors: [
       { name: 'Solo Knit Band', hex: '#A1A1A1' }
@@ -377,10 +377,9 @@ export const products = [
     isNew: false,
     isBestseller: false,
     isFeatured: true,
-    image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=800&auto=format&fit=crop',
+    image: '/images/image-63-2619-1984.png',
     images: [
-      'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?q=80&w=800&auto=format&fit=crop'
+      '/images/image-63-2619-1984.png'
     ],
     colors: [
       { name: 'Black', hex: '#1C1C1C' }
@@ -412,10 +411,9 @@ export const products = [
     isNew: true,
     isBestseller: false,
     isFeatured: false,
-    image: 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?q=80&w=800&auto=format&fit=crop',
+    image: '/images/banner-2-2619-2128.png',
     images: [
-      'https://images.unsplash.com/photo-1603302576837-37561b2e2302?q=80&w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?q=80&w=800&auto=format&fit=crop'
+      '/images/banner-2-2619-2128.png'
     ],
     colors: [
       { name: 'Eclipse Gray', hex: '#323232' },
@@ -449,10 +447,9 @@ export const products = [
     isNew: false,
     isBestseller: false,
     isFeatured: true,
-    image: 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?q=80&w=800&auto=format&fit=crop',
+    image: '/images/hero-gnfk5g59t0qe-xlarge-2x-1-2619-2194.png',
     images: [
-      'https://images.unsplash.com/photo-1546435770-a3e426bf472b?q=80&w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800&auto=format&fit=crop'
+      '/images/hero-gnfk5g59t0qe-xlarge-2x-1-2619-2194.png'
     ],
     colors: [
       { name: 'Black', hex: '#1C1C1C' },
@@ -486,10 +483,9 @@ export const products = [
     isNew: false,
     isBestseller: true,
     isFeatured: false,
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800&auto=format&fit=crop',
+    image: '/images/image-2619-1979.png',
     images: [
-      'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?q=80&w=800&auto=format&fit=crop'
+      '/images/image-2619-1979.png'
     ],
     colors: [
       { name: 'Black', hex: '#232323' },
@@ -522,10 +518,9 @@ export const products = [
     isNew: true,
     isBestseller: false,
     isFeatured: true,
-    image: 'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?q=80&w=800&auto=format&fit=crop',
+    image: '/images/image-63-2619-1984.png',
     images: [
-      'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?q=80&w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1508614589041-895b88991e3e?q=80&w=800&auto=format&fit=crop'
+      '/images/image-63-2619-1984.png'
     ],
     colors: [
       { name: 'Gray', hex: '#8C8C8C' }
@@ -557,10 +552,9 @@ export const products = [
     isNew: false,
     isBestseller: true,
     isFeatured: false,
-    image: 'https://images.unsplash.com/photo-1578303512597-81e6cc155b3e?q=80&w=800&auto=format&fit=crop',
+    image: '/images/cover-I2619-2245-601-122.png',
     images: [
-      'https://images.unsplash.com/photo-1578303512597-81e6cc155b3e?q=80&w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?q=80&w=800&auto=format&fit=crop'
+      '/images/cover-I2619-2245-601-122.png'
     ],
     colors: [
       { name: 'White', hex: '#FFFFFF' },
@@ -594,10 +588,9 @@ export const products = [
     isNew: false,
     isBestseller: true,
     isFeatured: false,
-    image: 'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?q=80&w=800&auto=format&fit=crop',
+    image: '/images/image-36-2619-2199.png',
     images: [
-      'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?q=80&w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?q=80&w=800&auto=format&fit=crop'
+      '/images/image-36-2619-2199.png'
     ],
     colors: [
       { name: 'Graphite', hex: '#383838' },
@@ -630,9 +623,9 @@ export const products = [
     isNew: true,
     isBestseller: false,
     isFeatured: false,
-    image: 'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?q=80&w=800&auto=format&fit=crop',
+    image: '/images/image-56-I2619-1813-330-3100-330-3062.png',
     images: [
-      'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?q=80&w=800&auto=format&fit=crop'
+      '/images/image-56-I2619-1813-330-3100-330-3062.png'
     ],
     colors: [
       { name: 'Black', hex: '#1C1C1C' },
@@ -664,10 +657,9 @@ export const products = [
     isNew: false,
     isBestseller: false,
     isFeatured: true,
-    image: 'https://images.unsplash.com/photo-1600080972464-8e5f35f63d08?q=80&w=800&auto=format&fit=crop',
+    image: '/images/cover-I2619-2245-601-122.png',
     images: [
-      'https://images.unsplash.com/photo-1600080972464-8e5f35f63d08?q=80&w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=800&auto=format&fit=crop'
+      '/images/cover-I2619-2245-601-122.png'
     ],
     colors: [
       { name: 'White/Black', hex: '#ECECEC' }
