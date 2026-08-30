@@ -6,10 +6,12 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "sync": "node scripts/shopify-product-sync.js"
   },
   "dependencies": {
     "clsx": "^2.1.1",
+    "convex": "^1.44.0",
     "framer-motion": "^11.16.4",
     "lucide-react": "^0.475.0",
     "react": "^18.2.0",
