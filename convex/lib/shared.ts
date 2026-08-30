@@ -262,3 +262,41 @@ export async function currentUserId(ctx) {
     return null;
   }
 }
+
+export const SHOPIFY_API_VERSION = "2025-01";
+
+/** Normalise a Shopify domain to a hostname (e.g. `demo.myshopify.com`). */
+export function normalizeShopifyDomain(value) {
+  const raw = String(value || "").trim().toLowerCase();
+  if (!raw) return "";
+  try {
+    const url = new URL(raw.includes("://") ? raw : `https://${raw}`);
+    return url.hostname;
+  } catch {
+    return raw.replace(/^https?:\/\//, "").split("/")[0];
+  }
+}
+
+/**
+ * Shared Shopify Storefront configuration used by both the public storefront
+ * action and the checkout action. Env vars (Convex secrets) win, then the
+ * settings saved from the admin tab are used. This keeps the behaviour
+ * consistent no matter where the credentials are stored.
+ */
+export async function resolveShopifyStorefrontConfig(ctx) {
+  const values = Object.fromEntries(
+    (await getAllSettings(ctx)).map((setting) => [setting.key, setting.value]),
+  );
+  const domain = normalizeShopifyDomain(
+    process.env.SHOPIFY_STORE_DOMAIN
+      || process.env.SHOPIFY_SHOP_DOMAIN
+      || values.shopify_shop_domain
+      || "",
+  );
+  const token = String(
+    process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN
+      || values.shopify_storefront_access_token
+      || "",
+  ).trim();
+  return { domain, token, configured: Boolean(domain && token) };
+}

@@ -18,7 +18,7 @@ export default function ShopifyManager({ password }) {
   const [hasToken, setHasToken] = useState(false);
   const [hasStorefrontToken, setHasStorefrontToken] = useState(false);
   const [fullSync, setFullSync] = useState(false);
-  const [checkpoints, setCheckpoints] = useState({ orders: null, customers: null });
+  const [checkpoints, setCheckpoints] = useState({ products: null, orders: null, customers: null });
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -31,7 +31,7 @@ export default function ShopifyManager({ password }) {
       setStorefrontToken('');
       setHasToken(res.data.has_token);
       setHasStorefrontToken(res.data.has_storefront_token);
-      setCheckpoints({ orders: res.data.orders_checkpoint || null, customers: res.data.customers_checkpoint || null });
+      setCheckpoints({ products: res.data.products_checkpoint || null, orders: res.data.orders_checkpoint || null, customers: res.data.customers_checkpoint || null });
     } catch (e) { setError(e.response?.data?.error || e.message); }
     finally { setLoading(false); }
   }, [password]);
@@ -160,9 +160,9 @@ export default function ShopifyManager({ password }) {
             <input type="checkbox" checked={fullSync} onChange={e => setFullSync(e.target.checked)} className="h-4 w-4 accent-[#0071E3] cursor-pointer" />
             Risincronizzazione completa (ignora i checkpoint e rilegge tutto lo storico)
           </label>
-          {(checkpoints.orders || checkpoints.customers) && (
+          {(checkpoints.products || checkpoints.orders || checkpoints.customers) && (
             <p className="text-[11px] text-[#86868b]">
-              Checkpoint: ordini {checkpoints.orders ? new Date(checkpoints.orders).toLocaleString('it-IT') : '—'} · clienti {checkpoints.customers ? new Date(checkpoints.customers).toLocaleString('it-IT') : '—'}
+              Checkpoint: prodotti {checkpoints.products ? new Date(checkpoints.products).toLocaleString('it-IT') : '—'} · ordini {checkpoints.orders ? new Date(checkpoints.orders).toLocaleString('it-IT') : '—'} · clienti {checkpoints.customers ? new Date(checkpoints.customers).toLocaleString('it-IT') : '—'}
             </p>
           )}
         </div>

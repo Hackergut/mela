@@ -35,7 +35,7 @@ export function readViteShopifyConfig() {
   const env = viteEnv();
   const domain = normalizeStoreDomain(env.VITE_SHOPIFY_STORE_DOMAIN);
   const token = String(env.VITE_SHOPIFY_STOREFRONT_ACCESS_TOKEN || "").trim();
-  return { domain, token, configured: Boolean(domain && token) };
+  return { domain, token, configured: Boolean(domain && token), proxied: false };
 }
 
 /**
@@ -46,6 +46,22 @@ export function readViteShopifyConfig() {
  * `SHOPIFY_STOREFRONT_ACCESS_TOKEN`).
  */
 export async function shopifyFetch(query, variables = {}, config = readViteShopifyConfig()) {
+  // Server-proxied mode: credentials live in Vercel/Convex secrets and are
+  // never sent to the browser. The frontend only carries query + variables.
+  if (config?.proxied) {
+    const { base44 } = await import("@/api/base44Client");
+    const response = await base44.functions.invoke("shopify-storefront", {
+      operation: "graphql",
+      payload: { query, variables },
+    });
+    if (!response?.data) throw new Error("Shopify Storefront non configurato");
+    if (response.data && typeof response.data === "object" && "__ok" in response.data) {
+      if (!response.data.__ok) throw new Error(response.data.error || "Richiesta Shopify non riuscita");
+      return response.data.data;
+    }
+    return response.data.data;
+  }
+
   const domain = normalizeStoreDomain(config.domain);
   const token = String(config.token || "").trim();
   if (!domain || !token) throw new Error("Shopify Storefront non configurato");

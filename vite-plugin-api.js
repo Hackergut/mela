@@ -6,6 +6,7 @@ const ROUTES = {
   "/api/order": "../api/order.js",
   "/api/stripe-status": "../api/stripe-status.js",
   "/api/stripe-webhook": "../api/stripe-webhook.js",
+  "/api/shopify-storefront": "../api/shopify-storefront.js",
 };
 
 function pathOnly(url) {

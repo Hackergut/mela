@@ -5,39 +5,9 @@
 
 import { action } from "./_generated/server";
 import { v } from "convex/values";
-import { internal } from "./_generated/api";
+import { resolveShopifyStorefrontConfig, SHOPIFY_API_VERSION } from "./lib/shared";
 
-const API_VERSION = "2025-01";
-
-function normalizeDomain(value) {
-  const raw = String(value || "").trim().toLowerCase();
-  if (!raw) return "";
-  try {
-    const url = new URL(raw.includes("://") ? raw : `https://${raw}`);
-    return url.hostname;
-  } catch {
-    return raw.replace(/^https?:\/\//, "").split("/")[0];
-  }
-}
-
-async function getSetting(ctx, key) {
-  const all = await ctx.runQuery(internal._crud.listAll, { table: "settings" });
-  return all.find((setting) => setting.key === key)?.value || "";
-}
-
-async function resolveConfig(ctx) {
-  const domain = normalizeDomain(
-    process.env.SHOPIFY_STORE_DOMAIN
-      || process.env.SHOPIFY_SHOP_DOMAIN
-      || await getSetting(ctx, "shopify_shop_domain"),
-  );
-  const token = String(
-    process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN
-      || await getSetting(ctx, "shopify_storefront_access_token")
-      || "",
-  ).trim();
-  return { domain, token, configured: Boolean(domain && token) };
-}
+const API_VERSION = SHOPIFY_API_VERSION;
 
 async function storefrontFetch(domain, token, query, variables = {}) {
   const response = await fetch(`https://${domain}/api/${API_VERSION}/graphql.json`, {
@@ -106,14 +76,29 @@ export default action({
   handler: async (ctx, args) => {
     const payload = args.payload || {};
     try {
-      const config = await resolveConfig(ctx);
+      const config = await resolveShopifyStorefrontConfig(ctx);
       switch (args.operation) {
         case "config":
           return json({
             configured: config.configured,
             domain: config.domain,
-            token: config.token,
+            // The Storefront token is never returned to the browser. The
+            // frontend talks to Shopify through this server proxy instead.
+            token: "",
+            proxied: config.configured,
           });
+        case "graphql": {
+          if (!config.configured) return jfail("Shopify Storefront non configurato", 503);
+          const query = String(payload?.query || "").trim();
+          if (!query) return jfail("Query GraphQL mancante", 400);
+          const data = await storefrontFetch(
+            config.domain,
+            config.token,
+            query,
+            payload?.variables || {},
+          );
+          return json({ data });
+        }
         case "checkout": {
           if (!config.configured) return jfail("Shopify Storefront non configurato", 503);
           const lines = Array.isArray(payload.lines) ? payload.lines : [];

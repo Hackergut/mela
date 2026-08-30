@@ -6,6 +6,7 @@
 import { action } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
+import { resolveShopifyStorefrontConfig } from "./lib/shared";
 
 const MIN = 50;
 const MAX_LINES = 25;
@@ -54,9 +55,13 @@ export default action({
     try {
       const requestOrigin = parseOrigin(process.env.PUBLIC_APP_URL);
 
-      const shopifyDomain = String(process.env.SHOPIFY_STORE_DOMAIN || process.env.SHOPIFY_SHOP_DOMAIN || "").trim();
-      const shopifyStorefront = String(process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN || "").trim();
-      const shopifyEnabled = Boolean(shopifyDomain && shopifyStorefront);
+      // Storefront credentials are resolved by the same shared helper used by
+      // convex/shopifyStorefront.ts, so env vars and admin-saved settings both
+      // work and stay consistent.
+      const shopify = await resolveShopifyStorefrontConfig(ctx);
+      const shopifyDomain = shopify.domain;
+      const shopifyStorefront = shopify.token;
+      const shopifyEnabled = shopify.configured;
 
       // Normalise lines.
       const rawLines = Array.isArray(args.items) && args.items.length
@@ -81,12 +86,18 @@ export default action({
         ? args.bundle_accessories.slice(0, MAX_ACCESSORIES).map((a) => ({ productId: String(a.productId || "").trim(), variantId: String(a.variantId || "").trim() })).filter((a) => a.productId)
         : [];
 
-      const shopifyLines = [
-        ...lines.filter((line) => String(line.variantId || "").startsWith("gid://shopify/ProductVariant/")),
-        ...accessories
-          .filter((line) => String(line.variantId || "").startsWith("gid://shopify/ProductVariant/"))
-          .map((line) => ({ productId: line.productId, variantId: line.variantId, quantity: 1 })),
-      ];
+      const shopifyMain = lines.filter((line) => String(line.variantId || "").startsWith("gid://shopify/ProductVariant/"));
+      const shopifyAccessories = accessories
+        .filter((line) => String(line.variantId || "").startsWith("gid://shopify/ProductVariant/"))
+        .map((line) => ({ productId: line.productId, variantId: line.variantId, quantity: 1 }));
+      const shopifyLines = [...shopifyMain, ...shopifyAccessories];
+
+      // Never silently drop lines: if Shopify is enabled but the cart mixes
+      // Shopify variants with local/legacy ones, fail loudly instead of paying
+      // only part of the order.
+      if (shopifyEnabled && shopifyLines.length && (shopifyMain.length !== lines.length || shopifyAccessories.length !== accessories.length)) {
+        return jfail("Il carrello contiene prodotti non collegati a Shopify. Rimuovili e riprova.", 409);
+      }
 
       if (shopifyEnabled && shopifyLines.length) {
         const domain = shopifyDomain.replace(/^https?:\/\//, "").split("/")[0];

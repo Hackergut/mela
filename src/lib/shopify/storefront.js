@@ -45,17 +45,20 @@ export async function resolveShopifyConfig() {
     return cachedServerConfig;
   }
   if (!base44.isConfigured) {
-    cachedServerConfig = { domain: "", token: "", configured: false };
+    cachedServerConfig = { domain: "", token: "", configured: false, proxied: false };
     cachedServerConfigAt = Date.now();
     return cachedServerConfig;
   }
   try {
     const response = await base44.functions.invoke("shopify-storefront", { operation: "config" });
     const domain = String(response?.data?.domain || "").trim();
+    // In the server-proxied path we intentionally do NOT return the token to
+    // the browser; GraphQL calls run through /api or Convex instead.
     const token = String(response?.data?.token || "").trim();
-    cachedServerConfig = { domain, token, configured: Boolean(domain && token) };
+    const proxied = Boolean(response?.data?.proxied) || Boolean(domain && !token);
+    cachedServerConfig = { domain, token, configured: Boolean(domain && (token || proxied)), proxied };
   } catch {
-    cachedServerConfig = { domain: "", token: "", configured: false };
+    cachedServerConfig = { domain: "", token: "", configured: false, proxied: false };
   }
   cachedServerConfigAt = Date.now();
   return cachedServerConfig;

@@ -20,7 +20,9 @@ In Shopify Admin → **Impostazioni → App e canali di vendita → Sviluppa app
 - **Storefront API**: token da usare per catalogo e checkout.
 - **Admin API**: scope `read_products`, `read_orders`, `read_customers` per il sync in dashboard.
 
-### Opzione A — secret Convex (consigliata)
+### Opzione A — secret Vercel (senza Convex, consigliata per lo storefront)
+
+Imposta i secret sulle **Vercel Serverless Functions**:
 
 ```
 SHOPIFY_STORE_DOMAIN=il-tuo-negozio.myshopify.com
@@ -29,35 +31,63 @@ SHOPIFY_ACCESS_TOKEN=...          # solo per sync admin
 SHOPIFY_SHOP_DOMAIN=...           # alias accettato
 ```
 
-Il frontend chiede dominio + token Storefront a Convex (`shopify-storefront` / `config`). Il token Storefront è pensato per l'uso pubblico (non può scrivere in Admin).
+Il frontend usa `POST /api/shopify-storefront` come **proxy server-side**: il
+token Storefront non entra mai nel bundle né nella risposta `/config`. Il
+catalogo, `cartCreate` e il redirect a Shopify Checkout passano da questo
+endpoint. La migrazione verso Convex (`shopifyStorefront`) resta comunque
+disponibile come fallback automatico se è impostata `VITE_CONVEX_URL`.
 
-### Opzione B — `.env.local` (anteprima senza Convex)
+Nota: il sync Admin (prodotti/ordini/clienti) richiede Convex; in sola modalità
+Vercel il catalogo live e il checkout funzionano, l'import in admin no.
+
+### Opzione B — secret Convex (admin + storefront)
+
+```
+SHOPIFY_STORE_DOMAIN=il-tuo-negozio.myshopify.com
+SHOPIFY_STOREFRONT_ACCESS_TOKEN=...
+SHOPIFY_ACCESS_TOKEN=...          # solo per sync admin
+SHOPIFY_SHOP_DOMAIN=...           # alias accettato
+```
+
+Il frontend chiede lo stato a Convex (`shopify-storefront` / `config`); il
+token Storefront resta sul server e il GraphQL viene proxato
+dall'azione Convex. In questo scenario sono disponibili anche il tab admin e
+il sync Admin API.
+
+### Opzione C — `.env.local` (solo anteprima dev senza backend)
 
 ```
 VITE_SHOPIFY_STORE_DOMAIN=il-tuo-negozio.myshopify.com
 VITE_SHOPIFY_STOREFRONT_ACCESS_TOKEN=...
 ```
 
-Le variabili `VITE_` finiscono nel bundle: usale solo per il token Storefront, mai per l'Admin token.
+Le variabili `VITE_` finiscono nel bundle: usale solo per il token Storefront,
+mai per l'Admin token.
 
-### Opzione C — tab Admin → Shopify
+### Opzione D — tab Admin → Shopify (Convex)
 
 Salva dominio, token Storefront e token Admin. Poi:
 
-- **Sincronizza prodotti** importa catalogo e varianti in Convex (cache / CMS).
-- **Sincronizza ordini / clienti** come prima.
+- **Sincronizza prodotti** importa catalogo e varianti in Convex (cache / CMS),
+  con checkpoint incrementale; la sincronizzazione completa disattiva i
+  prodotti/varianti che non sono più su Shopify.
+- **Sincronizza ordini / clienti** sono incrementali per `updated_at`.
+
+Se il token Storefront è salvato qui, `createCheckout` e `shopifyStorefront`
+lo leggono ugualmente tramite l'helper condiviso (`resolveShopifyStorefrontConfig`).
 
 ## File principali
 
 | File | Ruolo |
 |---|---|
 | `src/lib/shopify/queries.js` | Query e mutation Storefront (come nella guida) |
-| `src/lib/shopify/client.js` | Client GraphQL |
+| `src/lib/shopify/client.js` | Client GraphQL, con modalità `proxied` |
 | `src/lib/shopify/mapProduct.js` | Mapping Shopify → shape TechMania |
-| `src/lib/shopify/storefront.js` | Catalogo + checkout |
+| `src/lib/shopify/storefront.js` | Config + catalogo + checkout |
 | `src/lib/useProducts.js` | Preferisce il catalogo Shopify |
-| `convex/shopifyStorefront.ts` | Config pubblica + checkout server-side |
-| `convex/shopifySync.ts` | Admin API: prodotti, ordini, clienti |
+| `api/shopify-storefront.js` | **Proxy Vercel** per config/GraphQL/checkout (i secret non entrano nel browser) |
+| `convex/shopifyStorefront.ts` | Config + proxy GraphQL/checkout server-side |
+| `convex/shopifySync.ts` | Admin API: **prodotti**, ordini, clienti |
 | `convex/createCheckout.ts` | Checkout Shopify se le line sono GID, altrimenti Stripe |
 
 ## Verifica

@@ -36,6 +36,7 @@ async function graphql(domain, token, query, variables = {}) {
 }
 
 const eurosToCents = (raw) => {
+  if (raw && typeof raw === "object" && "amount" in raw) return eurosToCents(raw.amount);
   const n = Number.parseFloat(String(raw ?? "").replace(",", "."));
   return Number.isFinite(n) && n >= 0 ? Math.round(n * 100) : 0;
 };
@@ -50,7 +51,7 @@ const mapProductStatus = (status) => {
   return "discontinued";
 };
 
-const PRODUCTS_Q = `query Sync($first:Int!,$after:String){products(first:$first,after:$after){pageInfo{hasNextPage endCursor}nodes{id title handle description status productType vendor tags updatedAt featuredImage{url} images(first:12){nodes{url}} variants(first:100){nodes{id title sku price compareAtPrice inventoryQuantity selectedOptions{name value} image{url}}}}}}`;
+const PRODUCTS_Q = `query Sync($first:Int!,$after:String,$query:String){products(first:$first,after:$after,query:$query){pageInfo{hasNextPage endCursor}nodes{id title handle description status productType vendor tags updatedAt featuredImage{url} images(first:12){nodes{url}} variants(first:100){nodes{id title sku price compareAtPrice inventoryQuantity selectedOptions{name value} image{url}}}}}}`;
 
 const mapStatus = (o) => {
   if (o.canceledAt) return "cancelled";
@@ -118,11 +119,17 @@ async function resolve(ctx, payload) {
   };
 }
 
-async function syncProducts(ctx, domain, token) {
+async function syncProducts(ctx, domain, token, full = false) {
+  const checkpoint = (await getSetting(ctx, "shopify_products_checkpoint")) || null;
+  const since = full ? null : checkpoint;
   const fetched = [];
   let after = null;
   for (let page = 0; page < MAX_PAGES; page++) {
-    const data = await graphql(domain, token, PRODUCTS_Q, { first: PAGE_SIZE, after });
+    const data = await graphql(domain, token, PRODUCTS_Q, {
+      first: PAGE_SIZE,
+      after,
+      query: since ? `updated_at:>${since}` : null,
+    });
     const conn = data?.products;
     if (!conn) throw new Error("Risposta Shopify prodotti inattesa");
     fetched.push(...(conn.nodes || []));
@@ -142,8 +149,15 @@ async function syncProducts(ctx, domain, token) {
   let variantsCreated = 0;
   let variantsUpdated = 0;
   const now = new Date().toISOString();
+  const syncedProductIds = new Set();
+  const syncedVariantIds = new Set();
+  let newest = checkpoint || null;
 
   for (const node of fetched) {
+    if (node.updatedAt && (!newest || String(node.updatedAt) > String(newest))) newest = node.updatedAt;
+    syncedProductIds.add(String(node.id || ""));
+    const productStatus = mapProductStatus(node.status);
+
     const typeName = String(node.productType || "Store").trim() || "Store";
     let category = categoryByName.get(typeName.toLowerCase());
     if (!category) {
@@ -178,7 +192,7 @@ async function syncProducts(ctx, domain, token) {
       price: firstVariant?.price ? `€${firstVariant.price}` : "",
       price_cents: priceCents,
       stock: (node.variants?.nodes || []).reduce((sum, variant) => sum + Math.max(0, Number(variant.inventoryQuantity) || 0), 0),
-      status: mapProductStatus(node.status),
+      status: productStatus,
       category: typeName,
       category_id: category.id,
       description: node.description || "",
@@ -223,7 +237,7 @@ async function syncProducts(ctx, domain, token) {
         stock: Math.max(0, Number(variant.inventoryQuantity) || 0),
         image: variant.image?.url || images[0] || "",
         images: [variant.image?.url, images[0]].filter(Boolean),
-        status: "active",
+        status: productStatus,
         is_default: variant.__index === 0,
         sort_order: variant.__index,
         shopify_product_id: node.id,
@@ -231,6 +245,7 @@ async function syncProducts(ctx, domain, token) {
         synced_at: now,
         updated_date: now,
       };
+      syncedVariantIds.add(String(variant.id || ""));
       const existingVariant = variantByShopify.get(variant.id);
       if (existingVariant) {
         await ctx.runMutation(internal._crud.updateOne, { table: "product_variants", id: existingVariant.id, data: variantPayload });
@@ -245,12 +260,47 @@ async function syncProducts(ctx, domain, token) {
     }
   }
 
+  // In a full sync, products/variants no longer present in Shopify should not
+  // stay active in the local catalogue. We mark them withdrawn instead of
+  // deleting so historical data is preserved.
+  let staleProducts = 0;
+  let staleVariants = 0;
+  if (full && fetched.length) {
+    for (const product of existingProducts) {
+      if (String(product.source || "") !== "shopify") continue;
+      if (syncedProductIds.has(String(product.shopify_product_id || ""))) continue;
+      await ctx.runMutation(internal._crud.updateOne, {
+        table: "products",
+        id: product.id,
+        data: { status: "withdrawn", updated_date: now },
+      });
+      staleProducts += 1;
+    }
+    for (const variant of existingVariants) {
+      if (syncedVariantIds.has(String(variant.shopify_variant_id || ""))) continue;
+      if (variant.status === "withdrawn") continue;
+      const product = existingProducts.find((item) => String(item.id) === String(variant.product_id));
+      if (product && String(product.source || "") !== "shopify") continue;
+      await ctx.runMutation(internal._crud.updateOne, {
+        table: "product_variants",
+        id: variant.id,
+        data: { status: "withdrawn", updated_date: now },
+      });
+      staleVariants += 1;
+    }
+  }
+  if (newest) await setSetting(ctx, "shopify_products_checkpoint", newest, "Shopify Checkpoint Prodotti");
+
   return {
     fetched: fetched.length,
     created,
     updated,
     variants_created: variantsCreated,
     variants_updated: variantsUpdated,
+    stale_products: staleProducts,
+    stale_variants: staleVariants,
+    checkpoint: newest,
+    incremental: !!checkpoint && !full,
   };
 }
 
@@ -315,6 +365,7 @@ export default action({
             domain,
             has_token: !!token,
             has_storefront_token: !!storefrontToken,
+            products_checkpoint: await getSetting(ctx, "shopify_products_checkpoint"),
             orders_checkpoint: await getSetting(ctx, "shopify_orders_checkpoint"),
             customers_checkpoint: await getSetting(ctx, "shopify_customers_checkpoint"),
           });
@@ -344,6 +395,11 @@ export default action({
           const data = await graphql(domain, token, "query { shop { name domain countryCode } }");
           return json({ shop: { name: data.shop?.name, domain: data.shop?.domain, country: data.shop?.countryCode } });
         }
+        case "sync_products": {
+          const { domain, token } = await resolve(ctx, payload);
+          if (!domain || !token) return jfail("Credenziali non configurate", 400);
+          return json(await syncProducts(ctx, domain, token, Boolean(payload.full)));
+        }
         case "sync_orders": {
           const { domain, token } = await resolve(ctx, payload);
           if (!domain || !token) return jfail("Credenziali non configurate", 400);
@@ -357,9 +413,10 @@ export default action({
         case "sync_all": {
           const { domain, token } = await resolve(ctx, payload);
           if (!domain || !token) return jfail("Credenziali non configurate", 400);
+          const products = await syncProducts(ctx, domain, token, Boolean(payload.full));
           const orders = await syncOrders(ctx, domain, token);
           const customers = await syncCustomers(ctx, domain, token);
-          return json({ orders, customers });
+          return json({ products, orders, customers });
         }
         default: return jfail("Operazione non valida", 400);
       }

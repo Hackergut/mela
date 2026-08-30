@@ -66,7 +66,7 @@ Configure backend secrets in their respective deployment (Convex or Vercel) rath
 - `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET` enable «Continua con Google» and must be set on the Convex deployment. `SITE_URL` must be the public app URL. See **[CONVEX_AUTH_GOOGLE.md](./CONVEX_AUTH_GOOGLE.md)**.
 - `PUBLIC_APP_URL` is optional for production checkout redirects; the request origin is used when absent.
 - `BASE44_APP_ID` is included in Stripe checkout metadata.
-- `SHOPIFY_STORE_DOMAIN` and `SHOPIFY_STOREFRONT_ACCESS_TOKEN` power the live storefront (catalog + Shopify Checkout). `SHOPIFY_SHOP_DOMAIN` and `SHOPIFY_ACCESS_TOKEN` remain the Admin API credentials for syncing products, orders and customers. See **[SHOPIFY.md](./SHOPIFY.md)**. The admin **Shopify** tab is a compatibility fallback if you prefer not to set Convex secrets.
+- `SHOPIFY_STORE_DOMAIN` and `SHOPIFY_STOREFRONT_ACCESS_TOKEN` power the live storefront (catalog + Shopify Checkout). The storefront calls `POST /api/shopify-storefront` (Vercel proxy) or the equivalent Convex action; the token is never exposed to the browser. `SHOPIFY_SHOP_DOMAIN` and `SHOPIFY_ACCESS_TOKEN` remain the Admin API credentials for syncing products, orders and customers. See **[SHOPIFY.md](./SHOPIFY.md)**. The admin **Shopify** tab (Convex) also supports saving credentials and the Admin API sync.
 
 ## Integrazioni (Hub stile Shopify)
 

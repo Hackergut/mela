@@ -39,6 +39,9 @@ function localSpec(functionName, args = {}) {
   if (functionName === "create-checkout-session") {
     return { url: "/api/create-checkout-session", init: { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(args) } };
   }
+  if (functionName === "shopify-storefront") {
+    return { url: "/api/shopify-storefront", init: { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(args) } };
+  }
   if (functionName === "catalog" && args.operation === "order_lookup") {
     const params = new URLSearchParams();
     if (args.session_id) params.set("session_id", args.session_id);
