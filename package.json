@@ -16,7 +16,9 @@
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc -p ./jsconfig.json",
     "test": "node --test",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "sync": "node scripts/shopify-product-sync.js",
+    "populate": "node scripts/populate-shopify-products.js"
   },
   "dependencies": {
     "@auth/core": "^0.41.3",
