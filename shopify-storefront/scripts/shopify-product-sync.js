@@ -15,7 +15,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const SHOPIFY_DOMAIN = process.env.SHOPIFY_STORE_DOMAIN || 'vercel-store-efc7b1b7-zuf0wqb2.myshopify.com';
+const SHOPIFY_DOMAIN = process.env.SHOPIFY_STORE_DOMAIN || 'techmania-9imzke20.myshopify.com';
 const STOREFRONT_TOKEN = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN || 'c062fbc8b37ef049751e1be5a971d468';
 const ADMIN_TOKEN = process.env.SHOPIFY_ACCESS_TOKEN || '';
 
