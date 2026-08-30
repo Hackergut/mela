@@ -2,8 +2,7 @@
 
 /**
  * TechMania Shopify Product Populator CLI Tool
- * Creates / populates TechMania products directly on your Shopify store via Admin API,
- * and updates local JSON catalog.
+ * Automatically loads .env.local and creates TechMania products directly on your Shopify store via Admin API.
  */
 
 import fs from 'fs';
@@ -12,6 +11,33 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Helper function to load .env.local manually without external dependencies
+function loadEnvLocal() {
+  const envPaths = [
+    path.resolve(__dirname, '../.env.local'),
+    path.resolve(__dirname, './.env.local'),
+    path.resolve(process.cwd(), '.env.local')
+  ];
+
+  for (const envPath of envPaths) {
+    if (fs.existsSync(envPath)) {
+      const content = fs.readFileSync(envPath, 'utf8');
+      content.split('\n').forEach(line => {
+        const trimmed = line.trim();
+        if (trimmed && !trimmed.startsWith('#') && trimmed.includes('=')) {
+          const [key, ...vals] = trimmed.split('=');
+          const val = vals.join('=').trim().replace(/^["']|["']$/g, '');
+          if (key && val && !process.env[key.trim()]) {
+            process.env[key.trim()] = val;
+          }
+        }
+      });
+    }
+  }
+}
+
+loadEnvLocal();
 
 const SHOPIFY_DOMAIN = process.env.SHOPIFY_STORE_DOMAIN || 'techmania-9imzke20.myshopify.com';
 const ADMIN_TOKEN = process.env.SHOPIFY_ACCESS_TOKEN || '';
@@ -82,9 +108,8 @@ const TECHMANIA_PRODUCTS = [
   }
 ];
 
-// Always write local fallback json for instant rendering in app
 function saveLocalCatalog() {
-  const localCatalog = TECHMANIA_PRODUCTS.map((p, i) => ({
+  const localCatalog = TECHMANIA_PRODUCTS.map((p) => ({
     id: p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
     name: p.title,
     brand: p.vendor,
@@ -106,7 +131,7 @@ function saveLocalCatalog() {
 
   const targetPath = path.resolve(__dirname, '../cyber-store/src/data/shopify-synced-products.json');
   fs.writeFileSync(targetPath, JSON.stringify(localCatalog, null, 2));
-  console.log(`✅ Catalogo prodotti locale aggiornato in: ${targetPath}`);
+  console.log(`✅ Catalogo locale sincronizzato con successo in: ${targetPath}`);
 }
 
 function getProductImage(title) {
@@ -124,13 +149,10 @@ async function populateShopifyProducts() {
 
   saveLocalCatalog();
 
-  if (!ADMIN_TOKEN || !ADMIN_TOKEN.startsWith('shpat_')) {
-    console.log('\n⚠️ SHOPIFY_ACCESS_TOKEN non valido o non presente in .env.local.');
-    console.log('💡 Per creare i prodotti su Shopify Admin:');
-    console.log('   1. Vai su Shopify Admin -> Impostazioni -> App e canali di vendita -> Sviluppa app');
-    console.log('   2. Crea un\'app e abilita gli ambiti API Admin: "write_products" e "read_products"');
-    console.log('   3. Clicca su "Installa app" e copia il token che comincia con "shpat_..."');
-    console.log('   4. Incolla in .env.local: SHOPIFY_ACCESS_TOKEN=shpat_xxxxxxxxxxxxxxxxx\n');
+  if (!ADMIN_TOKEN) {
+    console.log('\n⚠️ Rilevato file .env.local senza la variabile SHOPIFY_ACCESS_TOKEN oppure vuoto.');
+    console.log('💡 Per impostare il token direttamente da PowerShell, incolla ed esegui questo comando:');
+    console.log('   $env:SHOPIFY_ACCESS_TOKEN="shpat_il_tuo_token_copiato" ; node scripts/populate-shopify-products.js\n');
     return;
   }
 
