@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { CreditCard, CheckCircle2, Lock, ArrowLeft, ShieldCheck } from 'lucide-react';
 import CheckoutSteps from '../components/CheckoutSteps';
 import { useStore } from '../context/StoreContext';
 
 export default function CheckoutPayment() {
-  const navigate = useNavigate();
   const {
     cart,
     cartSubtotal,
@@ -55,14 +54,14 @@ export default function CheckoutPayment() {
           </div>
           <div>
             <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full uppercase tracking-wider">
-              Payment Successful
+              Pagamento Riuscito
             </span>
-            <h1 className="text-3xl font-black text-black tracking-tight mt-2">Order Confirmed!</h1>
-            <p className="text-xs font-mono font-bold text-gray-500 mt-1">Order ID: #{orderNumber}</p>
+            <h1 className="text-3xl font-black text-black tracking-tight mt-2">Ordine Confermato!</h1>
+            <p className="text-xs font-mono font-bold text-gray-500 mt-1">ID Ordine: #{orderNumber}</p>
           </div>
 
           <p className="text-xs text-gray-600 leading-relaxed max-w-sm mx-auto">
-            Thank you for your purchase from Cyber Store! We have received your order and sent a confirmation receipt to your email address.
+            Grazie per il tuo acquisto su Cyber Store! Abbiamo ricevuto il tuo ordine e inviato una ricevuta di conferma al tuo indirizzo email.
           </p>
 
           <div className="pt-4 space-y-3">
@@ -70,13 +69,13 @@ export default function CheckoutPayment() {
               to="/products"
               className="block w-full bg-black text-white font-bold py-3.5 rounded-xl hover:bg-gray-800 transition-colors text-xs"
             >
-              Continue Shopping
+              Continua lo Shopping
             </Link>
             <Link
               to="/"
               className="block w-full text-xs font-bold text-black hover:underline"
             >
-              Back to Home
+              Torna alla Pagina Iniziale
             </Link>
           </div>
         </div>
@@ -97,14 +96,14 @@ export default function CheckoutPayment() {
           <div className="lg:col-span-2 space-y-8">
             
             <div>
-              <h1 className="text-2xl font-black text-black tracking-tight mb-2">Payment Details</h1>
-              <p className="text-xs text-gray-500">All transactions are encrypted with 256-bit SSL security.</p>
+              <h1 className="text-2xl font-black text-black tracking-tight mb-2">Dettagli di Pagamento</h1>
+              <p className="text-xs text-gray-500">Tutte le transazioni sono crittografate con protezione SSL a 256 bit.</p>
             </div>
 
             {/* Payment Method Selector */}
             <div className="grid grid-cols-3 gap-3">
               {[
-                { id: 'credit-card', name: 'Credit Card', icon: CreditCard },
+                { id: 'credit-card', name: 'Carta di Credito', icon: CreditCard },
                 { id: 'paypal', name: 'PayPal', icon: ShieldCheck },
                 { id: 'apple-pay', name: 'Apple Pay', icon: Lock },
               ].map((method) => {
@@ -133,7 +132,7 @@ export default function CheckoutPayment() {
                 
                 {/* Card Number */}
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Card Number</label>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Numero di Carta</label>
                   <div className="relative">
                     <input
                       type="text"
@@ -149,11 +148,11 @@ export default function CheckoutPayment() {
 
                 {/* Cardholder Name */}
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Cardholder Name</label>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Titolare della Carta</label>
                   <input
                     type="text"
                     required
-                    placeholder="JOHN DOE"
+                    placeholder="MARIO ROSSI"
                     value={cardData.name}
                     onChange={(e) => setCardCardData({ ...cardData, name: e.target.value })}
                     className="w-full p-3.5 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-black focus:ring-2 focus:ring-black focus:outline-none uppercase"
@@ -163,11 +162,11 @@ export default function CheckoutPayment() {
                 {/* Expiration + CVV */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Expiration Date</label>
+                    <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Data di Scadenza</label>
                     <input
                       type="text"
                       required
-                      placeholder="MM/YY"
+                      placeholder="MM/AA"
                       value={cardData.expiry}
                       onChange={(e) => setCardCardData({ ...cardData, expiry: e.target.value })}
                       className="w-full p-3.5 bg-white border border-gray-200 rounded-xl text-xs font-mono font-bold text-black focus:ring-2 focus:ring-black focus:outline-none"
@@ -175,7 +174,7 @@ export default function CheckoutPayment() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase mb-2">CVV / CVC</label>
+                    <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Codice CVV / CVC</label>
                     <input
                       type="password"
                       maxLength={4}
@@ -196,7 +195,7 @@ export default function CheckoutPayment() {
                     onChange={(e) => setCardCardData({ ...cardData, saveCard: e.target.checked })}
                     className="rounded text-black focus:ring-black w-4 h-4"
                   />
-                  <span>Save card securely for future purchases</span>
+                  <span>Salva la carta in modo sicuro per acquisti futuri</span>
                 </label>
 
                 {/* Submit Pay Button */}
@@ -208,10 +207,10 @@ export default function CheckoutPayment() {
                   {isProcessing ? (
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span>Processing Payment…</span>
+                      <span>Elaborazione Pagamento in Corso…</span>
                     </div>
                   ) : (
-                    <span>Pay ${grandTotal.toFixed(2)}</span>
+                    <span>Paga ${grandTotal.toFixed(2)}</span>
                   )}
                 </button>
 
@@ -219,21 +218,21 @@ export default function CheckoutPayment() {
             ) : (
               <div className="bg-gray-50 p-8 rounded-3xl border border-gray-200 text-center space-y-4">
                 <p className="text-xs text-gray-600">
-                  You will be redirected to complete payment with <strong>{paymentMethod.toUpperCase()}</strong>.
+                  Verrai reindirizzato per completare il pagamento sicuro tramite <strong>{paymentMethod.toUpperCase()}</strong>.
                 </p>
                 <button
                   onClick={handlePayOrder}
                   disabled={isProcessing}
                   className="bg-black text-white text-xs font-bold px-8 py-3.5 rounded-xl hover:bg-gray-800"
                 >
-                  Complete Order with {paymentMethod === 'paypal' ? 'PayPal' : 'Apple Pay'}
+                  Paga Ora con {paymentMethod === 'paypal' ? 'PayPal' : 'Apple Pay'}
                 </button>
               </div>
             )}
 
             <div className="flex items-center justify-between pt-4">
               <Link to="/checkout/shipping" className="text-xs font-bold text-black hover:underline flex items-center gap-1">
-                <ArrowLeft className="w-4 h-4" /> Back to Shipping
+                <ArrowLeft className="w-4 h-4" /> Torna alla Spedizione
               </Link>
             </div>
 
@@ -242,7 +241,7 @@ export default function CheckoutPayment() {
           {/* ITEMIZATION ORDER SUMMARY SIDEBAR */}
           <div className="bg-gray-50 rounded-3xl p-6 space-y-4 border border-gray-200 h-fit">
             <h3 className="text-sm font-black text-black uppercase tracking-wider border-b border-gray-200 pb-3">
-              Final Order Breakdown
+              Riepilogo Finale
             </h3>
 
             <div className="space-y-3 max-h-60 overflow-y-auto pr-1 divide-y divide-gray-100">
@@ -258,25 +257,25 @@ export default function CheckoutPayment() {
 
             <div className="border-t border-gray-200 pt-3 space-y-2 text-xs font-medium text-gray-600">
               <div className="flex justify-between">
-                <span>Subtotal</span>
+                <span>Subtotale</span>
                 <span className="font-bold text-black">${cartSubtotal.toFixed(2)}</span>
               </div>
               {discountPercent > 0 && (
                 <div className="flex justify-between text-emerald-600 font-bold">
-                  <span>Discount ({promoCode})</span>
+                  <span>Sconto ({promoCode})</span>
                   <span>-${discountAmount.toFixed(2)}</span>
                 </div>
               )}
               <div className="flex justify-between">
-                <span>Shipping Fee</span>
+                <span>Costo Spedizione</span>
                 <span className="font-bold text-black">${shippingCost.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Estimated Tax (8%)</span>
+                <span>Imposte Stimate (8%)</span>
                 <span className="font-bold text-black">${estimatedTax.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm font-black text-black pt-2 border-t border-gray-200">
-                <span>Total Due</span>
+                <span>Totale da Pagare</span>
                 <span>${grandTotal.toFixed(2)}</span>
               </div>
             </div>

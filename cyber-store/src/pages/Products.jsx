@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Filter, SlidersHorizontal, X, ChevronRight, Star } from 'lucide-react';
+import { Filter, X, ChevronRight, Star } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import { products, categories, brands } from '../data/products';
 import { useStore } from '../context/StoreContext';
@@ -72,7 +72,7 @@ export default function Products() {
       if (sortBy === 'price-low') return a.price - b.price;
       if (sortBy === 'price-high') return b.price - a.price;
       if (sortBy === 'rating') return b.rating - a.rating;
-      if (sortBy === 'newest') return b.isNew ? 1 : -1;
+      if (sortBy === 'newest') return b.isNew ? -1 : 1;
       return 0; // featured default
     });
   }, [selectedCategory, querySearch, queryTab, wishlist, selectedBrands, priceRange, minRating, sortBy]);
@@ -92,7 +92,7 @@ export default function Products() {
           <Link to="/" className="hover:text-black transition-colors">Home</Link>
           <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
           <span className="font-semibold text-black">
-            {queryTab === 'wishlist' ? 'My Wishlist' : 'Products Catalog'}
+            {queryTab === 'wishlist' ? 'I Miei Preferiti' : 'Catalogo Prodotti'}
           </span>
         </nav>
 
@@ -100,27 +100,27 @@ export default function Products() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-black text-black tracking-tight">
-              {queryTab === 'wishlist' ? 'Your Wishlist' : 'All Products'}
+              {queryTab === 'wishlist' ? 'I Miei Preferiti' : 'Tutti i Prodotti'}
             </h1>
             <p className="text-xs text-gray-500 mt-1">
-              Selected products: <span className="font-bold text-black">{filteredProducts.length}</span>
+              Prodotti trovati: <span className="font-bold text-black">{filteredProducts.length}</span>
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             {/* Sort Dropdown */}
             <div className="flex items-center gap-2 text-xs font-semibold">
-              <span className="text-gray-500">Sort by:</span>
+              <span className="text-gray-500">Ordina per:</span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 className="bg-gray-100 text-black border border-gray-200 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-black cursor-pointer"
               >
-                <option value="featured">Featured</option>
-                <option value="newest">Newest First</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-                <option value="rating">Highest Rated</option>
+                <option value="featured">In Evidenza</option>
+                <option value="newest">Più Recenti</option>
+                <option value="price-low">Prezzo: dal più basso</option>
+                <option value="price-high">Prezzo: dal più alto</option>
+                <option value="rating">Più Votati</option>
               </select>
             </div>
 
@@ -129,7 +129,7 @@ export default function Products() {
               onClick={() => setIsMobileFilterOpen(true)}
               className="lg:hidden bg-black text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2"
             >
-              <Filter className="w-4 h-4" /> Filters
+              <Filter className="w-4 h-4" /> Filtri
             </button>
           </div>
         </div>
@@ -146,13 +146,13 @@ export default function Products() {
                 onClick={clearAllFilters}
                 className="text-xs font-bold text-red-500 hover:underline flex items-center gap-1"
               >
-                <X className="w-3.5 h-3.5" /> Clear All Filters
+                <X className="w-3.5 h-3.5" /> Azzerra Tutti i Filtri
               </button>
             )}
 
             {/* Category Filter */}
             <div>
-              <h3 className="text-sm font-extrabold text-black uppercase tracking-wider mb-3">Categories</h3>
+              <h3 className="text-sm font-extrabold text-black uppercase tracking-wider mb-3">Categorie</h3>
               <div className="space-y-1">
                 <button
                   onClick={() => setSelectedCategory('all')}
@@ -160,7 +160,7 @@ export default function Products() {
                     selectedCategory === 'all' ? 'bg-black text-white font-bold' : 'text-gray-600 hover:bg-gray-100'
                   }`}
                 >
-                  All Categories
+                  Tutte le Categorie
                 </button>
                 {categories.map((cat) => (
                   <button
@@ -178,7 +178,7 @@ export default function Products() {
 
             {/* Brand Filter */}
             <div>
-              <h3 className="text-sm font-extrabold text-black uppercase tracking-wider mb-3">Brand</h3>
+              <h3 className="text-sm font-extrabold text-black uppercase tracking-wider mb-3">Marchi</h3>
               <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
                 {brands.map((b) => (
                   <label key={b} className="flex items-center gap-2.5 text-xs text-gray-700 cursor-pointer hover:text-black">
@@ -197,7 +197,7 @@ export default function Products() {
             {/* Price Range Filter */}
             <div>
               <h3 className="text-sm font-extrabold text-black uppercase tracking-wider mb-3">
-                Max Price: ${priceRange[1]}
+                Prezzo Massimo: ${priceRange[1]}
               </h3>
               <input
                 type="range"
@@ -210,13 +210,13 @@ export default function Products() {
               />
               <div className="flex justify-between text-[11px] text-gray-500 font-semibold mt-1">
                 <span>$0</span>
-                <span>$4,000</span>
+                <span>$4.000</span>
               </div>
             </div>
 
             {/* Rating Filter */}
             <div>
-              <h3 className="text-sm font-extrabold text-black uppercase tracking-wider mb-3">Minimum Rating</h3>
+              <h3 className="text-sm font-extrabold text-black uppercase tracking-wider mb-3">Valutazione Minima</h3>
               <div className="space-y-1">
                 {[0, 4.5, 4.8].map((rating) => (
                   <button
@@ -227,11 +227,11 @@ export default function Products() {
                     }`}
                   >
                     {rating === 0 ? (
-                      <span>All Ratings</span>
+                      <span>Tutte le Valutazioni</span>
                     ) : (
                       <>
                         <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
-                        <span>{rating} Stars & Up</span>
+                        <span>{rating} Stelle e Oltre</span>
                       </>
                     )}
                   </button>
@@ -248,7 +248,7 @@ export default function Products() {
             <div className="flex flex-wrap gap-2 mb-6">
               {selectedCategory !== 'all' && (
                 <span className="bg-gray-100 text-black text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-gray-200">
-                  Category: {selectedCategory}
+                  Categoria: {categories.find(c => c.id === selectedCategory)?.name || selectedCategory}
                   <button onClick={() => setSelectedCategory('all')} className="hover:text-red-500 font-bold">✕</button>
                 </span>
               )}
@@ -270,15 +270,15 @@ export default function Products() {
             ) : (
               <div className="bg-gray-50 rounded-2xl p-12 text-center my-8">
                 <div className="text-4xl mb-3">🔍</div>
-                <h3 className="text-lg font-bold text-black mb-1">No products found</h3>
+                <h3 className="text-lg font-bold text-black mb-1">Nessun prodotto trovato</h3>
                 <p className="text-xs text-gray-500 max-w-sm mx-auto mb-6">
-                  We couldn't find any products matching your current filters. Try resetting your search filters.
+                  Non abbiamo trovato prodotti corrispondenti ai filtri attuali. Prova a resettare la ricerca.
                 </p>
                 <button
                   onClick={clearAllFilters}
                   className="bg-black text-white text-xs font-bold px-6 py-3 rounded-xl hover:bg-gray-800 transition-colors"
                 >
-                  Reset All Filters
+                  Resetta i Filtri
                 </button>
               </div>
             )}
@@ -291,7 +291,7 @@ export default function Products() {
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                   className="px-4 py-2 rounded-xl text-xs font-bold border border-gray-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-black hover:text-white transition-colors"
                 >
-                  Previous
+                  Precedente
                 </button>
                 {Array.from({ length: totalPages }).map((_, i) => {
                   const pNum = i + 1;
@@ -314,7 +314,7 @@ export default function Products() {
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                   className="px-4 py-2 rounded-xl text-xs font-bold border border-gray-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-black hover:text-white transition-colors"
                 >
-                  Next
+                  Successivo
                 </button>
               </div>
             )}
@@ -330,19 +330,19 @@ export default function Products() {
           <div className="fixed inset-0 bg-black/50" onClick={() => setIsMobileFilterOpen(false)} />
           <div className="relative ml-auto w-full max-w-xs bg-white h-full p-6 overflow-y-auto space-y-6 shadow-2xl">
             <div className="flex items-center justify-between border-b pb-4">
-              <h2 className="text-base font-bold text-black">Filter Products</h2>
+              <h2 className="text-base font-bold text-black">Filtra Prodotti</h2>
               <button onClick={() => setIsMobileFilterOpen(false)} className="text-black font-bold text-lg">✕</button>
             </div>
 
             {/* Category */}
             <div>
-              <h3 className="text-xs font-bold text-black uppercase mb-2">Category</h3>
+              <h3 className="text-xs font-bold text-black uppercase mb-2">Categoria</h3>
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="w-full bg-gray-100 p-2.5 rounded-xl text-xs font-semibold"
               >
-                <option value="all">All Categories</option>
+                <option value="all">Tutte le Categorie</option>
                 {categories.map(c => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
@@ -351,7 +351,7 @@ export default function Products() {
 
             {/* Brands */}
             <div>
-              <h3 className="text-xs font-bold text-black uppercase mb-2">Brands</h3>
+              <h3 className="text-xs font-bold text-black uppercase mb-2">Marchi</h3>
               <div className="space-y-1.5 max-h-40 overflow-y-auto">
                 {brands.map(b => (
                   <label key={b} className="flex items-center gap-2 text-xs">
@@ -368,7 +368,7 @@ export default function Products() {
 
             {/* Price */}
             <div>
-              <h3 className="text-xs font-bold text-black uppercase mb-2">Max Price: ${priceRange[1]}</h3>
+              <h3 className="text-xs font-bold text-black uppercase mb-2">Prezzo Max: ${priceRange[1]}</h3>
               <input
                 type="range"
                 min="0"
@@ -384,7 +384,7 @@ export default function Products() {
               onClick={() => setIsMobileFilterOpen(false)}
               className="w-full bg-black text-white py-3 rounded-xl font-bold text-xs"
             >
-              Apply Filters
+              Applica Filtri
             </button>
           </div>
         </div>

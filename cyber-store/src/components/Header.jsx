@@ -31,9 +31,9 @@ export default function Header() {
 
   const navLinks = [
     { name: 'Home', path: '/' },
-    { name: 'Products', path: '/products' },
-    { name: 'About', path: '/#about' },
-    { name: 'Contact Us', path: '/#contact' },
+    { name: 'Prodotti', path: '/products' },
+    { name: 'Chi Siamo', path: '/#about' },
+    { name: 'Contatti', path: '/#contact' },
   ];
 
   return (
@@ -55,7 +55,7 @@ export default function Header() {
           <form onSubmit={handleSearchSubmit} className="relative">
             <input
               type="text"
-              placeholder="Search products, brands..."
+              placeholder="Cerca prodotti, marchi, accessori..."
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
@@ -87,7 +87,7 @@ export default function Header() {
                 className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50"
               >
                 <div className="p-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                  Matching Products ({searchResults.length})
+                  Prodotti Trovati ({searchResults.length})
                 </div>
                 <div className="divide-y divide-gray-100 max-h-80 overflow-y-auto">
                   {searchResults.map((item) => (
@@ -113,7 +113,7 @@ export default function Header() {
                   onClick={handleSearchSubmit}
                   className="w-full py-2.5 bg-black text-white text-xs font-bold text-center hover:bg-gray-800 transition-colors"
                 >
-                  View all results
+                  Vedi tutti i risultati
                 </button>
               </motion.div>
             )}
@@ -147,7 +147,7 @@ export default function Header() {
         <div className="flex items-center gap-4 sm:gap-6">
           
           {/* Wishlist */}
-          <Link to="/products?tab=wishlist" className="relative p-2 text-black hover:opacity-70 transition-opacity" title="Wishlist">
+          <Link to="/products?tab=wishlist" className="relative p-2 text-black hover:opacity-70 transition-opacity" title="Preferiti">
             <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
               <Heart className="w-6 h-6" />
             </motion.div>
@@ -168,7 +168,7 @@ export default function Header() {
           </Link>
 
           {/* Shopping Cart */}
-          <Link to="/cart" className="relative p-2 text-black hover:opacity-70 transition-opacity" title="Cart">
+          <Link to="/cart" className="relative p-2 text-black hover:opacity-70 transition-opacity" title="Carrello">
             <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
               <ShoppingBag className="w-6 h-6" />
             </motion.div>
@@ -189,7 +189,7 @@ export default function Header() {
           </Link>
 
           {/* User Account */}
-          <button className="p-2 text-black hover:opacity-70 transition-opacity hidden sm:block" title="User Account">
+          <button className="p-2 text-black hover:opacity-70 transition-opacity hidden sm:block" title="Account Utente">
             <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
               <User className="w-6 h-6" />
             </motion.div>
@@ -199,7 +199,7 @@ export default function Header() {
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="p-2 text-black lg:hidden hover:opacity-70 focus:outline-none"
-            aria-label="Toggle menu"
+            aria-label="Apri menu"
           >
             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -219,7 +219,7 @@ export default function Header() {
             <form onSubmit={handleSearchSubmit} className="relative mt-2">
               <input
                 type="text"
-                placeholder="Search products..."
+                placeholder="Cerca prodotti..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-gray-100 text-sm text-black placeholder-gray-500 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-black"

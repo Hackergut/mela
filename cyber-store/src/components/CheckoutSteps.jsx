@@ -5,9 +5,9 @@ import { MapPin, Truck, CreditCard, Check } from 'lucide-react';
 
 export default function CheckoutSteps({ currentStep = 1 }) {
   const steps = [
-    { id: 1, name: 'Address', path: '/checkout/address', icon: MapPin },
-    { id: 2, name: 'Shipping', path: '/checkout/shipping', icon: Truck },
-    { id: 3, name: 'Payment', path: '/checkout/payment', icon: CreditCard },
+    { id: 1, name: 'Indirizzo', path: '/checkout/address', icon: MapPin },
+    { id: 2, name: 'Spedizione', path: '/checkout/shipping', icon: Truck },
+    { id: 3, name: 'Pagamento', path: '/checkout/payment', icon: CreditCard },
   ];
 
   return (
@@ -60,7 +60,7 @@ export default function CheckoutSteps({ currentStep = 1 }) {
                   isActive || isCompleted ? 'text-black' : 'text-gray-400'
                 }`}
               >
-                Step {step.id}: {step.name}
+                Passo {step.id}: {step.name}
               </span>
             </div>
           );

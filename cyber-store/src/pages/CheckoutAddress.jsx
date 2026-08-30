@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { MapPin, Plus, Check, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Plus, Check, ArrowRight, ArrowLeft } from 'lucide-react';
 import CheckoutSteps from '../components/CheckoutSteps';
 import { useStore } from '../context/StoreContext';
 
@@ -18,39 +18,39 @@ export default function CheckoutAddress() {
   const [addresses, setAddresses] = useState([
     {
       id: 'addr-1',
-      tag: 'HOME',
-      name: 'John Doe',
-      street: '2118 Thornridge Cir.',
-      city: 'Syracuse',
-      state: 'NY',
-      zip: '35624',
-      country: 'United States',
-      phone: '+1 (555) 234-5678',
+      tag: 'CASA',
+      name: 'Mario Rossi',
+      street: 'Via Roma 123',
+      city: 'Milano',
+      state: 'MI',
+      zip: '20121',
+      country: 'Italia',
+      phone: '+39 345 678 9012',
       isDefault: true,
     },
     {
       id: 'addr-2',
-      tag: 'OFFICE',
-      name: 'John Doe (Cyber Corp)',
-      street: '1901 Thornridge Cir.',
-      city: 'Shiloh',
-      state: 'HI',
-      zip: '81263',
-      country: 'United States',
-      phone: '+1 (555) 987-6543',
+      tag: 'UFFICIO',
+      name: 'Mario Rossi (Cyber Corp)',
+      street: 'Corso Vittorio Emanuele 45',
+      city: 'Milano',
+      state: 'MI',
+      zip: '20122',
+      country: 'Italia',
+      phone: '+39 02 1234 5678',
       isDefault: false,
     },
   ]);
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [newAddr, setNewAddress] = useState({
-    tag: 'HOME',
+    tag: 'CASA',
     name: '',
     street: '',
     city: '',
     state: '',
     zip: '',
-    country: 'United States',
+    country: 'Italia',
     phone: '',
   });
 
@@ -64,8 +64,8 @@ export default function CheckoutAddress() {
       setAddresses([...addresses, created]);
       setSelectedAddressId(created.id);
       setShowAddForm(false);
-      showToast('New shipping address saved!');
-      setNewAddress({ tag: 'HOME', name: '', street: '', city: '', state: '', zip: '', country: 'United States', phone: '' });
+      showToast('Nuovo indirizzo di spedizione salvato!', 'success');
+      setNewAddress({ tag: 'CASA', name: '', street: '', city: '', state: '', zip: '', country: 'Italia', phone: '' });
     }
   };
 
@@ -87,8 +87,8 @@ export default function CheckoutAddress() {
           <div className="lg:col-span-2 space-y-8">
             
             <div>
-              <h1 className="text-2xl font-black text-black tracking-tight mb-2">Select Shipping Address</h1>
-              <p className="text-xs text-gray-500">Choose where you would like your order delivered.</p>
+              <h1 className="text-2xl font-black text-black tracking-tight mb-2">Seleziona Indirizzo di Spedizione</h1>
+              <p className="text-xs text-gray-500">Scegli dove desideri ricevere il tuo ordine.</p>
             </div>
 
             {/* Saved Addresses Radio Cards */}
@@ -136,58 +136,58 @@ export default function CheckoutAddress() {
                 onClick={() => setShowAddForm(true)}
                 className="w-full py-4 border-2 border-dashed border-gray-300 rounded-2xl text-xs font-bold text-gray-700 hover:border-black hover:text-black transition-colors flex items-center justify-center gap-2"
               >
-                <Plus className="w-4 h-4" /> Add New Address
+                <Plus className="w-4 h-4" /> Aggiungi Nuovo Indirizzo
               </button>
             ) : (
               <form onSubmit={handleAddAddress} className="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-4">
                 <div className="flex items-center justify-between border-b pb-3">
-                  <h3 className="text-sm font-bold text-black">New Shipping Address</h3>
+                  <h3 className="text-sm font-bold text-black">Nuovo Indirizzo di Spedizione</h3>
                   <button type="button" onClick={() => setShowAddForm(false)} className="text-xs font-bold text-gray-400 hover:text-black">
-                    Cancel
+                    Annulla
                   </button>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Full Name</label>
+                    <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Nome e Cognome</label>
                     <input
                       type="text"
                       required
                       value={newAddr.name}
                       onChange={(e) => setNewAddress({ ...newAddr, name: e.target.value })}
-                      placeholder="Jane Doe"
+                      placeholder="Mario Rossi"
                       className="w-full p-3 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-black focus:ring-2 focus:ring-black focus:outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Phone Number</label>
+                    <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Numero di Telefono</label>
                     <input
                       type="text"
                       required
                       value={newAddr.phone}
                       onChange={(e) => setNewAddress({ ...newAddr, phone: e.target.value })}
-                      placeholder="+1 (555) 000-0000"
+                      placeholder="+39 333 1234567"
                       className="w-full p-3 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-black focus:ring-2 focus:ring-black focus:outline-none"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Street Address</label>
+                  <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Indirizzo e Civico</label>
                   <input
                     type="text"
                     required
                     value={newAddr.street}
                     onChange={(e) => setNewAddress({ ...newAddr, street: e.target.value })}
-                    placeholder="123 Cyber Street, Suite 400"
+                    placeholder="Via Garibaldi 10"
                     className="w-full p-3 bg-white border border-gray-200 rounded-xl text-xs font-semibold text-black focus:ring-2 focus:ring-black focus:outline-none"
                   />
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">City</label>
+                    <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Città</label>
                     <input
                       type="text"
                       required
@@ -198,7 +198,7 @@ export default function CheckoutAddress() {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">State</label>
+                    <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Provincia</label>
                     <input
                       type="text"
                       required
@@ -209,7 +209,7 @@ export default function CheckoutAddress() {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">ZIP Code</label>
+                    <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">CAP</label>
                     <input
                       type="text"
                       required
@@ -224,7 +224,7 @@ export default function CheckoutAddress() {
                   type="submit"
                   className="bg-black text-white text-xs font-bold px-6 py-3 rounded-xl hover:bg-gray-800 transition-colors"
                 >
-                  Save Address
+                  Salva Indirizzo
                 </button>
               </form>
             )}
@@ -232,14 +232,14 @@ export default function CheckoutAddress() {
             {/* Navigation Actions */}
             <div className="flex items-center justify-between pt-6 border-t border-gray-200">
               <Link to="/cart" className="text-xs font-bold text-black hover:underline flex items-center gap-1">
-                <ArrowLeft className="w-4 h-4" /> Back to Cart
+                <ArrowLeft className="w-4 h-4" /> Torna al Carrello
               </Link>
 
               <button
                 onClick={() => navigate('/checkout/shipping')}
                 className="bg-black text-white font-bold text-xs px-8 py-4 rounded-xl hover:bg-gray-800 transition-all shadow-lg flex items-center gap-2 active:scale-98"
               >
-                <span>Continue to Shipping</span>
+                <span>Continua alla Spedizione</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -249,7 +249,7 @@ export default function CheckoutAddress() {
           {/* ORDER SUMMARY SIDEBAR PREVIEW */}
           <div className="bg-gray-50 rounded-3xl p-6 space-y-4 border border-gray-200 h-fit">
             <h3 className="text-sm font-black text-black uppercase tracking-wider border-b border-gray-200 pb-3">
-              Summary ({cart.length} items)
+              Riepilogo ({cart.length} articoli)
             </h3>
 
             <div className="space-y-3 max-h-60 overflow-y-auto pr-1 divide-y divide-gray-100">
@@ -265,15 +265,15 @@ export default function CheckoutAddress() {
 
             <div className="border-t border-gray-200 pt-3 space-y-2 text-xs font-medium text-gray-600">
               <div className="flex justify-between">
-                <span>Subtotal</span>
+                <span>Subtotale</span>
                 <span className="font-bold text-black">${cartSubtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Shipping</span>
-                <span className="font-bold text-black">{shippingCost === 0 ? 'FREE' : `$${shippingCost.toFixed(2)}`}</span>
+                <span>Spedizione</span>
+                <span className="font-bold text-black">{shippingCost === 0 ? 'GRATIS' : `$${shippingCost.toFixed(2)}`}</span>
               </div>
               <div className="flex justify-between text-sm font-black text-black pt-2 border-t border-gray-200">
-                <span>Total</span>
+                <span>Totale</span>
                 <span>${grandTotal.toFixed(2)}</span>
               </div>
             </div>

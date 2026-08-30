@@ -35,9 +35,9 @@ export default function ShoppingCart() {
           <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6 text-black shadow-inner">
             <ShoppingBag className="w-10 h-10" />
           </div>
-          <h2 className="text-2xl font-black text-black tracking-tight mb-2">Your Cart is Empty</h2>
+          <h2 className="text-2xl font-black text-black tracking-tight mb-2">Il tuo Carrello è Vuoto</h2>
           <p className="text-xs text-gray-500 mb-8 leading-relaxed">
-            Looks like you haven't added any products to your cart yet. Explore our flagship smartphones, laptops, audio gear, and accessories.
+            Sembra che tu non abbia ancora aggiunto alcun prodotto. Esplora i nostri smartphone flagship, laptop, cuffie audio e accessori.
           </p>
           <Link to="/products">
             <motion.div
@@ -45,7 +45,7 @@ export default function ShoppingCart() {
               whileTap={{ scale: 0.95 }}
               className="inline-flex items-center justify-center bg-black text-white font-bold px-8 py-3.5 rounded-xl hover:bg-gray-800 transition-colors text-sm shadow-md cursor-pointer"
             >
-              Explore Products <ArrowRight className="w-4 h-4 ml-2" />
+              Esplora i Prodotti <ArrowRight className="w-4 h-4 ml-2" />
             </motion.div>
           </Link>
         </motion.div>
@@ -61,10 +61,10 @@ export default function ShoppingCart() {
         <nav className="flex items-center gap-2 text-xs text-gray-500 mb-8">
           <Link to="/" className="hover:text-black">Home</Link>
           <ChevronRight className="w-3.5 h-3.5" />
-          <span className="font-semibold text-black">Shopping Cart</span>
+          <span className="font-semibold text-black">Carrello Spesa</span>
         </nav>
 
-        <h1 className="text-3xl font-black text-black tracking-tight mb-8">Shopping Cart</h1>
+        <h1 className="text-3xl font-black text-black tracking-tight mb-8">Il Tuo Carrello</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           
@@ -74,8 +74,8 @@ export default function ShoppingCart() {
               <AnimatePresence mode="popLayout">
                 {cart.map((item, idx) => {
                   const prod = products.find(p => p.id === item.id) || {
-                    name: 'Tech Product',
-                    image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?q=80&w=400',
+                    name: 'Prodotto Tech',
+                    image: '/assets/iphone-image-2619-2264.png',
                     brand: 'Cyber'
                   };
 
@@ -100,8 +100,8 @@ export default function ShoppingCart() {
                             {prod.name}
                           </Link>
                           <div className="text-xs text-gray-500 space-x-2">
-                            {item.color && <span>Color: <strong className="text-black">{item.color}</strong></span>}
-                            {item.storage && <span>• Storage: <strong className="text-black">{item.storage}</strong></span>}
+                            {item.color && <span>Colore: <strong className="text-black">{item.color}</strong></span>}
+                            {item.storage && <span>• Capacità: <strong className="text-black">{item.storage}</strong></span>}
                           </div>
                           <div className="text-sm font-extrabold text-black pt-1">
                             ${item.price}
@@ -142,7 +142,7 @@ export default function ShoppingCart() {
                           whileTap={{ scale: 0.9 }}
                           onClick={() => removeFromCart(item.id, item.color, item.storage)}
                           className="text-gray-400 p-2 transition-colors"
-                          title="Remove item"
+                          title="Rimuovi prodotto"
                         >
                           <Trash2 className="w-5 h-5" />
                         </motion.button>
@@ -156,7 +156,7 @@ export default function ShoppingCart() {
 
             <div className="flex justify-between items-center pt-2">
               <Link to="/products" className="text-xs font-bold text-black hover:underline flex items-center gap-1">
-                ← Continue Shopping
+                ← Continua lo Shopping
               </Link>
             </div>
           </div>
@@ -164,19 +164,19 @@ export default function ShoppingCart() {
           {/* ORDER SUMMARY SIDEBAR */}
           <div className="bg-gray-50 rounded-3xl p-6 sm:p-8 space-y-6 h-fit border border-gray-200">
             <h2 className="text-lg font-black text-black tracking-tight border-b border-gray-200 pb-4">
-              Order Summary
+              Riepilogo Ordine
             </h2>
 
             {/* Promo Code Input */}
             <div>
               <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
-                Discount Code
+                Codice Sconto
               </label>
               <form onSubmit={handleApplyPromo} className="flex gap-2">
                 <div className="relative flex-1">
                   <input
                     type="text"
-                    placeholder="e.g. CYBER10"
+                    placeholder="es. CYBER10"
                     value={inputCode}
                     onChange={(e) => setInputCode(e.target.value)}
                     className="w-full bg-white border border-gray-200 text-xs font-semibold text-black placeholder-gray-400 rounded-xl pl-8 pr-3 py-3 focus:outline-none focus:ring-2 focus:ring-black uppercase"
@@ -189,7 +189,7 @@ export default function ShoppingCart() {
                   type="submit"
                   className="bg-black text-white text-xs font-bold px-4 py-3 rounded-xl hover:bg-gray-800 transition-colors"
                 >
-                  Apply
+                  Applica
                 </motion.button>
               </form>
 
@@ -204,7 +204,7 @@ export default function ShoppingCart() {
                   animate={{ scale: 1, opacity: 1 }}
                   className="mt-2 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg flex items-center justify-between"
                 >
-                  <span>Code '{promoCode}' active ({discountPercent}% OFF)</span>
+                  <span>Codice '{promoCode}' attivo ({discountPercent}% Sconto)</span>
                   <span>✓</span>
                 </motion.div>
               )}
@@ -213,33 +213,33 @@ export default function ShoppingCart() {
             {/* Cost Breakdown */}
             <div className="space-y-3 text-xs font-medium text-gray-600 border-t border-b border-gray-200 py-4">
               <div className="flex justify-between">
-                <span>Subtotal</span>
+                <span>Subtotale</span>
                 <span className="font-bold text-black">${cartSubtotal.toFixed(2)}</span>
               </div>
 
               {discountPercent > 0 && (
                 <div className="flex justify-between text-emerald-600 font-bold">
-                  <span>Discount ({discountPercent}%)</span>
+                  <span>Sconto ({discountPercent}%)</span>
                   <span>-${discountAmount.toFixed(2)}</span>
                 </div>
               )}
 
               <div className="flex justify-between">
-                <span>Estimated Shipping</span>
+                <span>Spedizione Stimata</span>
                 <span className="font-bold text-black">
-                  {shippingCost === 0 ? 'FREE' : `$${shippingCost.toFixed(2)}`}
+                  {shippingCost === 0 ? 'GRATIS' : `$${shippingCost.toFixed(2)}`}
                 </span>
               </div>
 
               <div className="flex justify-between">
-                <span>Estimated Tax (8%)</span>
+                <span>Imposte Stimate (8%)</span>
                 <span className="font-bold text-black">${estimatedTax.toFixed(2)}</span>
               </div>
             </div>
 
             {/* Total */}
             <div className="flex justify-between items-baseline pt-1">
-              <span className="text-sm font-bold text-black uppercase tracking-wider">Total</span>
+              <span className="text-sm font-bold text-black uppercase tracking-wider">Totale</span>
               <span className="text-2xl font-black text-black">${grandTotal.toFixed(2)}</span>
             </div>
 
@@ -250,7 +250,7 @@ export default function ShoppingCart() {
               onClick={() => navigate('/checkout/address')}
               className="w-full bg-black text-white font-bold text-sm py-4 rounded-xl hover:bg-gray-800 transition-all shadow-xl flex items-center justify-center gap-2"
             >
-              <span>Proceed to Checkout</span>
+              <span>Procedi al Checkout</span>
               <ArrowRight className="w-4 h-4" />
             </motion.button>
 

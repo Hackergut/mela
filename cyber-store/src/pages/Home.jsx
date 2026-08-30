@@ -6,13 +6,13 @@ import ProductCard from '../components/ProductCard';
 import { products, categories } from '../data/products';
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState('New Arrival');
+  const [activeTab, setActiveTab] = useState('Novità');
   const navigate = useNavigate();
 
   const filteredProducts = products.filter(p => {
-    if (activeTab === 'New Arrival') return p.isNew;
-    if (activeTab === 'Bestseller') return p.isBestseller;
-    if (activeTab === 'Featured Products') return p.isFeatured;
+    if (activeTab === 'Novità') return p.isNew;
+    if (activeTab === 'Più Venduti') return p.isBestseller;
+    if (activeTab === 'In Evidenza') return p.isFeatured;
     return true;
   }).slice(0, 8);
 
@@ -42,13 +42,13 @@ export default function Home() {
             className="space-y-6 max-w-xl text-center md:text-left z-10"
           >
             <span className="text-gray-400 uppercase tracking-widest text-xs font-bold bg-gray-900 px-3 py-1.5 rounded-full inline-block border border-gray-800">
-              Pro.Beyond.
+              Oltre Ogni Limite
             </span>
             <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-none text-white">
               IPHONE 15 PRO
             </h1>
             <p className="text-gray-400 text-base sm:text-lg leading-relaxed">
-              Created to change everything for the better. Titanium design, A17 Pro chip, customizable Action button, and 48MP Pro camera.
+              Creato per cambiare tutto in meglio. Design in titanio aerospaziale, chip A17 Pro, tasto Azione personalizzabile e fotocamera Pro da 48MP.
             </p>
             <div className="pt-2">
               <Link to="/products/iphone-15-pro-max">
@@ -57,7 +57,7 @@ export default function Home() {
                   whileTap={{ scale: 0.96 }}
                   className="inline-flex items-center justify-center bg-white text-black font-bold px-8 py-4 rounded-xl hover:bg-gray-200 transition-all text-sm tracking-wide shadow-lg group cursor-pointer"
                 >
-                  <span>Shop Now</span>
+                  <span>Acquista Ora</span>
                   <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                 </motion.div>
               </Link>
@@ -74,8 +74,8 @@ export default function Home() {
             <motion.img
               animate={{ y: [0, -10, 0] }}
               transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
-              src="https://images.unsplash.com/photo-1695048133142-1a20484d2569?q=80&w=800&auto=format&fit=crop"
-              alt="iPhone 15 Pro"
+              src="/assets/iphone-image-2619-2264.png"
+              alt="iPhone 15 Pro Max"
               className="max-h-[420px] object-contain drop-shadow-2xl"
             />
           </motion.div>
@@ -97,15 +97,15 @@ export default function Home() {
               <div>
                 <span className="text-xs font-bold text-gray-400 uppercase">Gaming</span>
                 <h3 className="text-xl font-extrabold text-black mt-1">PlayStation 5 Slim</h3>
-                <p className="text-xs text-gray-500 mt-1">Next-gen gaming power</p>
+                <p className="text-xs text-gray-500 mt-1">Potenza di nuova generazione</p>
               </div>
               <img
-                src="https://images.unsplash.com/photo-1606813907291-d86efa9b94db?q=80&w=600&auto=format&fit=crop"
+                src="/assets/playstation-2619-2204.png"
                 alt="PS5"
                 className="w-36 h-36 object-contain absolute right-2 bottom-4 group-hover:scale-110 transition-transform duration-300"
               />
               <Link to="/products/playstation-5-slim" className="text-xs font-bold text-black flex items-center gap-1 hover:underline z-10 mt-auto">
-                Shop PlayStation <ArrowRight className="w-3.5 h-3.5" />
+                Scopri PlayStation <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </motion.div>
 
@@ -118,15 +118,15 @@ export default function Home() {
               <div>
                 <span className="text-xs font-bold text-gray-400 uppercase">Audio</span>
                 <h3 className="text-xl font-extrabold text-black mt-1">AirPods Max</h3>
-                <p className="text-xs text-gray-500 mt-1">High-fidelity audio</p>
+                <p className="text-xs text-gray-500 mt-1">Audio ad altissima fedeltà</p>
               </div>
               <img
-                src="https://images.unsplash.com/photo-1613040809024-b4ef7ba99bc3?q=80&w=600&auto=format&fit=crop"
+                src="/assets/hero-gnfk5g59t0qe-xlarge-2x-1-2619-2194.png"
                 alt="AirPods Max"
                 className="w-36 h-36 object-contain absolute right-2 bottom-4 group-hover:scale-110 transition-transform duration-300"
               />
               <Link to="/products/airpods-max" className="text-xs font-bold text-black flex items-center gap-1 hover:underline z-10 mt-auto">
-                Shop AirPods <ArrowRight className="w-3.5 h-3.5" />
+                Scopri AirPods <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </motion.div>
 
@@ -137,17 +137,17 @@ export default function Home() {
               className="bg-black text-white rounded-2xl p-6 flex flex-col justify-between h-80 relative overflow-hidden group shadow-sm hover:shadow-md"
             >
               <div>
-                <span className="text-xs font-bold text-gray-400 uppercase">Spatial</span>
+                <span className="text-xs font-bold text-gray-400 uppercase">Calcolo Spaziale</span>
                 <h3 className="text-xl font-extrabold text-white mt-1">Apple Vision Pro</h3>
-                <p className="text-xs text-gray-400 mt-1">Welcome to spatial computing</p>
+                <p className="text-xs text-gray-400 mt-1">Benvenuti nel futuro spaziale</p>
               </div>
               <img
-                src="https://images.unsplash.com/photo-1593508512255-86ab42a8e620?q=80&w=600&auto=format&fit=crop"
+                src="/assets/image-61-2619-1982.png"
                 alt="Vision Pro"
                 className="w-36 h-36 object-contain absolute right-2 bottom-4 group-hover:scale-110 transition-transform duration-300"
               />
               <Link to="/products/apple-vision-pro" className="text-xs font-bold text-white flex items-center gap-1 hover:underline z-10 mt-auto">
-                Explore Vision Pro <ArrowRight className="w-3.5 h-3.5" />
+                Esplora Vision Pro <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </motion.div>
 
@@ -158,17 +158,17 @@ export default function Home() {
               className="bg-white rounded-2xl p-6 flex flex-col justify-between h-80 relative overflow-hidden group border border-gray-200 shadow-sm hover:shadow-md"
             >
               <div>
-                <span className="text-xs font-bold text-gray-400 uppercase">Computers</span>
+                <span className="text-xs font-bold text-gray-400 uppercase">Computer</span>
                 <h3 className="text-xl font-extrabold text-black mt-1">MacBook Pro 16"</h3>
-                <p className="text-xs text-gray-500 mt-1">Mind-blowing M3 Max power</p>
+                <p className="text-xs text-gray-500 mt-1">Potenza straordinaria M3 Max</p>
               </div>
               <img
-                src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=600&auto=format&fit=crop"
+                src="/assets/banner-2-2619-2128.png"
                 alt="MacBook Pro"
                 className="w-36 h-36 object-contain absolute right-2 bottom-4 group-hover:scale-110 transition-transform duration-300"
               />
               <Link to="/products/macbook-pro-16-m3" className="text-xs font-bold text-black flex items-center gap-1 hover:underline z-10 mt-auto">
-                Shop MacBook <ArrowRight className="w-3.5 h-3.5" />
+                Scopri MacBook <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </motion.div>
 
@@ -180,9 +180,9 @@ export default function Home() {
       <section className="py-16 bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-black text-black tracking-tight">Browse By Category</h2>
+            <h2 className="text-2xl font-black text-black tracking-tight">Esplora per Categoria</h2>
             <Link to="/products" className="text-sm font-bold text-black hover:underline flex items-center gap-1">
-              View All <ArrowRight className="w-4 h-4" />
+              Vedi Tutte <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
 
@@ -205,13 +205,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* PRODUCTS TAB GRID WITH LAYOUT ANIMATIONS */}
+      {/* PRODUCTS TAB GRID */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           {/* Tabs */}
           <div className="flex items-center gap-8 border-b border-gray-200 pb-4 mb-8 overflow-x-auto">
-            {['New Arrival', 'Bestseller', 'Featured Products'].map((tab) => {
+            {['Novità', 'Più Venduti', 'In Evidenza'].map((tab) => {
               const isActive = activeTab === tab;
               return (
                 <button
@@ -250,7 +250,7 @@ export default function Home() {
                 whileTap={{ scale: 0.96 }}
                 className="inline-flex items-center justify-center bg-black text-white font-bold px-8 py-3.5 rounded-xl hover:bg-gray-800 transition-colors text-sm shadow-md cursor-pointer"
               >
-                Explore All Products
+                Vedi Tutti i Prodotti
               </motion.div>
             </Link>
           </div>
@@ -263,13 +263,13 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
           <div className="space-y-4 max-w-lg z-10">
             <span className="text-xs font-bold uppercase tracking-widest text-red-500 bg-red-950/60 px-3 py-1 rounded-full border border-red-800">
-              Limited Time Offer
+              Offerta a Tempo Limitato
             </span>
             <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white">
-              Big Summer Sale 15% OFF
+              Sconti Estivi Fino al 15% OFF
             </h2>
             <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
-              Use promo code <span className="font-bold text-white bg-gray-800 px-2 py-0.5 rounded">CYBER10</span> at checkout for instant savings on all gadgets and accessories.
+              Usa il codice sconto <span className="font-bold text-white bg-gray-800 px-2 py-0.5 rounded">CYBER10</span> al checkout per risparmiare subito su tutti i gadget e accessori.
             </p>
             <div>
               <Link to="/products">
@@ -278,7 +278,7 @@ export default function Home() {
                   whileTap={{ scale: 0.95 }}
                   className="inline-block bg-white text-black font-bold px-8 py-3.5 rounded-xl hover:bg-gray-200 transition-colors text-sm shadow-lg cursor-pointer"
                 >
-                  Shop The Sale
+                  Acquista in Offerta
                 </motion.div>
               </Link>
             </div>
@@ -288,8 +288,8 @@ export default function Home() {
             <motion.img
               whileHover={{ scale: 1.03 }}
               transition={{ type: 'spring', stiffness: 300 }}
-              src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800&auto=format&fit=crop"
-              alt="Headphones Sale"
+              src="/assets/hero-gnfk5g59t0qe-xlarge-2x-1-2619-2194.png"
+              alt="Offerta Cuffie"
               className="w-72 sm:w-96 object-contain rounded-2xl shadow-2xl"
             />
           </div>
@@ -305,8 +305,8 @@ export default function Home() {
                 <Truck className="w-6 h-6" />
               </div>
               <div>
-                <h4 className="text-sm font-bold text-black">Free Delivery</h4>
-                <p className="text-xs text-gray-500">Free shipping on all orders over $100</p>
+                <h4 className="text-sm font-bold text-black">Spedizione Gratuita</h4>
+                <p className="text-xs text-gray-500">Consegna gratuita su ordini superiori a $100</p>
               </div>
             </div>
 
@@ -315,8 +315,8 @@ export default function Home() {
                 <ShieldCheck className="w-6 h-6" />
               </div>
               <div>
-                <h4 className="text-sm font-bold text-black">1 Year Warranty</h4>
-                <p className="text-xs text-gray-500">100% authentic original products</p>
+                <h4 className="text-sm font-bold text-black">Garanzia 1 Anno</h4>
+                <p className="text-xs text-gray-500">Prodotti originali garantiti al 100%</p>
               </div>
             </div>
 
@@ -325,8 +325,8 @@ export default function Home() {
                 <RefreshCw className="w-6 h-6" />
               </div>
               <div>
-                <h4 className="text-sm font-bold text-black">30 Days Return</h4>
-                <p className="text-xs text-gray-500">Hassle-free 30-day money back</p>
+                <h4 className="text-sm font-bold text-black">Reso Entro 30 Giorni</h4>
+                <p className="text-xs text-gray-500">Soddisfatti o rimborsati senza complicazioni</p>
               </div>
             </div>
 
@@ -335,8 +335,8 @@ export default function Home() {
                 <HeadphonesIcon className="w-6 h-6" />
               </div>
               <div>
-                <h4 className="text-sm font-bold text-black">24/7 Support</h4>
-                <p className="text-xs text-gray-500">Dedicated support team online</p>
+                <h4 className="text-sm font-bold text-black">Assistenza 24/7</h4>
+                <p className="text-xs text-gray-500">Team di supporto dedicato sempre disponibile</p>
               </div>
             </div>
           </div>

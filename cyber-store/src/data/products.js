@@ -1,12 +1,12 @@
 export const categories = [
-  { id: 'smartphones', name: 'Smartphones', icon: 'Smartphone' },
-  { id: 'watches', name: 'Smartwatches', icon: 'Watch' },
-  { id: 'cameras', name: 'Cameras', icon: 'Camera' },
-  { id: 'headphones', name: 'Headphones', icon: 'Headphones' },
-  { id: 'computers', name: 'Computers', icon: 'Laptop' },
-  { id: 'gaming', name: 'Gaming', icon: 'Gamepad2' },
-  { id: 'tablets', name: 'Tablets', icon: 'Tablet' },
-  { id: 'accessories', name: 'Accessories', icon: 'Plug' },
+  { id: 'smartphones', name: 'Smartphone', icon: 'Smartphone' },
+  { id: 'watches', name: 'Smartwatch', icon: 'Watch' },
+  { id: 'cameras', name: 'Fotocamere', icon: 'Camera' },
+  { id: 'headphones', name: 'Cuffie & Audio', icon: 'Headphones' },
+  { id: 'computers', name: 'Computer & Laptop', icon: 'Laptop' },
+  { id: 'gaming', name: 'Gaming & Console', icon: 'Gamepad2' },
+  { id: 'tablets', name: 'Tablet', icon: 'Tablet' },
+  { id: 'accessories', name: 'Accessori', icon: 'Plug' },
 ];
 
 export const brands = [
@@ -33,7 +33,7 @@ export const products = [
     discount: 8,
     rating: 4.9,
     reviewCount: 142,
-    tag: 'Bestseller',
+    tag: 'Più Venduto',
     isNew: true,
     isBestseller: true,
     isFeatured: true,
@@ -45,24 +45,24 @@ export const products = [
       '/assets/iphone-14-pro-1-I2619-1869-378-3037.png'
     ],
     colors: [
-      { name: 'Natural Titanium', hex: '#BEBDB8' },
-      { name: 'Black Titanium', hex: '#3B3B3D' },
-      { name: 'White Titanium', hex: '#F2F1EC' },
-      { name: 'Blue Titanium', hex: '#2C353F' }
+      { name: 'Titanio Naturale', hex: '#BEBDB8' },
+      { name: 'Titanio Nero', hex: '#3B3B3D' },
+      { name: 'Titanio Bianco', hex: '#F2F1EC' },
+      { name: 'Titanio Blu', hex: '#2C353F' }
     ],
     storageOptions: ['256GB', '512GB', '1TB'],
     specs: {
-      screen: '6.7" Super Retina XDR OLED 120Hz ProMotion',
-      cpu: 'A17 Pro Chip (3nm)',
-      camera: '48MP Main + 12MP Ultra Wide + 12MP 5x Telephoto',
-      battery: 'Up to 29 hours video playback',
-      ram: '8 GB',
-      os: 'iOS 17'
+      Schermo: '6.7" Super Retina XDR OLED 120Hz ProMotion',
+      Processore: 'A17 Pro (3nm)',
+      Fotocamera: '48MP Principale + 12MP Ultra-grandangolo + 12MP Teleobiettivo 5x',
+      Batteria: 'Fino a 29 ore di riproduzione video',
+      RAM: '8 GB',
+      SistemaOperativo: 'iOS 17'
     },
-    description: 'iPhone 15 Pro Max is forged in aerospace-grade titanium that is lightweight yet incredibly strong. Features the groundbreaking A17 Pro chip, a customizable Action button, and the most powerful iPhone camera system ever with 5x optical zoom.',
+    description: 'iPhone 15 Pro Max è forgiato nel titanio di grado aerospaziale, leggerissimo e incredibilmente resistente. È dotato del rivoluzionario chip A17 Pro, del tasto Azione personalizzabile e del sistema di fotocamere più potente mai visto su iPhone con zoom ottico 5x.',
     reviews: [
-      { id: 1, author: 'Alex Rivera', rating: 5, date: '2024-02-14', comment: 'The titanium build makes a huge difference in weight. The 5x camera lens is mindblowing!' },
-      { id: 2, author: 'Sarah Chen', rating: 5, date: '2024-01-28', comment: 'Incredible performance and battery life. A17 Pro runs games like a dedicated console.' }
+      { id: 1, author: 'Alessandro Rossi', rating: 5, date: '14/02/2026', comment: 'La scocca in titanio fa una differenza enorme nel peso. Il teleobiettivo 5x è eccezionale!' },
+      { id: 2, author: 'Sara Bianchi', rating: 5, date: '28/01/2026', comment: 'Prestazioni e durata della batteria incredibili. Il chip A17 Pro fa girare i giochi come una console.' }
     ]
   },
   {
@@ -75,7 +75,7 @@ export const products = [
     discount: 8,
     rating: 4.8,
     reviewCount: 89,
-    tag: 'Featured',
+    tag: 'In Evidenza',
     isNew: false,
     isBestseller: false,
     isFeatured: true,
@@ -86,22 +86,22 @@ export const products = [
       '/assets/image-56-I2619-1815-330-3100-330-3062.png'
     ],
     colors: [
-      { name: 'Space Gray', hex: '#4B4B4D' },
-      { name: 'Silver', hex: '#E2E3E5' },
-      { name: 'Sky Blue', hex: '#A8C3D8' },
-      { name: 'Pink', hex: '#E8C5C8' }
+      { name: 'Grigio Spaziale', hex: '#4B4B4D' },
+      { name: 'Argento', hex: '#E2E3E5' },
+      { name: 'Celeste', hex: '#A8C3D8' },
+      { name: 'Rosa', hex: '#E8C5C8' }
     ],
     specs: {
-      driver: '40mm Dynamic Driver designed by Apple',
-      chip: 'Apple H1 chip in each ear cup',
-      noiseControl: 'Active Noise Cancellation & Transparency Mode',
-      battery: 'Up to 20 hours listening time',
-      weight: '384.8 grams',
-      connectivity: 'Bluetooth 5.0'
+      Driver: 'Driver dinamico da 40mm progettato da Apple',
+      Chip: 'Chip Apple H1 in ciascun padiglione',
+      CancellazioneRumore: 'Cancellazione Attiva del Rumore & Modalità Trasparenza',
+      Batteria: 'Fino a 20 ore di ascolto continuo',
+      Peso: '384.8 grammi',
+      Connettivita: 'Bluetooth 5.0'
     },
-    description: 'AirPods Max reimagine over-ear headphones. An Apple-designed dynamic driver provides immersive high-fidelity audio. Every detail, from canopy to cushions, has been designed for an exceptional fit.',
+    description: 'Le AirPods Max reinventano le cuffie circumaurali. Un driver dinamico progettato da Apple garantisce un audio ad alta fedeltà ad altissima definizione. Ogni dettaglio, dall\'archetto ai cuscinetti, è stato studiato per una calzabilità impeccabile.',
     reviews: [
-      { id: 1, author: 'David K.', rating: 5, date: '2024-02-01', comment: 'The spatial audio with dynamic head tracking feels like being in a movie theater.' }
+      { id: 1, author: 'Davide Conti', rating: 5, date: '01/02/2026', comment: 'L\'audio spaziale con tracciamento della testa fa sembrare di stare al cinema.' }
     ]
   },
   {
@@ -114,7 +114,7 @@ export const products = [
     discount: 7,
     rating: 4.7,
     reviewCount: 65,
-    tag: 'New Arrival',
+    tag: 'Novità',
     isNew: true,
     isBestseller: false,
     isFeatured: false,
@@ -124,22 +124,22 @@ export const products = [
       '/assets/image-57-2619-1981.png'
     ],
     colors: [
-      { name: 'Midnight', hex: '#232931' },
-      { name: 'Starlight', hex: '#ECE8DF' },
-      { name: 'Silver', hex: '#E2E3E5' }
+      { name: 'Mezzanotte', hex: '#232931' },
+      { name: 'Galassia', hex: '#ECE8DF' },
+      { name: 'Argento', hex: '#E2E3E5' }
     ],
     storageOptions: ['64GB'],
     specs: {
-      screen: 'Always-On Retina display up to 2000 nits',
-      cpu: 'S9 SiP with 4-core Neural Engine',
-      gestures: 'Double tap gesture control',
-      sensors: 'ECG app, Blood Oxygen, Heart rate, Crash Detection',
-      battery: 'Up to 18 hours normal use / 36 hrs Low Power',
-      waterResistance: '50m water resistant'
+      Schermo: 'Display Retina Always-On fino a 2000 nits',
+      Processore: 'SiP S9 con Neural Engine 4-core',
+      Gesti: 'Controllo con doppio tap delle dita',
+      Sensori: 'ECG, Ossigeno nel Sangue, Cardiofrequenzimetro, Rilevamento Incidenti',
+      Batteria: 'Fino a 18 ore di autonomia normale / 36 ore in risparmio energetico',
+      Impermeabilita: 'Resistente all\'acqua fino a 50m'
     },
-    description: 'Smarter, brighter, and mightier. The S9 SiP enables a super-bright display and a magical new way to quickly and easily interact with your Apple Watch without touching the screen.',
+    description: 'Più intelligente, più luminoso e più potente. Il SiP S9 offre uno schermo ultra-luminoso e un nuovo modo magico per interagire rapidamente con il tuo Apple Watch senza nemmeno toccare lo schermo.',
     reviews: [
-      { id: 1, author: 'Jessica M.', rating: 5, date: '2024-01-15', comment: 'Double tap feature is super convenient when holding groceries or running!' }
+      { id: 1, author: 'Elena Marino', rating: 5, date: '15/01/2026', comment: 'La funzione doppio tap è comodissima quando hai le mani occupate!' }
     ]
   },
   {
@@ -152,7 +152,7 @@ export const products = [
     discount: 7,
     rating: 4.95,
     reviewCount: 210,
-    tag: 'Bestseller',
+    tag: 'Più Venduto',
     isNew: true,
     isBestseller: true,
     isFeatured: true,
@@ -162,26 +162,26 @@ export const products = [
       '/assets/cover-I2619-2245-601-122.png'
     ],
     colors: [
-      { name: 'Space Black', hex: '#2C2C2E' },
-      { name: 'Silver', hex: '#E2E3E5' }
+      { name: 'Nero Spaziale', hex: '#2C2C2E' },
+      { name: 'Argento', hex: '#E2E3E5' }
     ],
     storageOptions: ['512GB', '1TB', '2TB'],
     specs: {
-      screen: '16.2" Liquid Retina XDR display (3456 x 2234)',
-      cpu: 'Apple M3 Max 14-core CPU / 30-core GPU',
-      ram: '36GB Unified Memory',
-      battery: 'Up to 22 hours battery life',
-      ports: '3x Thunderbolt 4, HDMI, SDXC, MagSafe 3',
-      os: 'macOS Sonoma'
+      Schermo: '16.2" Liquid Retina XDR (3456 x 2234)',
+      Processore: 'Apple M3 Max CPU 14-core / GPU 30-core',
+      RAM: '36GB Memoria Unificata',
+      Batteria: 'Fino a 22 ore di autonomia',
+      Porte: '3x Thunderbolt 4, HDMI, SDXC, MagSafe 3',
+      SistemaOperativo: 'macOS Sonoma'
     },
-    description: 'MacBook Pro blasts forward with M3 Max, a monster chip that drives extreme performance for intensive workflows. Features stunning Liquid Retina XDR display and Space Black finish.',
+    description: 'MacBook Pro sfreccia a tutta velocità con il chip M3 Max, un mostro di potenza progettato per i flussi di lavoro più intensi. Dotato di splendido display Liquid Retina XDR e finitura Nero Spaziale.',
     reviews: [
-      { id: 1, author: 'Marcus V.', rating: 5, date: '2024-02-10', comment: 'Renders 8K video in Final Cut like butter. Space Black looks gorgeous.' }
+      { id: 1, author: 'Marco Verdi', rating: 5, date: '10/02/2026', comment: 'Esporta video 8K in Final Cut in un attimo. La colorazione Nero Spaziale è fantastica.' }
     ]
   },
   {
     id: 'sony-wh1000xm5',
-    name: 'Sony WH-1000XM5 Wireless Headphones',
+    name: 'Sony WH-1000XM5 Cuffie Wireless',
     category: 'headphones',
     brand: 'Sony',
     price: 348,
@@ -189,7 +189,7 @@ export const products = [
     discount: 13,
     rating: 4.85,
     reviewCount: 312,
-    tag: 'Bestseller',
+    tag: 'Più Venduto',
     isNew: false,
     isBestseller: true,
     isFeatured: true,
@@ -199,21 +199,21 @@ export const products = [
       '/assets/hero-gnfk5g59t0qe-xlarge-2x-1-2619-2194.png'
     ],
     colors: [
-      { name: 'Black', hex: '#1C1C1C' },
-      { name: 'Silver', hex: '#E0E0E0' },
-      { name: 'Midnight Blue', hex: '#1B263B' }
+      { name: 'Nero', hex: '#1C1C1C' },
+      { name: 'Argento', hex: '#E0E0E0' },
+      { name: 'Blu Notte', hex: '#1B263B' }
     ],
     specs: {
-      driver: '30mm Precision Driver',
-      chip: 'Integrated Processor V1 & HD Noise Cancelling QN1',
-      battery: 'Up to 30 hours with ANC',
-      microphones: '8 Microphones for noise cancelling & crystal clear calls',
-      weight: '250g',
-      bluetooth: 'Bluetooth 5.2 / LDAC support'
+      Driver: 'Driver di precisione da 30mm',
+      Chip: 'Processore Integrato V1 & HD Noise Cancelling QN1',
+      Batteria: 'Fino a 30 ore con ANC attivo',
+      Microfoni: '8 microfoni per cancellazione rumore e chiamate nitide',
+      Peso: '250g',
+      Connettivita: 'Bluetooth 5.2 / Supporto LDAC'
     },
-    description: 'Industry-leading noise cancellation rewritten with two processors and eight microphones. Auto NC Optimizer automatically adjusts cancelling based on environment and wearing conditions.',
+    description: 'La cancellazione del rumore leader del settore riscritta con due processori e otto microfoni. L\'ottimizzatore automatico Auto NC Optimizer adatta la cancellazione in base all\'ambiente.',
     reviews: [
-      { id: 1, author: 'Brian T.', rating: 5, date: '2024-02-05', comment: 'Best noise cancellation on flights! Unbelievably lightweight and comfortable.' }
+      { id: 1, author: 'Roberto Galli', rating: 5, date: '05/02/2026', comment: 'Migliore cancellazione del rumore nei viaggi in aereo. Incredibilmente leggere.' }
     ]
   },
   {
@@ -226,7 +226,7 @@ export const products = [
     discount: 8,
     rating: 4.8,
     reviewCount: 178,
-    tag: 'Featured',
+    tag: 'In Evidenza',
     isNew: true,
     isBestseller: false,
     isFeatured: true,
@@ -236,22 +236,22 @@ export const products = [
       '/assets/iphone-14-pro-1-I2619-2072-378-3037.png'
     ],
     colors: [
-      { name: 'Titanium Gray', hex: '#7E8085' },
-      { name: 'Titanium Black', hex: '#2B2B2C' },
-      { name: 'Titanium Violet', hex: '#584E69' }
+      { name: 'Grigio Titanio', hex: '#7E8085' },
+      { name: 'Nero Titanio', hex: '#2B2B2C' },
+      { name: 'Viola Titanio', hex: '#584E69' }
     ],
     storageOptions: ['256GB', '512GB', '1TB'],
     specs: {
-      screen: '6.8" Dynamic AMOLED 2X 120Hz (2600 nits peak)',
-      cpu: 'Snapdragon 8 Gen 3 for Galaxy',
-      camera: '200MP Main + 50MP 5x Periscope + 10MP 3x + 12MP Ultra Wide',
-      battery: '5000 mAh (45W Fast Charging)',
-      spen: 'Built-in S Pen included',
-      os: 'Android 14 / One UI 6.1'
+      Schermo: '6.8" Dynamic AMOLED 2X 120Hz (2600 nits di picco)',
+      Processore: 'Snapdragon 8 Gen 3 per Galaxy',
+      Fotocamera: '200MP Principale + 50MP Periscopio 5x + 10MP Tele 3x + 12MP Ultra-grandangolo',
+      Batteria: '5000 mAh (Ricarica rapida 45W)',
+      Pennino: 'S Pen integrata inclusa',
+      SistemaOperativo: 'Android 14 / One UI 6.1'
     },
-    description: 'Welcome to the era of mobile AI. Galaxy S24 Ultra features Galaxy AI live translate, Circle to Search, a titanium shield, and an astounding 200MP camera system.',
+    description: 'Benvenuti nell\'era dell\'Intelligenza Artificiale mobile. Galaxy S24 Ultra offre funzionalità Galaxy AI avanzate come la traduzione live delle chiamate, Cerchia e Cerca, scocca in titanio e fotocamera da 200MP.',
     reviews: [
-      { id: 1, author: 'Elena R.', rating: 5, date: '2024-01-30', comment: 'The anti-reflective glass screen combined with 2600 nits brightness is astounding outdoors.' }
+      { id: 1, author: 'Chiara Moretti', rating: 5, date: '30/01/2026', comment: 'Lo schermo antiriflesso con 2600 nits di luminosità è spettacolare sotto il sole.' }
     ]
   },
   {
@@ -264,7 +264,7 @@ export const products = [
     discount: 8,
     rating: 4.9,
     reviewCount: 95,
-    tag: 'Featured',
+    tag: 'In Evidenza',
     isNew: false,
     isBestseller: false,
     isFeatured: true,
@@ -274,21 +274,21 @@ export const products = [
       '/assets/image-36-2619-2199.png'
     ],
     colors: [
-      { name: 'Space Gray', hex: '#4B4B4D' },
-      { name: 'Silver', hex: '#E2E3E5' }
+      { name: 'Grigio Spaziale', hex: '#4B4B4D' },
+      { name: 'Argento', hex: '#E2E3E5' }
     ],
     storageOptions: ['128GB', '256GB', '512GB', '1TB'],
     specs: {
-      screen: '12.9" Liquid Retina XDR Mini-LED (1600 nits peak)',
-      cpu: 'Apple M2 8-core CPU / 10-core GPU',
-      camera: '12MP Wide + 10MP Ultra Wide + LiDAR Scanner',
-      battery: 'Up to 10 hours surf on Wi-Fi',
-      pencil: 'Supports Apple Pencil (2nd gen) Hover',
-      os: 'iPadOS 17'
+      Schermo: '12.9" Liquid Retina XDR Mini-LED (1600 nits picco)',
+      Processore: 'Apple M2 CPU 8-core / GPU 10-core',
+      Fotocamera: '12MP Grandangolo + 10MP Ultra-grandangolo + Scanner LiDAR',
+      Batteria: 'Fino a 10 ore di navigazione Wi-Fi',
+      Pennino: 'Supporta Apple Pencil (2ª gen) con funzione di sorvolo',
+      SistemaOperativo: 'iPadOS 17'
     },
-    description: 'Astonishing performance. Incredibly advanced displays. Superfast wireless connectivity. Next-level Apple Pencil capabilities. Powerful new features in iPadOS.',
+    description: 'Prestazioni strabilianti. Display incredibilmente avanzato. Connettività wireless ultraveloce. Nuove funzionalità per Apple Pencil e tutta la potenza di iPadOS.',
     reviews: [
-      { id: 1, author: 'Chris P.', rating: 5, date: '2024-01-20', comment: 'Replaced my drawing tablet and notebook completely. M2 chip handles Procreate effortlessly.' }
+      { id: 1, author: 'Christian Neri', rating: 5, date: '20/01/2026', comment: 'Ha sostituito del tutto la mia tavoletta grafica. Il chip M2 fa volare Procreate.' }
     ]
   },
   {
@@ -301,7 +301,7 @@ export const products = [
     discount: 10,
     rating: 4.9,
     reviewCount: 450,
-    tag: 'Bestseller',
+    tag: 'Più Venduto',
     isNew: true,
     isBestseller: true,
     isFeatured: true,
@@ -311,20 +311,20 @@ export const products = [
       '/assets/cover-I2619-2245-601-122.png'
     ],
     colors: [
-      { name: 'White', hex: '#F0F0F0' }
+      { name: 'Bianco', hex: '#F0F0F0' }
     ],
     storageOptions: ['1TB SSD'],
     specs: {
-      cpu: 'Custom x86-64 AMD Ryzen Zen 2 (8 Cores / 16 Threads)',
-      gpu: 'AMD Radeon RDNA 2-based graphics engine with Ray Tracing',
-      storage: '1TB Custom Ultra-High Speed NVMe SSD',
-      audio: 'Tempest 3D AudioTech',
-      output: '4K 120Hz, 8K, VRR support',
-      controller: 'DualSense Wireless Controller included'
+      Processore: 'AMD Ryzen Zen 2 personalizzato (8 Core / 16 Thread)',
+      Grafica: 'AMD Radeon RDNA 2 con Ray Tracing',
+      Archiviazione: 'SSD NVMe Ultra-Veloce da 1TB',
+      Audio: 'Tempest 3D AudioTech',
+      UscitaVideo: '4K 120Hz, 8K, supporto VRR',
+      Controller: 'Controller Wireless DualSense incluso'
     },
-    description: 'Experience lightning-fast loading with an ultra-high speed SSD, deeper immersion with support for haptic feedback, adaptive triggers and 3D Audio, and an all-new generation of incredible PlayStation games.',
+    description: 'Sperimenta caricamenti fulminei grazie all\'SSD ad altissima velocità, un coinvolgimento profondo con il feedback aptico, grilletti adattivi, audio 3D e una nuova generazione di straordinari giochi per PlayStation.',
     reviews: [
-      { id: 1, author: 'GamerX', rating: 5, date: '2024-02-12', comment: 'Much smaller footprint than the original PS5! 1TB SSD gives plenty of storage.' }
+      { id: 1, author: 'GamerItalia', rating: 5, date: '12/02/2026', comment: 'Molto più compattabile della versione originale! L\'SSD da 1TB offre tantissimo spazio.' }
     ]
   },
   {
@@ -337,7 +337,7 @@ export const products = [
     discount: 0,
     rating: 4.7,
     reviewCount: 42,
-    tag: 'New Arrival',
+    tag: 'Novità',
     isNew: true,
     isBestseller: false,
     isFeatured: true,
@@ -347,25 +347,25 @@ export const products = [
       '/assets/image-62-2619-1983.png'
     ],
     colors: [
-      { name: 'Solo Knit Band', hex: '#A1A1A1' }
+      { name: 'Fascia Solo Knit', hex: '#A1A1A1' }
     ],
     storageOptions: ['256GB', '512GB', '1TB'],
     specs: {
-      display: '23 Million pixels ultra-high-resolution Micro-OLED 3D display',
-      chips: 'Dual-chip design: Apple M2 + Apple R1 real-time processor',
-      control: 'Controlled using eyes, hands, and voice',
-      audio: 'Spatial Audio system with dual-driver audio pods',
-      battery: 'External battery pack up to 2.5 hours video use',
-      os: 'visionOS'
+      Schermo: 'Display Micro-OLED 3D ad altissima risoluzione con 23 milioni di pixel',
+      Processori: 'Doppio chip: Apple M2 + Apple R1 per l\'elaborazione in tempo reale',
+      Controllo: 'Controllato tramite occhi, mani e voce',
+      Audio: 'Audio Spaziale con pod audio a doppio driver',
+      Batteria: 'Pacco batteria esterno fino a 2.5 ore di riproduzione video',
+      SistemaOperativo: 'visionOS'
     },
-    description: 'Welcome to spatial computing. Apple Vision Pro seamlessly blends digital content with your physical space, allowing you to navigate simply by using your eyes, hands, and voice.',
+    description: 'Benvenuti nell\'era del calcolo spaziale. Apple Vision Pro fonde perfettamente i contenuti digitali con il tuo spazio fisico, permettendoti di navigare semplicemente usando occhi, mani e voce.',
     reviews: [
-      { id: 1, author: 'Tech Enthusiast', rating: 5, date: '2024-02-18', comment: 'Watching movies in spatial cinema mode is like having a movie theater floating in your room!' }
+      { id: 1, author: 'Matteo Ferrari', rating: 5, date: '18/02/2026', comment: 'Guardare i film in modalità cinema spaziale è come avere un cinema privato fluttuante nella stanza!' }
     ]
   },
   {
     id: 'canon-eos-r6-ii',
-    name: 'Canon EOS R6 Mark II Mirrorless Camera',
+    name: 'Canon EOS R6 Mark II Fotocamera Mirrorless',
     category: 'cameras',
     brand: 'Canon',
     price: 2299,
@@ -373,7 +373,7 @@ export const products = [
     discount: 8,
     rating: 4.8,
     reviewCount: 68,
-    tag: 'Featured',
+    tag: 'In Evidenza',
     isNew: false,
     isBestseller: false,
     isFeatured: true,
@@ -382,24 +382,24 @@ export const products = [
       '/assets/image-63-2619-1984.png'
     ],
     colors: [
-      { name: 'Black', hex: '#1C1C1C' }
+      { name: 'Nero', hex: '#1C1C1C' }
     ],
     specs: {
-      sensor: '24.2MP Full-Frame CMOS Sensor',
-      processor: 'DIGIC X Image Processor',
-      video: '4K60p 10-bit internal video oversampled from 6K',
-      fps: 'Up to 40 fps electronic shutter shooting',
-      autofocus: 'Dual Pixel CMOS AF II with AI subject tracking',
-      stabilization: '5-Axis In-Body Image Stabilizer up to 8 stops'
+      Sensore: 'Sensore CMOS Full-Frame da 24.2 MP',
+      Processore: 'Processore d\'immagine DIGIC X',
+      Video: 'Video 4K60p a 10-bit interno con oversampling da 6K',
+      ScattoContinuo: 'Fino a 40 fps con otturatore elettronico',
+      Autofocus: 'Dual Pixel CMOS AF II con tracciamento soggetti tramite IA',
+      Stabilizzazione: 'Stabilizzazione dell\'immagine a 5 assi fino a 8 stop'
     },
-    description: 'Never compromise on photo or video quality. The EOS R6 Mark II sets new standards for performance with up to 40 fps electronic shooting, advanced subject tracking, and stunning 4K 60p video.',
+    description: 'Non scendere a compromessi sulla qualità delle foto o dei video. EOS R6 Mark II fissa nuovi standard di prestazioni con scatti fino a 40 fps, tracciamento del soggetto avanzato e straordinari video 4K 60p.',
     reviews: [
-      { id: 1, author: 'PhotoPro', rating: 5, date: '2024-01-11', comment: 'The autofocus subject tracking on horses, birds, and cars is unmatched.' }
+      { id: 1, author: 'FotografoPro', rating: 5, date: '11/01/2026', comment: 'L\'autofocus con tracciamento per veicoli, animali e persone è impareggiabile.' }
     ]
   },
   {
     id: 'asus-rog-zephyrus-g16',
-    name: 'Asus ROG Zephyrus G16 Gaming Laptop',
+    name: 'Asus ROG Zephyrus G16 Laptop da Gaming',
     category: 'computers',
     brand: 'Asus',
     price: 1899,
@@ -407,7 +407,7 @@ export const products = [
     discount: 10,
     rating: 4.75,
     reviewCount: 84,
-    tag: 'New Arrival',
+    tag: 'Novità',
     isNew: true,
     isBestseller: false,
     isFeatured: false,
@@ -416,26 +416,26 @@ export const products = [
       '/assets/banner-2-2619-2128.png'
     ],
     colors: [
-      { name: 'Eclipse Gray', hex: '#323232' },
-      { name: 'Platinum White', hex: '#EAEAEA' }
+      { name: 'Grigio Eclissi', hex: '#323232' },
+      { name: 'Bianco Platino', hex: '#EAEAEA' }
     ],
     storageOptions: ['1TB SSD', '2TB SSD'],
     specs: {
-      screen: '16" ROG Nebula OLED 2.5K 240Hz 0.2ms',
-      cpu: 'Intel Core Ultra 9 185H (16 Cores)',
-      gpu: 'NVIDIA GeForce RTX 4070 8GB GDDR6',
-      ram: '32GB LPDDR5X 7467MHz',
-      weight: '1.85 kg / 4.07 lbs CNC Aluminum Unibody',
-      os: 'Windows 11 Home'
+      Schermo: '16" ROG Nebula OLED 2.5K 240Hz 0.2ms',
+      Processore: 'Intel Core Ultra 9 185H (16 Core)',
+      SchedaGrafica: 'NVIDIA GeForce RTX 4070 8GB GDDR6',
+      RAM: '32GB LPDDR5X 7467MHz',
+      Peso: '1.85 kg / Scocca Unibody in Alluminio CNC',
+      SistemaOperativo: 'Windows 11 Home'
     },
-    description: 'Power meets precision in the all-new 2024 ROG Zephyrus G16. Featuring an ultra-thin CNC aluminum chassis, a groundbreaking ROG Nebula OLED 240Hz display, and Intel Core Ultra 9 processor.',
+    description: 'La potenza incontra la precisione nel nuovo ROG Zephyrus G16. Caratterizzato da uno chassis in alluminio CNC sottilissimo, uno schermo ROG Nebula OLED da 240Hz e processore Intel Core Ultra 9.',
     reviews: [
-      { id: 1, author: 'Liam S.', rating: 5, date: '2024-02-08', comment: 'The OLED panel is unreal! Color saturation and pitch blacks make games look futuristic.' }
+      { id: 1, author: 'Luca Santoro', rating: 5, date: '08/02/2026', comment: 'Il pannello OLED è pazzesco! I neri assoluti rendono i giochi di una bellezza incredibile.' }
     ]
   },
   {
     id: 'bose-quietcomfort-ultra',
-    name: 'Bose QuietComfort Ultra Headphones',
+    name: 'Bose QuietComfort Ultra Cuffie Over-Ear',
     category: 'headphones',
     brand: 'Bose',
     price: 379,
@@ -443,7 +443,7 @@ export const products = [
     discount: 12,
     rating: 4.7,
     reviewCount: 120,
-    tag: 'Featured',
+    tag: 'In Evidenza',
     isNew: false,
     isBestseller: false,
     isFeatured: true,
@@ -452,21 +452,21 @@ export const products = [
       '/assets/hero-gnfk5g59t0qe-xlarge-2x-1-2619-2194.png'
     ],
     colors: [
-      { name: 'Black', hex: '#1C1C1C' },
-      { name: 'White Smoke', hex: '#E8E8E8' },
-      { name: 'Sandstone', hex: '#D2C2B0' }
+      { name: 'Nero', hex: '#1C1C1C' },
+      { name: 'Fumo Bianco', hex: '#E8E8E8' },
+      { name: 'Sabbia', hex: '#D2C2B0' }
     ],
     specs: {
-      audio: 'Bose Immersive Audio for spatialized listening',
-      noiseCancelling: 'CustomTune technology personalizes sound & ANC',
-      modes: 'Quiet Mode, Aware Mode, Immersion Mode',
-      battery: 'Up to 24 hours playback (18 hrs with Immersive Audio)',
-      connectivity: 'Bluetooth 5.3 / Snapdragon Sound',
-      controls: 'Touch controls on right ear cup'
+      Audio: 'Bose Immersive Audio per un ascolto spazializzato',
+      CancellazioneRumore: 'Tecnologia CustomTune che personalizza suono e ANC',
+      Modalita: 'Modalità Silenzio, Consapevolezza, Immersione',
+      Batteria: 'Fino a 24 ore di riproduzione (18 ore con Audio Immersivo)',
+      Connettivita: 'Bluetooth 5.3 / Snapdragon Sound',
+      Controlli: 'Comandi touch sul padiglione destro'
     },
-    description: 'High-class listening meets world-class noise cancellation. Bose Immersive Audio pushes the boundary of what it means to listen, placing sound right in front of you.',
+    description: 'Ascolto di prim\'ordine e cancellazione del rumore di livello mondiale. Bose Immersive Audio sposta i confini dell\'ascolto rendendo il suono incredibilmente naturale e reale.',
     reviews: [
-      { id: 1, author: 'Rachel W.', rating: 5, date: '2024-01-25', comment: 'The plush ear cushions feel like pillows. CustomTune adjusts perfectly to my ears.' }
+      { id: 1, author: 'Simona Pellegrini', rating: 5, date: '25/01/2026', comment: 'I morbidi cuscinetti sono ultra-comodi. CustomTune adatta l\'audio perfettamente al mio orecchio.' }
     ]
   },
   {
@@ -479,7 +479,7 @@ export const products = [
     discount: 18,
     rating: 4.6,
     reviewCount: 110,
-    tag: 'Bestseller',
+    tag: 'Più Venduto',
     isNew: false,
     isBestseller: true,
     isFeatured: false,
@@ -488,20 +488,20 @@ export const products = [
       '/assets/image-2619-1979.png'
     ],
     colors: [
-      { name: 'Black', hex: '#232323' },
-      { name: 'Silver', hex: '#DCDCDC' }
+      { name: 'Nero', hex: '#232323' },
+      { name: 'Argento', hex: '#DCDCDC' }
     ],
     specs: {
-      screen: '1.5" Super AMOLED Sapphire Crystal Glass',
-      bezel: 'Physical Rotating Bezel ring',
-      cpu: 'Exynos W930 Dual-Core 1.4GHz',
-      sensors: 'BioActive Sensor (HR, ECG, BIA), Temperature Sensor',
-      battery: '425 mAh with WPC Fast Wireless Charging',
-      os: 'Wear OS Powered by Samsung'
+      Schermo: '1.5" Super AMOLED con Vetro in Cristallo di Zaffiro',
+      Ghiera: 'Ghiera rotante fisica classica',
+      Processore: 'Exynos W930 Dual-Core 1.4GHz',
+      Sensori: 'Sensore BioActive (Cardio, ECG, BIA), Sensore di Temperatura',
+      Batteria: '425 mAh con Ricarica Rapida Wireless WPC',
+      SistemaOperativo: 'Wear OS Powered by Samsung'
     },
-    description: 'The return of the iconic physical rotating bezel! Track personalized sleep coaching, heart rate zones, BIA body composition, and exercise routines with precision.',
+    description: 'Il ritorno dell\'iconica ghiera rotante fisica! Monitora il sonno, le zone di frequenza cardiaca, la composizione corporea BIA e i tuoi allenamenti con massima precisione.',
     reviews: [
-      { id: 1, author: 'Kevin M.', rating: 5, date: '2024-02-02', comment: 'Rotating bezel is tactile perfection. Looks like a real luxury time piece.' }
+      { id: 1, author: 'Gabriele Rinaldi', rating: 5, date: '02/02/2026', comment: 'La ghiera rotante è una comodità unica. Sembra un vero orologio di lusso.' }
     ]
   },
   {
@@ -514,7 +514,7 @@ export const products = [
     discount: 5,
     rating: 4.9,
     reviewCount: 156,
-    tag: 'New Arrival',
+    tag: 'Novità',
     isNew: true,
     isBestseller: false,
     isFeatured: true,
@@ -523,24 +523,24 @@ export const products = [
       '/assets/image-63-2619-1984.png'
     ],
     colors: [
-      { name: 'Gray', hex: '#8C8C8C' }
+      { name: 'Grigio', hex: '#8C8C8C' }
     ],
     specs: {
-      weight: 'Under 249 g (No FAA registration required in many countries)',
-      video: '4K/60fps HDR & 4K/100fps Slow Motion',
-      sensing: 'Omnidirectional Obstacle Sensing',
-      transmission: 'DJI O4 20km FHD Video Transmission',
-      flightTime: 'Up to 34 minutes per battery (3 batteries in Fly More Combo)',
-      controller: 'DJI RC 2 with built-in 5.5-inch FHD display'
+      Peso: 'Inferiore a 249 g (Nessun patentino richiesto in molte categorie)',
+      Video: '4K/60fps HDR & 4K/100fps Slow Motion',
+      Sensori: 'Rilevamento ostacoli omnidirezionale',
+      Trasmissione: 'DJI O4 20km Trasmissione Video FHD',
+      AutonomiaVolo: 'Fino a 34 minuti per batteria (3 batterie incluse nel Fly More Combo)',
+      Radiocomando: 'DJI RC 2 con schermo integrato FHD da 5.5 pollici'
     },
-    description: 'Fly mini, create big. DJI Mini 4 Pro integrates omnidirectional obstacle sensing, flagship O4 video transmission, 4K/60fps HDR, and true vertical shooting.',
+    description: 'Vola leggero, crea in grande. DJI Mini 4 Pro integra rilevamento ostacoli omnidirezionale, trasmissione video O4, ripresa 4K/60fps HDR e riprese verticali native.',
     reviews: [
-      { id: 1, author: 'SkyFlyer', rating: 5, date: '2024-02-16', comment: 'The obstacle avoidance gives 100% peace of mind in forests and tight places.' }
+      { id: 1, author: 'PilotaDrone', rating: 5, date: '16/02/2026', comment: 'I sensori anti-ostacolo danno una tranquillità totale quando si vola nei boschi.' }
     ]
   },
   {
     id: 'nintendo-switch-oled',
-    name: 'Nintendo Switch OLED Model',
+    name: 'Nintendo Switch Modello OLED',
     category: 'gaming',
     brand: 'Nintendo',
     price: 319,
@@ -548,7 +548,7 @@ export const products = [
     discount: 9,
     rating: 4.85,
     reviewCount: 520,
-    tag: 'Bestseller',
+    tag: 'Più Venduto',
     isNew: false,
     isBestseller: true,
     isFeatured: false,
@@ -557,26 +557,26 @@ export const products = [
       '/assets/cover-I2619-2245-601-122.png'
     ],
     colors: [
-      { name: 'White', hex: '#FFFFFF' },
-      { name: 'Neon Red/Neon Blue', hex: '#FF3B30' }
+      { name: 'Bianco', hex: '#FFFFFF' },
+      { name: 'Rosso Neon/Blu Neon', hex: '#FF3B30' }
     ],
     storageOptions: ['64GB'],
     specs: {
-      screen: '7.0-inch OLED screen with vibrant colors',
-      stand: 'Wide adjustable stand for tabletop mode',
-      dock: 'Wired LAN port built into dock',
-      storage: '64 GB internal storage + MicroSD expandability',
-      audio: 'Enhanced audio speakers for handheld and tabletop play',
-      battery: '4.5 to 9 hours depending on game'
+      Schermo: 'Schermo OLED da 7.0 pollici con colori vividi',
+      Supporto: 'Ampio stand regolabile per la modalità da tavolo',
+      Base: 'Porta LAN con cavo integrata nella base',
+      Archiviazione: '64 GB di memoria interna + slot per scheda MicroSD',
+      Audio: 'Altoparlanti con audio migliorato per la modalità portatile',
+      Batteria: 'Da 4.5 a 9 ore a seconda del gioco'
     },
-    description: 'Feast your eyes on vivid colors and crisp contrast when you play on the go. See the difference the vibrant OLED screen makes, whether you are racing at top speed or squaring off against enemies.',
+    description: 'Godi di colori brillanti e contrasti elevati quando giochi dove vuoi. Scopri la differenza che fa lo schermo OLED, sia che tu stia gareggiando a tutta velocità o sfidando i tuoi nemici.',
     reviews: [
-      { id: 1, author: 'MarioFan', rating: 5, date: '2024-01-09', comment: 'Zelda Tears of the Kingdom on this screen looks gorgeous!' }
+      { id: 1, author: 'FanDiMario', rating: 5, date: '09/01/2026', comment: 'Zelda Tears of the Kingdom su questo schermo OLED è uno spettacolo!' }
     ]
   },
   {
     id: 'logitech-mx-master-3s',
-    name: 'Logitech MX Master 3S Wireless Mouse',
+    name: 'Logitech MX Master 3S Mouse Wireless',
     category: 'accessories',
     brand: 'Logitech',
     price: 89,
@@ -584,7 +584,7 @@ export const products = [
     discount: 10,
     rating: 4.9,
     reviewCount: 680,
-    tag: 'Bestseller',
+    tag: 'Più Venduto',
     isNew: false,
     isBestseller: true,
     isFeatured: false,
@@ -593,25 +593,25 @@ export const products = [
       '/assets/image-36-2619-2199.png'
     ],
     colors: [
-      { name: 'Graphite', hex: '#383838' },
-      { name: 'Pale Gray', hex: '#E2E2E2' }
+      { name: 'Grafite', hex: '#383838' },
+      { name: 'Grigio Chiaro', hex: '#E2E2E2' }
     ],
     specs: {
-      sensor: '8,000 DPI Darkfield precision optical sensor (works on glass)',
-      clicks: 'Quiet Clicks (90% less click noise)',
-      scroll: 'MagSpeed Electromagnetic scrolling (1000 lines per sec)',
-      connectivity: 'Bluetooth Low Energy or Logi Bolt Receiver',
-      battery: 'Up to 70 days on a full charge (3 hrs use from 1 min charge)',
-      ergonomics: 'Hand-crafted ergonomic silhouette'
+      Sensore: 'Sensore di precisione Darkfield da 8.000 DPI (funziona anche sul vetro)',
+      Click: 'Click silenziosi (90% di rumore in meno)',
+      Scorrimento: 'Scorrimento elettromagnetico MagSpeed (1000 righe al secondo)',
+      Connettivita: 'Bluetooth Low Energy o Ricevitore Logi Bolt',
+      Batteria: 'Fino a 70 giorni con una carica completa (3 ore con 1 minuto di ricarica)',
+      Ergonomia: 'Silhouette ergonomica sagomata sulla mano'
     },
-    description: 'Meet MX Master 3S – an iconic mouse remastered. Feel every moment of your workflow with even more precision, tactility, and performance, thanks to Quiet Clicks and an 8,000 DPI track-on-glass sensor.',
+    description: 'Scopri MX Master 3S, un mouse iconico rimasterizzato. Senti ogni momento del tuo flusso di lavoro con ancora più precisione e risposta tattile grazie ai click silenziosi e al sensore da 8.000 DPI.',
     reviews: [
-      { id: 1, author: 'DesignerGuy', rating: 5, date: '2024-02-11', comment: 'The thumb scroll and silent clicks make working late at night a joy.' }
+      { id: 1, author: 'DesignerMilano', rating: 5, date: '11/02/2026', comment: 'La rotellina del pollice e i click silenziosi rendono il lavoro notturno un piacere.' }
     ]
   },
   {
     id: 'anker-maggo-3in1',
-    name: 'Anker MagGo Wireless Charging Station 3-in-1',
+    name: 'Anker MagGo Stazione di Ricarica Wireless 3-in-1',
     category: 'accessories',
     brand: 'Anker',
     price: 99,
@@ -619,7 +619,7 @@ export const products = [
     discount: 9,
     rating: 4.7,
     reviewCount: 95,
-    tag: 'New Arrival',
+    tag: 'Novità',
     isNew: true,
     isBestseller: false,
     isFeatured: false,
@@ -628,24 +628,24 @@ export const products = [
       '/assets/image-56-I2619-1813-330-3100-330-3062.png'
     ],
     colors: [
-      { name: 'Black', hex: '#1C1C1C' },
-      { name: 'White', hex: '#FFFFFF' }
+      { name: 'Nero', hex: '#1C1C1C' },
+      { name: 'Bianco', hex: '#FFFFFF' }
     ],
     specs: {
-      power: '15W Qi2 Certified Ultra-Fast Wireless Charging',
-      chargingPorts: 'Charges iPhone, Apple Watch, and AirPods simultaneously',
-      design: 'Ultra-compact foldable tree structure for travel',
-      safety: 'ActiveShield 2.0 temperature monitoring',
-      cable: 'Includes 5ft USB-C to USB-C cable & 40W PD Charger'
+      Potenza: 'Ricarica Wireless Ultra-Rapida Certificata Qi2 da 15W',
+      Dispositivi: 'Ricarica contemporaneamente iPhone, Apple Watch e AirPods',
+      Design: 'Struttura pieghevole ultra-compatta ideale per i viaggi',
+      Sicurezza: 'Monitoraggio della temperatura ActiveShield 2.0',
+      Accessori: 'Include cavo USB-C da 1.5m & Caricatore PD da 40W'
     },
-    description: 'Charge 3 devices at once with official Qi2 15W MagSafe-compatible speed. Folds into a compact deck of cards size for easy travel and nightstand minimalism.',
+    description: 'Ricarica 3 dispositivi contemporaneamente con velocità MagSafe Qi2 da 15W ufficiale. Si piega nelle dimensioni di un mazzo di carte per un facile trasporto in viaggio.',
     reviews: [
-      { id: 1, author: 'Traveler22', rating: 5, date: '2024-01-29', comment: 'Replaced all three of my chargers on my nightstand and in my bag.' }
+      { id: 1, author: 'Viaggiatore22', rating: 5, date: '29/01/2026', comment: 'Ha sostituito tre caricatori diversi sul mio comodino e nella borsa.' }
     ]
   },
   {
     id: 'dualsense-edge-controller',
-    name: 'Sony DualSense Edge Wireless Controller',
+    name: 'Sony DualSense Edge Controller Wireless',
     category: 'gaming',
     brand: 'Sony',
     price: 199,
@@ -653,7 +653,7 @@ export const products = [
     discount: 9,
     rating: 4.8,
     reviewCount: 140,
-    tag: 'Featured',
+    tag: 'In Evidenza',
     isNew: false,
     isBestseller: false,
     isFeatured: true,
@@ -662,18 +662,18 @@ export const products = [
       '/assets/cover-I2619-2245-601-122.png'
     ],
     colors: [
-      { name: 'White/Black', hex: '#ECECEC' }
+      { name: 'Bianco/Nero', hex: '#ECECEC' }
     ],
     specs: {
-      customization: 'Remappable buttons, changeable stick caps & back buttons',
-      triggers: 'Adjustable trigger stop distances and dead zones',
-      profiles: 'Save custom control profiles and swap on the fly',
-      haptics: 'Includes standard DualSense features (haptic feedback, adaptive triggers)',
-      case: 'Carrying case holds controller, cable, and accessories'
+      Personalizzazione: 'Tasti rimappabili, cappucci levetta e tasti posteriori intercambiabili',
+      Grilletti: 'Corsa e zone morte dei grilletti regolabili',
+      Profili: 'Salva profili di controllo personalizzati e scambiali al volo',
+      Aptica: 'Include tutte le caratteristiche DualSense (feedback aptico, grilletti adattivi)',
+      Custodia: 'Custodia rigida per trasportare controller, cavi e accessori'
     },
-    description: 'Get an edge in gameplay by creating your own custom controls to fit your playstyle. Built with high performance and personalization in mind.',
+    description: 'Ottieni un vantaggio competitivo nel gioco creando controlli personalizzati in base al tuo stile di gioco. Progettato pensando alle alte prestazioni e alla personalizzazione.',
     reviews: [
-      { id: 1, author: 'CompetitivePro', rating: 5, date: '2024-02-03', comment: 'The back paddles and trigger locks give a noticeable advantage in Call of Duty.' }
+      { id: 1, author: 'ProGamerIT', rating: 5, date: '03/02/2026', comment: 'I paddle posteriori e il blocco della corsa dei grilletti danno un vantaggio enorme nei giochi FPS.' }
     ]
   }
 ];

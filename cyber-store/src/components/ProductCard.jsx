@@ -51,7 +51,7 @@ export default function ProductCard({ product }) {
               ? 'bg-red-50 text-red-500 shadow-sm'
               : 'bg-white/80 text-gray-400 hover:text-black hover:bg-white'
           }`}
-          aria-label="Wishlist"
+          aria-label="Aggiungi ai preferiti"
         >
           <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-red-500' : ''}`} />
         </motion.button>
@@ -83,7 +83,7 @@ export default function ProductCard({ product }) {
             <Star className="w-3.5 h-3.5 fill-yellow-400" />
           </div>
           <span className="font-semibold text-black">{product.rating}</span>
-          <span>({product.reviewCount})</span>
+          <span>({product.reviewCount} recensioni)</span>
         </div>
 
         {/* Title */}
@@ -113,7 +113,7 @@ export default function ProductCard({ product }) {
             className="bg-black hover:bg-gray-800 text-white font-medium text-xs sm:text-sm px-4 py-2.5 rounded-xl transition-all flex items-center gap-1.5 shadow-md"
           >
             <ShoppingBag className="w-4 h-4" />
-            <span>Buy</span>
+            <span>Acquista</span>
           </motion.button>
         </div>
       </div>

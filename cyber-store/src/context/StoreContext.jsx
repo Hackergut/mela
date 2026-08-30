@@ -10,8 +10,8 @@ export const StoreProvider = ({ children }) => {
     try {
       const saved = localStorage.getItem('cyber_cart');
       return saved ? JSON.parse(saved) : [
-        { id: 'iphone-15-pro-max', color: 'Natural Titanium', storage: '256GB', quantity: 1, price: 1199 },
-        { id: 'airpods-max', color: 'Space Gray', storage: null, quantity: 1, price: 549 },
+        { id: 'iphone-15-pro-max', color: 'Titanio Naturale', storage: '256GB', quantity: 1, price: 1199 },
+        { id: 'airpods-max', color: 'Grigio Spaziale', storage: null, quantity: 1, price: 549 },
       ];
     } catch {
       return [];
@@ -66,7 +66,7 @@ export const StoreProvider = ({ children }) => {
     const product = products.find(p => p.id === productId);
     if (!product) return;
 
-    const selectedColor = color || (product.colors && product.colors[0]?.name) || 'Default';
+    const selectedColor = color || (product.colors && product.colors[0]?.name) || 'Standard';
     const selectedStorage = storage || (product.storageOptions && product.storageOptions[0]) || null;
 
     setCart(prev => {
@@ -91,7 +91,7 @@ export const StoreProvider = ({ children }) => {
       }
     });
 
-    toast.success(`Added "${product.name}" to cart`, {
+    toast.success(`Aggiunto "${product.name}" al carrello`, {
       description: `${selectedColor}${selectedStorage ? ` • ${selectedStorage}` : ''}`,
     });
   };
@@ -101,7 +101,7 @@ export const StoreProvider = ({ children }) => {
     setCart(prev => prev.filter(
       item => !(item.id === productId && item.color === color && item.storage === storage)
     ));
-    toast.info(`Removed "${product?.name || 'Item'}" from cart`);
+    toast.info(`Rimosso "${product?.name || 'Prodotto'}" dal carrello`);
   };
 
   const updateQuantity = (productId, color, storage, delta) => {
@@ -123,10 +123,10 @@ export const StoreProvider = ({ children }) => {
     setWishlist(prev => {
       const exists = prev.includes(productId);
       if (exists) {
-        toast.info(`Removed "${product?.name || 'Item'}" from wishlist`);
+        toast.info(`Rimosso "${product?.name || 'Prodotto'}" dai preferiti`);
         return prev.filter(id => id !== productId);
       } else {
-        toast.success(`Saved "${product?.name || 'Item'}" to wishlist`);
+        toast.success(`Salvato "${product?.name || 'Prodotto'}" nei preferiti`);
         return [...prev, productId];
       }
     });
@@ -137,16 +137,16 @@ export const StoreProvider = ({ children }) => {
     if (cleanCode === 'CYBER10' || cleanCode === 'DISCOUNT10') {
       setPromoCode(cleanCode);
       setDiscountPercent(10);
-      toast.success('Promo code CYBER10 applied! 10% OFF');
-      return { success: true, message: '10% discount applied!' };
+      toast.success('Codice promo CYBER10 applicato! Sconto 10%');
+      return { success: true, message: 'Sconto del 10% applicato!' };
     } else if (cleanCode === 'CYBER20') {
       setPromoCode(cleanCode);
       setDiscountPercent(20);
-      toast.success('Promo code CYBER20 applied! 20% OFF');
-      return { success: true, message: '20% discount applied!' };
+      toast.success('Codice promo CYBER20 applicato! Sconto 20%');
+      return { success: true, message: 'Sconto del 20% applicato!' };
     } else {
-      toast.error('Invalid promo code. Try CYBER10');
-      return { success: false, message: 'Invalid code. Try "CYBER10"' };
+      toast.error('Codice promo non valido. Prova CYBER10');
+      return { success: false, message: 'Codice non valido. Prova "CYBER10"' };
     }
   };
 
@@ -186,7 +186,7 @@ export const StoreProvider = ({ children }) => {
 export const useStore = () => {
   const context = useContext(StoreContext);
   if (!context) {
-    throw new Error('useStore must be used within a StoreProvider');
+    throw new Error('useStore deve essere utilizzato all\'interno di StoreProvider');
   }
   return context;
 };

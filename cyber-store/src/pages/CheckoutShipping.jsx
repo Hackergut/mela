@@ -17,34 +17,34 @@ export default function CheckoutShipping() {
   const shippingMethods = [
     {
       id: 'ship-free',
-      name: 'Free Shipping',
+      name: 'Spedizione Gratuita Standard',
       price: 0,
-      time: '7-10 Business Days',
-      desc: 'Standard postal delivery across all regions',
+      time: '7-10 Giorni Lavorativi',
+      desc: 'Spedizione postale gratuita in tutta Italia',
       icon: Truck,
     },
     {
       id: 'ship-standard',
-      name: 'Standard Express',
+      name: 'Spedizione Espresso Standard',
       price: 8.50,
-      time: '3-5 Business Days',
-      desc: 'Tracked courier delivery directly to your door',
+      time: '3-5 Giorni Lavorativi',
+      desc: 'Consegna tracciata con corriere espresso',
       icon: Truck,
     },
     {
       id: 'ship-priority',
-      name: 'Priority Overnight',
+      name: 'Spedizione Prioritaria Aerea',
       price: 15.00,
-      time: '1-2 Business Days',
-      desc: 'Fastest priority flight delivery with signature required',
+      time: '1-2 Giorni Lavorativi',
+      desc: 'Consegna urgente in 24/48 ore con firma richiesta',
       icon: Zap,
     },
     {
       id: 'ship-sameday',
-      name: 'Same Day Delivery',
+      name: 'Consegna in Giornata',
       price: 25.00,
-      time: 'Delivered Today (by 8 PM)',
-      desc: 'Local courier rush dispatch for urgent orders',
+      time: 'Consegna Oggi (entro le 20:00)',
+      desc: 'Spedizione immediata per ordini urgenti nella tua zona',
       icon: Clock,
     },
   ];
@@ -69,8 +69,8 @@ export default function CheckoutShipping() {
           <div className="lg:col-span-2 space-y-8">
             
             <div>
-              <h1 className="text-2xl font-black text-black tracking-tight mb-2">Select Shipping Method</h1>
-              <p className="text-xs text-gray-500">Choose how fast you want your order delivered.</p>
+              <h1 className="text-2xl font-black text-black tracking-tight mb-2">Seleziona Metodo di Spedizione</h1>
+              <p className="text-xs text-gray-500">Scegli la velocità con cui desideri ricevere il tuo pacco.</p>
             </div>
 
             {/* Shipping Options Radio Cards */}
@@ -106,7 +106,7 @@ export default function CheckoutShipping() {
 
                     <div className="flex items-center gap-4">
                       <span className="font-black text-sm text-black">
-                        {method.price === 0 ? 'FREE' : `$${method.price.toFixed(2)}`}
+                        {method.price === 0 ? 'GRATIS' : `$${method.price.toFixed(2)}`}
                       </span>
                       <div
                         className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
@@ -124,14 +124,14 @@ export default function CheckoutShipping() {
             {/* Navigation Actions */}
             <div className="flex items-center justify-between pt-6 border-t border-gray-200">
               <Link to="/checkout/address" className="text-xs font-bold text-black hover:underline flex items-center gap-1">
-                <ArrowLeft className="w-4 h-4" /> Back to Address
+                <ArrowLeft className="w-4 h-4" /> Torna all'Indirizzo
               </Link>
 
               <button
                 onClick={() => navigate('/checkout/payment')}
                 className="bg-black text-white font-bold text-xs px-8 py-4 rounded-xl hover:bg-gray-800 transition-all shadow-lg flex items-center gap-2 active:scale-98"
               >
-                <span>Continue to Payment</span>
+                <span>Continua al Pagamento</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -141,7 +141,7 @@ export default function CheckoutShipping() {
           {/* ORDER SUMMARY SIDEBAR PREVIEW */}
           <div className="bg-gray-50 rounded-3xl p-6 space-y-4 border border-gray-200 h-fit">
             <h3 className="text-sm font-black text-black uppercase tracking-wider border-b border-gray-200 pb-3">
-              Order Summary
+              Riepilogo Ordine
             </h3>
 
             <div className="space-y-3 max-h-60 overflow-y-auto pr-1 divide-y divide-gray-100">
@@ -157,19 +157,19 @@ export default function CheckoutShipping() {
 
             <div className="border-t border-gray-200 pt-3 space-y-2 text-xs font-medium text-gray-600">
               <div className="flex justify-between">
-                <span>Subtotal</span>
+                <span>Subtotale</span>
                 <span className="font-bold text-black">${cartSubtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Selected Method</span>
+                <span>Metodo Scelto</span>
                 <span className="font-bold text-black">{selectedMethod.name}</span>
               </div>
               <div className="flex justify-between">
-                <span>Shipping Cost</span>
-                <span className="font-bold text-black">{shippingCost === 0 ? 'FREE' : `$${shippingCost.toFixed(2)}`}</span>
+                <span>Costo Spedizione</span>
+                <span className="font-bold text-black">{shippingCost === 0 ? 'GRATIS' : `$${shippingCost.toFixed(2)}`}</span>
               </div>
               <div className="flex justify-between text-sm font-black text-black pt-2 border-t border-gray-200">
-                <span>Total</span>
+                <span>Totale</span>
                 <span>${grandTotal.toFixed(2)}</span>
               </div>
             </div>
