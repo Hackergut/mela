@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { MapPin, Truck, CreditCard, Check } from 'lucide-react';
 
 export default function CheckoutSteps({ currentStep = 1 }) {
@@ -17,11 +18,13 @@ export default function CheckoutSteps({ currentStep = 1 }) {
         <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 h-1 bg-gray-200 -z-10 rounded-full" />
         
         {/* Progress Fill Line */}
-        <div
-          className="absolute top-1/2 left-0 -translate-y-1/2 h-1 bg-black -z-10 rounded-full transition-all duration-300"
-          style={{
+        <motion.div
+          className="absolute top-1/2 left-0 -translate-y-1/2 h-1 bg-black -z-10 rounded-full"
+          initial={{ width: '0%' }}
+          animate={{
             width: currentStep === 1 ? '0%' : currentStep === 2 ? '50%' : '100%',
           }}
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         />
 
         {steps.map((step) => {
@@ -36,15 +39,20 @@ export default function CheckoutSteps({ currentStep = 1 }) {
                 onClick={(e) => {
                   if (!isCompleted && !isActive) e.preventDefault();
                 }}
-                className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 ${
-                  isCompleted
-                    ? 'bg-black text-white shadow-md'
-                    : isActive
-                    ? 'bg-black text-white ring-4 ring-gray-100 shadow-lg scale-110'
-                    : 'bg-gray-100 text-gray-400 border-2 border-gray-200'
-                }`}
               >
-                {isCompleted ? <Check className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
+                <motion.div
+                  whileHover={isCompleted ? { scale: 1.1 } : {}}
+                  whileTap={isCompleted ? { scale: 0.95 } : {}}
+                  className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 ${
+                    isCompleted
+                      ? 'bg-black text-white shadow-md'
+                      : isActive
+                      ? 'bg-black text-white ring-4 ring-gray-100 shadow-lg scale-110'
+                      : 'bg-gray-100 text-gray-400 border-2 border-gray-200'
+                  }`}
+                >
+                  {isCompleted ? <Check className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
+                </motion.div>
               </Link>
               
               <span

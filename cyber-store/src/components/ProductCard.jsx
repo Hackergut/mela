@@ -1,12 +1,11 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Heart, Star, ShoppingBag } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 
 export default function ProductCard({ product }) {
   const { wishlist, toggleWishlist, addToCart } = useStore();
-  const navigate = useNavigate();
-
   const isWishlisted = wishlist.includes(product.id);
 
   const handleBuyNow = (e) => {
@@ -16,7 +15,14 @@ export default function ProductCard({ product }) {
   };
 
   return (
-    <div className="group relative bg-[#F6F6F6] rounded-2xl p-5 flex flex-col justify-between transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border border-transparent hover:border-gray-200">
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 15 }}
+      whileHover={{ y: -6, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
+      className="group relative bg-[#F6F6F6] rounded-2xl p-5 flex flex-col justify-between transition-shadow duration-300 hover:shadow-2xl border border-transparent hover:border-gray-200"
+    >
       
       {/* Top bar: Badge & Wishlist button */}
       <div className="flex items-center justify-between z-10">
@@ -32,7 +38,9 @@ export default function ProductCard({ product }) {
           ) : null}
         </div>
 
-        <button
+        <motion.button
+          whileHover={{ scale: 1.15 }}
+          whileTap={{ scale: 0.85 }}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -40,25 +48,26 @@ export default function ProductCard({ product }) {
           }}
           className={`p-2 rounded-full transition-all duration-200 ${
             isWishlisted
-              ? 'bg-red-50 text-red-500 scale-110'
+              ? 'bg-red-50 text-red-500 shadow-sm'
               : 'bg-white/80 text-gray-400 hover:text-black hover:bg-white'
           }`}
           aria-label="Wishlist"
         >
           <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-red-500' : ''}`} />
-        </button>
+        </motion.button>
       </div>
 
       {/* Image container */}
       <Link to={`/products/${product.id}`} className="my-4 block overflow-hidden rounded-xl">
         <div className="w-full h-48 flex items-center justify-center p-2">
-          <img
+          <motion.img
             src={product.image}
             alt={product.name}
-            className="max-h-full max-w-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-300"
+            className="max-h-full max-w-full object-contain mix-blend-multiply"
+            whileHover={{ scale: 1.08 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             loading="lazy"
             onError={(e) => {
-              // SVG fallback if image fails to load
               e.target.onerror = null;
               e.target.src = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="%23333" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`;
             }}
@@ -97,16 +106,18 @@ export default function ProductCard({ product }) {
             )}
           </div>
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.92 }}
             onClick={handleBuyNow}
-            className="bg-black hover:bg-gray-800 text-white font-medium text-xs sm:text-sm px-4 py-2.5 rounded-xl transition-all flex items-center gap-1.5 shadow-sm active:scale-95"
+            className="bg-black hover:bg-gray-800 text-white font-medium text-xs sm:text-sm px-4 py-2.5 rounded-xl transition-all flex items-center gap-1.5 shadow-md"
           >
             <ShoppingBag className="w-4 h-4" />
             <span>Buy</span>
-          </button>
+          </motion.button>
         </div>
       </div>
 
-    </div>
+    </motion.div>
   );
 }

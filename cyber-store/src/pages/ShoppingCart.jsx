@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, ArrowRight, ShoppingBag, Tag, ChevronRight } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { products } from '../data/products';
@@ -20,27 +21,34 @@ export default function ShoppingCart() {
 
   const shippingCost = cartSubtotal > 100 || cart.length === 0 ? 0 : 8.50;
   const discountAmount = (cartSubtotal * discountPercent) / 100;
-  const estimatedTax = (cartSubtotal - discountAmount) * 0.08; // 8% tax
+  const estimatedTax = (cartSubtotal - discountAmount) * 0.08;
   const grandTotal = Math.max(0, cartSubtotal - discountAmount + shippingCost + estimatedTax);
 
   if (cart.length === 0) {
     return (
-      <div className="min-h-screen bg-white py-20">
-        <div className="max-w-md mx-auto px-4 text-center">
-          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6 text-black">
+      <div className="min-h-screen bg-white py-20 flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-md mx-auto px-4 text-center"
+        >
+          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6 text-black shadow-inner">
             <ShoppingBag className="w-10 h-10" />
           </div>
           <h2 className="text-2xl font-black text-black tracking-tight mb-2">Your Cart is Empty</h2>
           <p className="text-xs text-gray-500 mb-8 leading-relaxed">
             Looks like you haven't added any products to your cart yet. Explore our flagship smartphones, laptops, audio gear, and accessories.
           </p>
-          <Link
-            to="/products"
-            className="inline-flex items-center justify-center bg-black text-white font-bold px-8 py-3.5 rounded-xl hover:bg-gray-800 transition-colors text-sm shadow-md"
-          >
-            Explore Products <ArrowRight className="w-4 h-4 ml-2" />
+          <Link to="/products">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="inline-flex items-center justify-center bg-black text-white font-bold px-8 py-3.5 rounded-xl hover:bg-gray-800 transition-colors text-sm shadow-md cursor-pointer"
+            >
+              Explore Products <ArrowRight className="w-4 h-4 ml-2" />
+            </motion.div>
           </Link>
-        </div>
+        </motion.div>
       </div>
     );
   }
@@ -63,75 +71,87 @@ export default function ShoppingCart() {
           {/* CART ITEMS LIST */}
           <div className="lg:col-span-2 space-y-6">
             <div className="divide-y divide-gray-100 border-t border-b border-gray-100">
-              {cart.map((item, idx) => {
-                const prod = products.find(p => p.id === item.id) || {
-                  name: 'Tech Product',
-                  image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?q=80&w=400',
-                  brand: 'Cyber'
-                };
+              <AnimatePresence mode="popLayout">
+                {cart.map((item, idx) => {
+                  const prod = products.find(p => p.id === item.id) || {
+                    name: 'Tech Product',
+                    image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?q=80&w=400',
+                    brand: 'Cyber'
+                  };
 
-                return (
-                  <div key={`${item.id}-${item.color}-${item.storage}-${idx}`} className="py-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-                    
-                    {/* Item Details */}
-                    <div className="flex items-center gap-4 flex-1">
-                      <div className="w-24 h-24 bg-gray-100 rounded-2xl p-2 flex items-center justify-center flex-shrink-0">
-                        <img src={prod.image} alt={prod.name} className="max-h-full max-w-full object-contain mix-blend-multiply" />
-                      </div>
-                      <div className="space-y-1">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase">{prod.brand}</span>
-                        <Link to={`/products/${prod.id}`} className="block font-bold text-sm text-black hover:underline">
-                          {prod.name}
-                        </Link>
-                        <div className="text-xs text-gray-500 space-x-2">
-                          {item.color && <span>Color: <strong className="text-black">{item.color}</strong></span>}
-                          {item.storage && <span>• Storage: <strong className="text-black">{item.storage}</strong></span>}
+                  return (
+                    <motion.div
+                      key={`${item.id}-${item.color}-${item.storage}-${idx}`}
+                      layout
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0, scale: 0.95 }}
+                      transition={{ duration: 0.25 }}
+                      className="py-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 overflow-hidden"
+                    >
+                      {/* Item Details */}
+                      <div className="flex items-center gap-4 flex-1">
+                        <div className="w-24 h-24 bg-gray-100 rounded-2xl p-2 flex items-center justify-center flex-shrink-0">
+                          <img src={prod.image} alt={prod.name} className="max-h-full max-w-full object-contain mix-blend-multiply" />
                         </div>
-                        <div className="text-sm font-extrabold text-black pt-1">
-                          ${item.price}
+                        <div className="space-y-1">
+                          <span className="text-[10px] font-bold text-gray-400 uppercase">{prod.brand}</span>
+                          <Link to={`/products/${prod.id}`} className="block font-bold text-sm text-black hover:underline">
+                            {prod.name}
+                          </Link>
+                          <div className="text-xs text-gray-500 space-x-2">
+                            {item.color && <span>Color: <strong className="text-black">{item.color}</strong></span>}
+                            {item.storage && <span>• Storage: <strong className="text-black">{item.storage}</strong></span>}
+                          </div>
+                          <div className="text-sm font-extrabold text-black pt-1">
+                            ${item.price}
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    {/* Quantity Controls & Remove */}
-                    <div className="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-end">
-                      
-                      {/* Quantity buttons */}
-                      <div className="flex items-center border border-gray-200 rounded-xl bg-gray-50 p-1">
-                        <button
-                          onClick={() => updateQuantity(item.id, item.color, item.storage, -1)}
-                          className="w-8 h-8 flex items-center justify-center text-black font-bold text-sm hover:bg-gray-200 rounded-lg transition-colors"
+                      {/* Quantity Controls & Remove */}
+                      <div className="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-end">
+                        
+                        {/* Quantity buttons */}
+                        <div className="flex items-center border border-gray-200 rounded-xl bg-gray-50 p-1">
+                          <motion.button
+                            whileTap={{ scale: 0.8 }}
+                            onClick={() => updateQuantity(item.id, item.color, item.storage, -1)}
+                            className="w-8 h-8 flex items-center justify-center text-black font-bold text-sm hover:bg-gray-200 rounded-lg transition-colors"
+                          >
+                            -
+                          </motion.button>
+                          <span className="w-10 text-center text-xs font-bold text-black">{item.quantity}</span>
+                          <motion.button
+                            whileTap={{ scale: 0.8 }}
+                            onClick={() => updateQuantity(item.id, item.color, item.storage, 1)}
+                            className="w-8 h-8 flex items-center justify-center text-black font-bold text-sm hover:bg-gray-200 rounded-lg transition-colors"
+                          >
+                            +
+                          </motion.button>
+                        </div>
+
+                        {/* Total Item Price */}
+                        <div className="text-base font-black text-black w-20 text-right">
+                          ${(item.price * item.quantity).toFixed(2)}
+                        </div>
+
+                        {/* Remove Button */}
+                        <motion.button
+                          whileHover={{ scale: 1.1, color: '#EF4444' }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => removeFromCart(item.id, item.color, item.storage)}
+                          className="text-gray-400 p-2 transition-colors"
+                          title="Remove item"
                         >
-                          -
-                        </button>
-                        <span className="w-10 text-center text-xs font-bold text-black">{item.quantity}</span>
-                        <button
-                          onClick={() => updateQuantity(item.id, item.color, item.storage, 1)}
-                          className="w-8 h-8 flex items-center justify-center text-black font-bold text-sm hover:bg-gray-200 rounded-lg transition-colors"
-                        >
-                          +
-                        </button>
+                          <Trash2 className="w-5 h-5" />
+                        </motion.button>
+
                       </div>
-
-                      {/* Total Item Price */}
-                      <div className="text-base font-black text-black w-20 text-right">
-                        ${(item.price * item.quantity).toFixed(2)}
-                      </div>
-
-                      {/* Remove Button */}
-                      <button
-                        onClick={() => removeFromCart(item.id, item.color, item.storage)}
-                        className="text-gray-400 hover:text-red-500 p-2 transition-colors"
-                        title="Remove item"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-
-                    </div>
-
-                  </div>
-                );
-              })}
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
             </div>
 
             <div className="flex justify-between items-center pt-2">
@@ -163,12 +183,14 @@ export default function ShoppingCart() {
                   />
                   <Tag className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 </div>
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   type="submit"
                   className="bg-black text-white text-xs font-bold px-4 py-3 rounded-xl hover:bg-gray-800 transition-colors"
                 >
                   Apply
-                </button>
+                </motion.button>
               </form>
 
               {promoMessage && (
@@ -177,10 +199,14 @@ export default function ShoppingCart() {
                 </p>
               )}
               {promoCode && (
-                <div className="mt-2 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg flex items-center justify-between">
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="mt-2 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg flex items-center justify-between"
+                >
                   <span>Code '{promoCode}' active ({discountPercent}% OFF)</span>
                   <span>✓</span>
-                </div>
+                </motion.div>
               )}
             </div>
 
@@ -218,13 +244,15 @@ export default function ShoppingCart() {
             </div>
 
             {/* Checkout Button */}
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.96 }}
               onClick={() => navigate('/checkout/address')}
-              className="w-full bg-black text-white font-bold text-sm py-4 rounded-xl hover:bg-gray-800 transition-all shadow-xl flex items-center justify-center gap-2 active:scale-98"
+              className="w-full bg-black text-white font-bold text-sm py-4 rounded-xl hover:bg-gray-800 transition-all shadow-xl flex items-center justify-center gap-2"
             >
               <span>Proceed to Checkout</span>
               <ArrowRight className="w-4 h-4" />
-            </button>
+            </motion.button>
 
           </div>
 

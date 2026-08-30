@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { products } from '../data/products';
 
 const StoreContext = createContext(null);
 
 export const StoreProvider = ({ children }) => {
-  // Cart state stored in localStorage or default
+  // Cart state stored in localStorage
   const [cart, setCart] = useState(() => {
     try {
       const saved = localStorage.getItem('cyber_cart');
@@ -31,12 +32,9 @@ export const StoreProvider = ({ children }) => {
   const [promoCode, setPromoCode] = useState('');
   const [discountPercent, setDiscountPercent] = useState(0);
 
-  // Address & Shipping checkout selections
+  // Address & Shipping selections
   const [selectedAddressId, setSelectedAddressId] = useState('addr-1');
   const [selectedShippingId, setSelectedShippingId] = useState('ship-free');
-  
-  // Toast notifications
-  const [toastMessage, setToastMessage] = useState(null);
 
   useEffect(() => {
     try {
@@ -54,20 +52,26 @@ export const StoreProvider = ({ children }) => {
     }
   }, [wishlist]);
 
-  const showToast = (message) => {
-    setToastMessage(message);
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 3000);
+  const showToast = (message, type = 'info') => {
+    if (type === 'success') {
+      toast.success(message);
+    } else if (type === 'error') {
+      toast.error(message);
+    } else {
+      toast(message);
+    }
   };
 
   const addToCart = (productId, color, storage, quantity = 1) => {
     const product = products.find(p => p.id === productId);
     if (!product) return;
 
+    const selectedColor = color || (product.colors && product.colors[0]?.name) || 'Default';
+    const selectedStorage = storage || (product.storageOptions && product.storageOptions[0]) || null;
+
     setCart(prev => {
       const existingIndex = prev.findIndex(
-        item => item.id === productId && item.color === color && item.storage === storage
+        item => item.id === productId && item.color === selectedColor && item.storage === selectedStorage
       );
       if (existingIndex > -1) {
         const updated = [...prev];
@@ -78,8 +82,8 @@ export const StoreProvider = ({ children }) => {
           ...prev,
           {
             id: productId,
-            color: color || (product.colors && product.colors[0]?.name) || 'Default',
-            storage: storage || (product.storageOptions && product.storageOptions[0]) || null,
+            color: selectedColor,
+            storage: selectedStorage,
             quantity,
             price: product.price,
           }
@@ -87,14 +91,17 @@ export const StoreProvider = ({ children }) => {
       }
     });
 
-    showToast(`Added "${product.name}" to your cart`);
+    toast.success(`Added "${product.name}" to cart`, {
+      description: `${selectedColor}${selectedStorage ? ` • ${selectedStorage}` : ''}`,
+    });
   };
 
   const removeFromCart = (productId, color, storage) => {
+    const product = products.find(p => p.id === productId);
     setCart(prev => prev.filter(
       item => !(item.id === productId && item.color === color && item.storage === storage)
     ));
-    showToast('Item removed from cart');
+    toast.info(`Removed "${product?.name || 'Item'}" from cart`);
   };
 
   const updateQuantity = (productId, color, storage, delta) => {
@@ -116,10 +123,10 @@ export const StoreProvider = ({ children }) => {
     setWishlist(prev => {
       const exists = prev.includes(productId);
       if (exists) {
-        showToast(`Removed "${product?.name || 'Item'}" from wishlist`);
+        toast.info(`Removed "${product?.name || 'Item'}" from wishlist`);
         return prev.filter(id => id !== productId);
       } else {
-        showToast(`Added "${product?.name || 'Item'}" to wishlist`);
+        toast.success(`Saved "${product?.name || 'Item'}" to wishlist`);
         return [...prev, productId];
       }
     });
@@ -130,16 +137,16 @@ export const StoreProvider = ({ children }) => {
     if (cleanCode === 'CYBER10' || cleanCode === 'DISCOUNT10') {
       setPromoCode(cleanCode);
       setDiscountPercent(10);
-      showToast('Promo code applied: 10% OFF');
+      toast.success('Promo code CYBER10 applied! 10% OFF');
       return { success: true, message: '10% discount applied!' };
     } else if (cleanCode === 'CYBER20') {
       setPromoCode(cleanCode);
       setDiscountPercent(20);
-      showToast('Promo code applied: 20% OFF');
+      toast.success('Promo code CYBER20 applied! 20% OFF');
       return { success: true, message: '20% discount applied!' };
     } else {
-      showToast('Invalid promo code');
-      return { success: false, message: 'Invalid promo code. Try "CYBER10"' };
+      toast.error('Invalid promo code. Try CYBER10');
+      return { success: false, message: 'Invalid code. Try "CYBER10"' };
     }
   };
 
@@ -168,16 +175,10 @@ export const StoreProvider = ({ children }) => {
         setSelectedAddressId,
         selectedShippingId,
         setSelectedShippingId,
-        toastMessage,
         showToast,
       }}
     >
       {children}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-black text-white px-5 py-3 rounded-lg shadow-xl text-sm font-medium flex items-center gap-2 animate-bounce">
-          <span>✓</span> {toastMessage}
-        </div>
-      )}
     </StoreContext.Provider>
   );
 };
