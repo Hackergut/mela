@@ -40,7 +40,7 @@ function loadEnvLocal() {
 loadEnvLocal();
 
 const SHOPIFY_DOMAIN = process.env.SHOPIFY_STORE_DOMAIN || 'techmania-9imzke20.myshopify.com';
-const ADMIN_TOKEN = process.env.SHOPIFY_ACCESS_TOKEN || '';
+const ADMIN_TOKEN = process.env.SHOPIFY_ACCESS_TOKEN || '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';
 
 const TECHMANIA_PRODUCTS = [
   {
