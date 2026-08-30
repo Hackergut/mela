@@ -1,0 +1,128 @@
+[
+  {
+    "id": "iphone-15-pro-max",
+    "name": "iPhone 15 Pro Max",
+    "brand": "Apple",
+    "category": "smartphones",
+    "price": 1299,
+    "originalPrice": 1494,
+    "rating": 4.9,
+    "reviewCount": 50,
+    "discount": 15,
+    "image": "/assets/iphone-image-2619-2264.png",
+    "images": [
+      "/assets/iphone-image-2619-2264.png"
+    ],
+    "description": "Fotocamera di livello professionale, chip A17 Pro ultraveloce e design in titanio di grado aerospaziale.",
+    "specs": {
+      "Display": "Super Retina XDR OLED",
+      "Chip": "Processore Next-Gen",
+      "Fotocamera": "Sistema fotocamere Pro"
+    }
+  },
+  {
+    "id": "playstation-5-slim",
+    "name": "PlayStation 5 Slim",
+    "brand": "Sony",
+    "category": "gaming",
+    "price": 499,
+    "originalPrice": 574,
+    "rating": 4.9,
+    "reviewCount": 50,
+    "discount": 15,
+    "image": "/assets/playstation-2619-2204.png",
+    "images": [
+      "/assets/playstation-2619-2204.png"
+    ],
+    "description": "Esperienza di gioco Next-Gen in design ultrasottile con grafica 4K e SSD ultraveloce.",
+    "specs": {
+      "Display": "Super Retina XDR OLED",
+      "Chip": "Processore Next-Gen",
+      "Fotocamera": "Sistema fotocamere Pro"
+    }
+  },
+  {
+    "id": "airpods-max",
+    "name": "AirPods Max",
+    "brand": "Apple",
+    "category": "headphones",
+    "price": 579,
+    "originalPrice": 666,
+    "rating": 4.9,
+    "reviewCount": 50,
+    "discount": 15,
+    "image": "/assets/hero-gnfk5g59t0qe-xlarge-2x-1-2619-2194.png",
+    "images": [
+      "/assets/hero-gnfk5g59t0qe-xlarge-2x-1-2619-2194.png"
+    ],
+    "description": "Audio ad alta fedeltà con cancellazione attiva del rumore, modalità trasparenza ed audio spaziale.",
+    "specs": {
+      "Display": "Super Retina XDR OLED",
+      "Chip": "Processore Next-Gen",
+      "Fotocamera": "Sistema fotocamere Pro"
+    }
+  },
+  {
+    "id": "apple-vision-pro",
+    "name": "Apple Vision Pro",
+    "brand": "Apple",
+    "category": "spatial computing",
+    "price": 3499,
+    "originalPrice": 4024,
+    "rating": 4.9,
+    "reviewCount": 50,
+    "discount": 15,
+    "image": "/assets/image-61-2619-1982.png",
+    "images": [
+      "/assets/image-61-2619-1982.png"
+    ],
+    "description": "Il primo spatial computer al mondo per realtà immersiva e lavoro senza confini.",
+    "specs": {
+      "Display": "Super Retina XDR OLED",
+      "Chip": "Processore Next-Gen",
+      "Fotocamera": "Sistema fotocamere Pro"
+    }
+  },
+  {
+    "id": "macbook-pro-16-m3-max",
+    "name": "MacBook Pro 16\" M3 Max",
+    "brand": "Apple",
+    "category": "computers",
+    "price": 2899,
+    "originalPrice": 3334,
+    "rating": 4.9,
+    "reviewCount": 50,
+    "discount": 15,
+    "image": "/assets/banner-2-2619-2128.png",
+    "images": [
+      "/assets/banner-2-2619-2128.png"
+    ],
+    "description": "Potenza di calcolo estrema con il chip Apple M3 Max e display Liquid Retina XDR.",
+    "specs": {
+      "Display": "Super Retina XDR OLED",
+      "Chip": "Processore Next-Gen",
+      "Fotocamera": "Sistema fotocamere Pro"
+    }
+  },
+  {
+    "id": "apple-watch-ultra-2",
+    "name": "Apple Watch Ultra 2",
+    "brand": "Apple",
+    "category": "smartwatches",
+    "price": 899,
+    "originalPrice": 1034,
+    "rating": 4.9,
+    "reviewCount": 50,
+    "discount": 15,
+    "image": "/assets/image-62-2619-1983.png",
+    "images": [
+      "/assets/image-62-2619-1983.png"
+    ],
+    "description": "Il più resistente e versatile Apple Watch di sempre, cassa in titanio da 49mm e GPS ad alta precisione.",
+    "specs": {
+      "Display": "Super Retina XDR OLED",
+      "Chip": "Processore Next-Gen",
+      "Fotocamera": "Sistema fotocamere Pro"
+    }
+  }
+]
