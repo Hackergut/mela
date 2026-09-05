@@ -247,20 +247,20 @@ export default function SchedaProdotto() {
             <ArrowLeft size={16} /> Catalogo
           </Link>
 
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,.85fr)] lg:gap-16">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,.85fr)] lg:gap-16">
             <section aria-label="Galleria prodotto" className="lg:sticky lg:top-24 lg:self-start">
-              <div className="relative aspect-square overflow-hidden rounded-[32px] bg-[#f5f5f7]">
+              <div className="relative mx-auto aspect-[4/3] max-w-[560px] overflow-hidden rounded-[24px] bg-[#f5f5f7] sm:aspect-square sm:rounded-[32px] lg:max-w-none">
                 <AnimatePresence mode="wait">
-                  <motion.div key={selectedImage} initial={{ opacity: 0, scale: .985 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: .22 }} className="absolute inset-0 p-5 sm:p-10">
+                  <motion.div key={selectedImage} initial={{ opacity: 0, scale: .985 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: .22 }} className="absolute inset-0 p-4 sm:p-10">
                     <Image src={selectedImage || product.image} alt={`${product.name}${optionLabel(selectedVariant) ? `, ${optionLabel(selectedVariant)}` : ''}`} className="h-full w-full" fittingType="fit" quality={90} />
                   </motion.div>
                 </AnimatePresence>
-                {product.badge && <span className="absolute left-5 top-5 rounded-full bg-white/80 px-3 py-1.5 text-xs font-semibold text-[#1d1d1f] shadow-sm backdrop-blur-xl">{product.badge}</span>}
+                {product.badge && <span className="absolute left-4 top-4 rounded-full bg-white/80 px-3 py-1.5 text-xs font-semibold text-[#1d1d1f] shadow-sm backdrop-blur-xl">{product.badge}</span>}
               </div>
               {gallery.length > 1 && (
-                <div className="mt-4 flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+                <div className="mt-3 flex gap-2.5 overflow-x-auto pb-2 no-scrollbar sm:mt-4 sm:gap-3">
                   {gallery.map(image => (
-                    <button key={image} onClick={() => setSelectedImage(image)} aria-label="Mostra immagine" className={`h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-[#f5f5f7] p-1 transition ${selectedImage === image ? 'ring-2 ring-[#0071e3] ring-offset-2' : 'hover:bg-[#e8e8ed]'}`}>
+                    <button key={image} onClick={() => setSelectedImage(image)} aria-label="Mostra immagine" className={`h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-[#f5f5f7] p-1 transition sm:h-20 sm:w-20 ${selectedImage === image ? 'ring-2 ring-[#0071e3] ring-offset-2' : 'hover:bg-[#e8e8ed]'}`}>
                       <Image src={image} alt="" className="h-full w-full" fittingType="fit" />
                     </button>
                   ))}
@@ -270,10 +270,10 @@ export default function SchedaProdotto() {
 
             <section className="py-1 lg:py-8">
               <p className="text-sm font-semibold text-[#bf4800]">{product.subtitle || (stock > 0 ? 'Disponibile ora' : 'Momentaneamente esaurito')}</p>
-              <h1 className="mt-2 text-4xl font-semibold leading-[1.05] tracking-[-0.035em] sm:text-5xl">{product.name}</h1>
-              <p className="mt-4 text-2xl font-semibold tracking-tight">{price}</p>
+              <h1 className="mt-2 text-3xl font-semibold leading-[1.05] tracking-[-0.035em] sm:text-4xl lg:text-5xl">{product.name}</h1>
+              <p className="mt-4 text-xl font-semibold tracking-tight sm:text-2xl">{price}</p>
               {product.price_min_cents !== product.price_max_cents && <p className="mt-1 text-sm text-[#6e6e73]">Il prezzo cambia in base alla configurazione.</p>}
-              <p className="mt-6 text-base leading-7 text-[#6e6e73]">{product.description}</p>
+              <p className="mt-4 text-[15px] leading-7 text-[#6e6e73] sm:mt-6 sm:text-base">{product.description}</p>
 
               <div className="mt-9 space-y-8">
                 {Object.entries(groups).map(([name, values]) => (
@@ -411,7 +411,7 @@ export default function SchedaProdotto() {
           </div>
 
           {related.length > 0 && (
-            <section aria-labelledby="related-products" className="mt-16 border-t border-[#d2d2d7] pt-10">
+            <section aria-labelledby="related-products" className="mt-10 border-t border-[#d2d2d7] pt-8 sm:mt-16 sm:pt-10">
               <h2 id="related-products" className="text-2xl font-semibold tracking-tight sm:text-3xl">Potrebbero interessarti.</h2>
               <p className="mt-2 text-sm text-[#6e6e73]">Altri prodotti{product.category ? ` di ${product.category}` : ''} selezionati per te.</p>
               <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
@@ -421,7 +421,7 @@ export default function SchedaProdotto() {
           )}
 
           {recent.length > 0 && (
-            <section aria-labelledby="recent-products" className="mt-14 border-t border-[#d2d2d7] pt-10">
+            <section aria-labelledby="recent-products" className="mt-10 border-t border-[#d2d2d7] pt-8 sm:mt-14 sm:pt-10">
               <h2 id="recent-products" className="text-2xl font-semibold tracking-tight sm:text-3xl">Visti di recente.</h2>
               <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
                 {recent.map(item => <ProductCard key={item.id} product={item} />)}
