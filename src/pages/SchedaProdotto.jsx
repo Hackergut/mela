@@ -249,10 +249,10 @@ export default function SchedaProdotto() {
 
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,.85fr)] lg:gap-16">
             <section aria-label="Galleria prodotto" className="lg:sticky lg:top-24 lg:self-start">
-              <div className="relative mx-auto aspect-[4/3] max-w-[560px] overflow-hidden rounded-[24px] bg-[#f5f5f7] sm:aspect-square sm:rounded-[32px] lg:max-w-none">
+              <div className="relative mx-auto aspect-[4/3] max-w-[560px] overflow-hidden rounded-[24px] bg-[#f5f5f7] sm:aspect-square sm:rounded-[32px] lg:max-w-[640px]">
                 <AnimatePresence mode="wait">
-                  <motion.div key={selectedImage} initial={{ opacity: 0, scale: .985 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: .22 }} className="absolute inset-0 p-4 sm:p-10">
-                    <Image src={selectedImage || product.image} alt={`${product.name}${optionLabel(selectedVariant) ? `, ${optionLabel(selectedVariant)}` : ''}`} className="h-full w-full" fittingType="fit" quality={90} />
+                  <motion.div key={selectedImage} initial={{ opacity: 0, scale: .985 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: .22 }} className="absolute inset-0">
+                    <Image src={selectedImage || product.image} alt={`${product.name}${optionLabel(selectedVariant) ? `, ${optionLabel(selectedVariant)}` : ''}`} className="h-full w-full" fittingType="fill" quality={90} />
                   </motion.div>
                 </AnimatePresence>
                 {product.badge && <span className="absolute left-4 top-4 rounded-full bg-white/80 px-3 py-1.5 text-xs font-semibold text-[#1d1d1f] shadow-sm backdrop-blur-xl">{product.badge}</span>}
@@ -260,8 +260,8 @@ export default function SchedaProdotto() {
               {gallery.length > 1 && (
                 <div className="mt-3 flex gap-2.5 overflow-x-auto pb-2 no-scrollbar sm:mt-4 sm:gap-3">
                   {gallery.map(image => (
-                    <button key={image} onClick={() => setSelectedImage(image)} aria-label="Mostra immagine" className={`h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-[#f5f5f7] p-1 transition sm:h-20 sm:w-20 ${selectedImage === image ? 'ring-2 ring-[#0071e3] ring-offset-2' : 'hover:bg-[#e8e8ed]'}`}>
-                      <Image src={image} alt="" className="h-full w-full" fittingType="fit" />
+                    <button key={image} onClick={() => setSelectedImage(image)} aria-label="Mostra immagine" className={`h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-[#f5f5f7] transition sm:h-20 sm:w-20 ${selectedImage === image ? 'ring-2 ring-[#0071e3] ring-offset-2' : 'hover:bg-[#e8e8ed]'}`}>
+                      <Image src={image} alt="" className="h-full w-full" fittingType="fill" />
                     </button>
                   ))}
                 </div>
