@@ -81,6 +81,15 @@ export default function App({ convexAuthEnabled = false }) {
               <StorefrontRoutes />
             </StoreProvider>
             <SupportChatGate />
+            {import.meta.env.DEV && (
+              <div
+                data-build-marker
+                aria-hidden="true"
+                className="fixed bottom-2 left-2 z-[9999] rounded-full bg-black/70 px-2.5 py-1 text-[10px] font-bold tracking-wide text-white pointer-events-none"
+              >
+                BUILD PDP-v3 · 5set
+              </div>
+            )}
           </Router>
           <Toaster />
         </QueryClientProvider>
