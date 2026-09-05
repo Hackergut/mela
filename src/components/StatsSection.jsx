@@ -49,7 +49,7 @@ export default function StatsSection() {
           className="mb-10 text-center"
         >
           <p className="text-sm font-semibold text-[#0066cc]">Affidabilità</p>
-          <h2 className="mt-3 text-4xl font-semibold leading-[1.02] tracking-[-0.045em] text-[#1d1d1f] md:text-5xl">
+          <h2 className="mt-3 text-3xl sm:text-4xl font-semibold leading-[1.02] tracking-[-0.045em] text-[#1d1d1f] md:text-5xl">
             Numeri che parlano<br className="hidden sm:block" /> da soli.
           </h2>
         </motion.div>
