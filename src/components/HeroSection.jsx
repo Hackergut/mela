@@ -97,18 +97,22 @@ function Tile({ dark = false, eyebrow, title, subtitle, image, href, imageY, red
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-      className={`group relative overflow-hidden rounded-[28px] ${bg} ${compact ? 'min-h-[460px] sm:min-h-[520px]' : 'min-h-[560px] sm:min-h-[640px]'}`}
+      className={`group relative overflow-hidden rounded-[28px] ${bg} ${
+        compact
+          ? 'min-h-[330px] sm:min-h-[460px] lg:min-h-[520px]'
+          : 'min-h-[430px] sm:min-h-[560px] lg:min-h-[640px]'
+      }`}
     >
-      <div className="relative z-10 flex flex-col items-center px-6 pt-12 text-center sm:pt-16">
+      <div className="relative z-10 flex flex-col items-center px-6 pt-8 text-center sm:pt-12 lg:pt-16">
         <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#0071e3]">{eyebrow}</p>
         <h2
           className={`mt-3 max-w-3xl font-semibold leading-[1.05] tracking-[-0.03em] ${
-            compact ? 'text-3xl sm:text-4xl' : 'text-4xl sm:text-5xl lg:text-6xl'
+            compact ? 'text-2xl sm:text-3xl md:text-4xl' : 'text-3xl sm:text-5xl lg:text-6xl'
           }`}
         >
           {title}
         </h2>
-        {subtitle && <p className={`mt-3 max-w-md text-base sm:text-lg ${subColor}`}>{subtitle}</p>}
+        {subtitle && <p className={`mt-3 max-w-md text-[15px] sm:text-base lg:text-lg ${subColor}`}>{subtitle}</p>}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-5 text-sm font-medium">
           <Link
             to={href}
@@ -128,12 +132,14 @@ function Tile({ dark = false, eyebrow, title, subtitle, image, href, imageY, red
       {image && (
         <motion.div
           style={imageY ? { y: imageY } : undefined}
-          className={`pointer-events-none absolute inset-x-0 flex justify-center ${compact ? 'bottom-[-4%] h-[62%]' : 'bottom-[-2%] h-[60%]'}`}
+          className={`pointer-events-none absolute inset-x-0 flex justify-center ${
+            compact ? 'bottom-[-4%] h-[56%] sm:h-[62%]' : 'bottom-[-2%] h-[52%] sm:h-[60%]'
+          }`}
         >
           <motion.div
             animate={reduceMotion ? undefined : { y: [0, -10, 0] }}
             transition={reduceMotion ? undefined : { duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-            className="relative h-full w-[88%] max-w-3xl"
+            className="relative h-full w-[80%] sm:w-[88%] max-w-3xl"
           >
             <Image
               src={image}

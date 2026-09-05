@@ -29,7 +29,7 @@ export default function PopularProducts() {
       <div className="max-w-7xl mx-auto">
         <motion.div {...fadeUp} className="text-center mb-8">
           <p className="text-sm font-semibold text-[#0066cc] mb-3">Lo Store</p>
-          <h2 className="text-4xl md:text-6xl font-semibold leading-[1.02] text-[#1d1d1f] tracking-[-0.045em]">Scegli. Configura.<br />Fallo tuo.</h2>
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-semibold leading-[1.02] text-[#1d1d1f] tracking-[-0.045em]">Scegli. Configura.<br />Fallo tuo.</h2>
           <p className="mt-5 text-[#6e6e73] text-base max-w-xl mx-auto leading-7">
             {products.length} prodotti con prezzi, configurazioni e disponibilità aggiornati direttamente dal catalogo.
           </p>

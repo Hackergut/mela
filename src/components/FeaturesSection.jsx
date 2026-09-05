@@ -32,7 +32,7 @@ export default function FeaturesSection() {
       <div className="mx-auto max-w-7xl">
         <motion.div {...fadeUp} className="mx-auto mb-12 max-w-2xl text-center">
           <p className="mb-3 text-sm font-semibold text-[#0066cc]">Un'esperienza più semplice</p>
-          <h2 className="text-4xl font-semibold leading-[1.02] tracking-[-0.045em] text-[#1d1d1f] md:text-6xl">
+          <h2 className="text-3xl sm:text-4xl font-semibold leading-[1.02] tracking-[-0.045em] text-[#1d1d1f] md:text-6xl">
             Quello che vedi<br />è quello che scegli.
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-[#6e6e73]">

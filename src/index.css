@@ -116,6 +116,14 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  /* Safety net: no raster/vector media can ever overflow its container,
+     even when uploaded at extreme natural sizes. */
+  img,
+  video,
+  svg {
+    max-width: 100%;
+  }
+
   button,
   [role="button"] {
     touch-action: manipulation;

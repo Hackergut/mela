@@ -40,7 +40,7 @@ export default function HowItWorksSection() {
           className="mx-auto mb-14 max-w-2xl text-center"
         >
           <p className="text-sm font-semibold text-[#0066cc]">Semplice per davvero</p>
-          <h2 id="how-title" className="mt-3 text-4xl font-semibold leading-[1.02] tracking-[-0.045em] text-[#1d1d1f] md:text-6xl">
+          <h2 id="how-title" className="mt-3 text-3xl sm:text-4xl font-semibold leading-[1.02] tracking-[-0.045em] text-[#1d1d1f] md:text-6xl">
             Come funziona.
           </h2>
         </motion.div>
